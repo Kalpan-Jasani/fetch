@@ -1,5 +1,6 @@
 import React from 'react';
 import { FirebaseAuthConsumer } from '@react-firebase/auth';
+import firebase from "firebase/app";
 import { TextField, Card, CardActions, CardContent, Button, Typography } from '@material-ui/core';
 import logo from './Assets/fetch.png'
 
@@ -7,10 +8,25 @@ class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {email: '', password: ''}
+
+        this.changeEmailHandler = this.changeEmailHandler.bind(this);
+        this.changePasswordHandler = this.changePasswordHandler.bind(this);
+        this.submitHandler = this.submitHandler.bind(this);
     }
 
-    submitHandler = (event) => {
-        console.log(event);
+    submitHandler = async (event) => {
+        event.preventDefault()
+        var loginSuccess = await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
+        console.log(loginSuccess);
+        
+    }
+
+    changeEmailHandler = (event) => {
+        this.setState({email: event.target.value})
+    }
+
+    changePasswordHandler = (event) => {
+        this.setState({password: event.target.value})
     }
 
     render() {
@@ -28,8 +44,8 @@ class Login extends React.Component {
                         <form 
                         onSubmit={this.submitHandler}
                         style={{paddingLeft: 25, flexDirection: 'column', display: 'flex', paddingRight: 25, justifyContent: 'space-around', height: 250}}>
-                            <TextField id="standard-basic" label="Email" />
-                            <TextField id="standard-basic" label="Password" />
+                            <TextField id="standard-basic" label="Email" value={this.state.email} onChange={this.changeEmailHandler} />
+                            <TextField id="standard-basic" label="Password" value={this.state.password} onChange={this.changePasswordHandler} type="password" />
                             <CardActions style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                             <Button color="primary" variant="contained" type="submit">
                               Login
