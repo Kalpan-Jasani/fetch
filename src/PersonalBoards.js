@@ -49,8 +49,11 @@ class PersonalBoards extends React.Component {
     }
 
     handleDialogClose = () => {
+        // closes the dialog and resets the form
         this.setState({
             isDialogOpen: false,
+            boardName: '',
+            isPrivate: false
         });
     }
 
