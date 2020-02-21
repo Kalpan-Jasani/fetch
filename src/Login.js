@@ -13,6 +13,7 @@ class Login extends React.Component {
         this.changePasswordHandler = this.changePasswordHandler.bind(this);
         this.submitHandler = this.submitHandler.bind(this);
         this.handleGoogleSignIn = this.handleGoogleSignIn.bind(this);
+        this.handleAppleSignIn = this.handleAppleSignIn.bind(this);
     }
 
     submitHandler = async (event) => {
@@ -39,6 +40,15 @@ class Login extends React.Component {
         console.log(result);
     }
 
+    handleAppleSignIn = async (event) => {
+        var appleProvider = new firebase.auth.OAuthProvider('apple.com');
+        var result = await firebase.auth().signInWithPopup(appleProvider).catch((error) => {
+            console.log(error.code)
+        });
+
+        console.log(result);
+    }
+
     render() {
         return (
             <div className="Login">
@@ -57,7 +67,7 @@ class Login extends React.Component {
                             <TextField id="standard-basic" label="Email" value={this.state.email} onChange={this.changeEmailHandler} />
                             <TextField id="standard-basic" label="Password" value={this.state.password} onChange={this.changePasswordHandler} type="password" />
                             <CardActions style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                            <Button color="primary" variant="contained" type="submit" minWidth="100">
+                            <Button color="primary" variant="contained" type="submit">
                               Login
                             </Button>
                         </CardActions>
@@ -66,6 +76,11 @@ class Login extends React.Component {
                             type="light"
                             onClick={this.handleGoogleSignIn}
                         />
+                        {/* This only works on Safari and iOS! */}
+                        <Button onClick={this.handleAppleSignIn}>
+                            Sign in with apple
+                        </Button>
+
                         </CardContent>
                         
                     </Card>
