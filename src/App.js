@@ -4,7 +4,10 @@ import Home from './Home';
 import config from './config'
 import firebase from "firebase/app";
 import { FirebaseAuthProvider, FirebaseAuthConsumer } from '@react-firebase/auth';
+import PersonalBoards from './PersonalBoards'
 require('firebase/auth')
+
+firebase.initializeApp(config);
 
 function App() {
   return (
