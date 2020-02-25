@@ -16,7 +16,7 @@ function App() {
         {({ isSignedIn, user, providerId }) => {
           if (isSignedIn) {
             return (
-              <Home />
+              <PersonalBoards />
             );
           } else {
             return (

@@ -13,6 +13,7 @@ class PersonalBoards extends React.Component {
             boardName: '',
             isPrivate: false,
             isDialogOpen: false,
+            isAddOpen: false,
             personalBoards: [],
             isDeleteDialogOpen: false,
             selectedBoardDelete: "",
@@ -37,12 +38,12 @@ class PersonalBoards extends React.Component {
                 personalBoards.push(newPersonalBoard);
             });
             console.log("Current Personal Boards: ", personalBoards.join(", "));
-            
+
             this.setState({
                 personalBoards: personalBoards,
             });
         }.bind(this));
-        
+
     }
 
     handleInputChange = (event) => {
@@ -83,7 +84,7 @@ class PersonalBoards extends React.Component {
         .catch(function(error) {
             console.error("Error when writing doc to database ", error);
         });
-        
+
         // will close the dialog after submission
         this.setState({
             isDialogOpen: false,
@@ -91,8 +92,16 @@ class PersonalBoards extends React.Component {
     }
 
     handleDialogOpen = () => {
+
         this.setState({
             isDialogOpen: true,
+        });
+    }
+
+    handleAddOpen = () => {
+
+        this.setState({
+            isAddOpen: true,
         });
     }
 
@@ -102,6 +111,13 @@ class PersonalBoards extends React.Component {
             isDialogOpen: false,
             boardName: '',
             isPrivate: false
+        });
+    }
+
+    handleAddClose = () => {
+
+        this.setState({
+            isAddOpen: false
         });
     }
 
@@ -123,7 +139,7 @@ class PersonalBoards extends React.Component {
 
     handleDeleteBoard = async (doc) => {
         console.log('Delete', doc);
-        
+
         await firebase.firestore()
         .collection("personalBoards")
         .doc("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded userid
@@ -208,7 +224,8 @@ class PersonalBoards extends React.Component {
                     </Button>
                 </DialogActions>
             </Dialog>
-            
+
+
 
             <Dialog
                 open={this.state.isDeleteDialogOpen}
@@ -249,6 +266,39 @@ class PersonalBoards extends React.Component {
                         <Button>
                             View
                         </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={this.handleAddOpen}
+                        >
+                            Add Article
+                        </Button>
+
+                        <Dialog
+                            open={this.state.isAddOpen}
+                            onClose={this.handleAddClose}
+                        >
+                            <DialogTitle>
+                                Enter the URL of the artcile
+                            </DialogTitle>
+                            <DialogActions>
+                                <TextField
+                                    id="outlined-basic"
+                                    label="Enter URL"
+                                    placeholder="Enter web address"
+                                    value={this.state.boardName}
+                                    onChange={this.handleInputChange}
+                                    name="board Name"
+                                    type="text"
+                                    required
+                                    color="secondary"
+                                />
+                                <Button onClick={() => this.handleDeleteBoard(this.state.selectedBoardDelete)} color="secondary">Submit</Button>
+                                <Button onClick={this.handleAddClose}>Cancel</Button>
+
+                            </DialogActions>
+
+                        </Dialog>
                     </CardActions>
                   </Card>
                 </div>
@@ -260,4 +310,3 @@ class PersonalBoards extends React.Component {
 }
 
 export default PersonalBoards;
-
