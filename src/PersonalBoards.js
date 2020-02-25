@@ -15,6 +15,7 @@ class PersonalBoards extends React.Component {
             isDialogOpen: false,
             isAddOpen: false,
             personalBoards: [],
+            url: '',
             isDeleteDialogOpen: false,
             selectedBoardDelete: "",
         }
@@ -117,7 +118,8 @@ class PersonalBoards extends React.Component {
     handleAddClose = () => {
 
         this.setState({
-            isAddOpen: false
+            isAddOpen: false,
+            url: ''
         });
     }
 
@@ -286,9 +288,9 @@ class PersonalBoards extends React.Component {
                                     id="outlined-basic"
                                     label="Enter URL"
                                     placeholder="Enter web address"
-                                    value={this.state.boardName}
+                                    value={this.state.url}
                                     onChange={this.handleInputChange}
-                                    name="board Name"
+                                    name="url"
                                     type="text"
                                     required
                                     color="secondary"
