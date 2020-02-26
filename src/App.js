@@ -9,7 +9,6 @@ import { makeStyles } from '@material-ui/core';
 
 
 import Login from './Login';
-import Register from './Register'
 import Home from './Home';
 import config from './config'
 import About from './About';
@@ -81,7 +80,6 @@ const useStyles = makeStyles(theme => ({
  *  a sidebar to exist
  */
 function BasePage(props) {
-    console.log('flag 1')
     const classes = useStyles();
     return (
         <div className={classes.root}>

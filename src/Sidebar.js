@@ -4,10 +4,11 @@ import HomeIcon from '@material-ui/icons/Home';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { Link } from 'react-router-dom';
 
+import firebase from 'firebase';
+
 import './sidebar.css';
 
 function Sidebar(props) {
-
     return (
         <Drawer
             variant="permanent"
@@ -19,7 +20,9 @@ function Sidebar(props) {
             }}
         >
             <div className="sidebar-item">     
-                <Avatar className={props.classes.avatar}>AB</Avatar>
+                <Avatar className={props.classes.avatar}>
+                    {firebase.auth().currentUser.displayName.split(" ").reduce((prev, curr) => prev + curr.charAt(0), "")}
+                </Avatar>
             </div>
             <Link to="/home" className="sidebar-item home link">
                 <HomeIcon/>
