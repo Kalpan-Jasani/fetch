@@ -1,0 +1,22 @@
+.sidebar-item {
+    padding: 1rem;
+    width: auto;
+}
+
+.sidebar-item.link:hover {
+    background-color: #eee;
+}
+
+.sidebar-item.home {
+    display: flex;
+    align-items: center;
+}
+
+#add-article-sidebar svg {
+    margin-right: 0.5rem;
+}
+
+.sidebar-item.link {
+    text-decoration: none;
+    color: #111;
+}
