@@ -1,15 +1,25 @@
 import React from 'react';
 import firebase from "firebase/app";
-import { TextField, Card, CardActions, CardContent, Button, Typography } from '@material-ui/core';
-import logo from './Assets/fetch.png'
-import GoogleButton from 'react-google-button'
-import FacebookLogin from 'react-facebook-login'
-import RenderInBrowser from 'react-render-in-browser'
+import { Card, CardActions, CardContent, Button, Typography } from '@material-ui/core';
+import red from '@material-ui/core/colors/red';
+import logo from './Assets/fetch.png';
+import GoogleButton from 'react-google-button';
+import FacebookLogin from 'react-facebook-login';
+import RenderInBrowser from 'react-render-in-browser';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+
+const red300 = red['500'];
+
+const errorStyle = {
+    right: 0,
+    fontSize: '16px',
+    color: red300,
+};
 
 class Login extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { email: '', password: '' }
+        this.state = { email: '', password: '', successfulSignIn: true }
 
         this.changeEmailHandler = this.changeEmailHandler.bind(this);
         this.changePasswordHandler = this.changePasswordHandler.bind(this);
@@ -21,17 +31,20 @@ class Login extends React.Component {
 
     submitHandler = async (event) => {
         event.preventDefault()
-        var loginSuccess = await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
-        console.log(loginSuccess);
+        firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).catch((error) => {
+            this.setState({
+                successfulSignIn: false
+            });
+        });
 
     }
 
     changeEmailHandler = (event) => {
-        this.setState({ email: event.target.value })
+        this.setState({ email: event.target.value });
     }
 
     changePasswordHandler = (event) => {
-        this.setState({ password: event.target.value })
+        this.setState({ password: event.target.value });
     }
 
     handleGoogleSignIn = async (event) => {
@@ -55,7 +68,7 @@ class Login extends React.Component {
     handleAppleSignIn = async (event) => {
         var appleProvider = new firebase.auth.OAuthProvider('apple.com');
         var result = await firebase.auth().signInWithPopup(appleProvider).catch((error) => {
-            console.log(error.code)
+            console.log(error.code);
         });
 
         console.log(result);
@@ -72,18 +85,21 @@ class Login extends React.Component {
                         <CardContent>
                             <Typography gutterBottom variant="h5" component="h2">
                                 Login Info
-                        </Typography>
-                            <form
+                            </Typography>
+                            <ValidatorForm
                                 onSubmit={this.submitHandler}
-                                style={{ paddingLeft: 50, flexDirection: 'column', display: 'flex', paddingRight: 50, justifyContent: 'space-around', height: 250 }}>
-                                <TextField id="standard-basic" label="Email" value={this.state.email} onChange={this.changeEmailHandler} />
-                                <TextField id="standard-basic" label="Password" value={this.state.password} onChange={this.changePasswordHandler} type="password" />
+                                instantValidate={false}
+                                style={{ paddingLeft: 50, flexDirection: 'column', display: 'flex', paddingRight: 50, justifyContent: 'space-around', height: 250 }}
+                            >
+                                {!this.state.successfulSignIn ? <text style={errorStyle}>Incorrect Email/Password</text> : null}
+                                <TextValidator id="standard-basic" label="Email" value={this.state.email} onChange={this.changeEmailHandler} validators={['required', 'isEmail']} errorMessages={['This field is required', 'Email is not valid']} />
+                                <TextValidator id="standard-basic" label="Password" value={this.state.password} onChange={this.changePasswordHandler} type="password" validators={['required']} errorMessages={['This field is required']}/>
                                 <CardActions style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                     <Button color="primary" variant="contained" type="submit">
                                         Login
                                     </Button>
                                 </CardActions>
-                            </form>
+                            </ValidatorForm>
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginBottom: 25, marginTop: 50 }}>
                                 <GoogleButton
                                     type="light"
