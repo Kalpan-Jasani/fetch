@@ -33,6 +33,9 @@ class App extends React.Component {
                                 <Route path="">
                                     <Home />
                                 </Route>
+                                <Route path="/register">
+                                  <Register />
+                                </Route>
                             </Switch>
                         </HashRouter>
                         :

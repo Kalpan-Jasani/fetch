@@ -15,7 +15,6 @@ const errorStyle = {
     fontSize: '16px',
     color: red300,
 };
-
 class Login extends React.Component {
     constructor(props) {
         super(props);
@@ -120,8 +119,8 @@ class Login extends React.Component {
                         </CardContent>
 
                     </Card>
-                    <Button color="primary">
-                        Not Registered?
+                    <Button color="primary" onClick={this.handleRegisterClick}>
+                        Create New Account with Email?
                     </Button>
                     <div className='g-signin2'></div>
                 </body>

@@ -1,7 +1,8 @@
 import React from 'react';
 import firebase from "firebase/app";
 import { TextField, Card, CardActions, CardContent, Button, Typography } from '@material-ui/core';
-import logo from './Assets/fetch.png'
+import logo from './Assets/fetch.png';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 
 class Register extends React.Component {
     constructor(props) {
@@ -46,18 +47,18 @@ class Register extends React.Component {
                         <Typography gutterBottom variant="h5" component="h2">
                           Register for a New Account
                         </Typography>
-                        <form 
+                        <ValidatorForm 
                         onSubmit={this.submitHandler}
                         style={{paddingLeft: 25, flexDirection: 'column', display: 'flex', paddingRight: 25, justifyContent: 'space-around', height: 300}}>
-                            <TextField id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} />
-                            <TextField id="standard-basic" label="Email" value={this.state.email} onChange={this.changeEmailHandler} />
-                            <TextField id="standard-basic" label="Password" value={this.state.password} onChange={this.changePasswordHandler} type="password" />
+                            <TextValidator id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} validators={['required']} errorMessages={['Name is required']} />
+                            <TextValidator id="standard-basic" label="Email" value={this.state.email} onChange={this.changeEmailHandler} validators={['required', 'isEmail']} errorMessages={['Email is required', 'Email is not valid']} />
+                            <TextValidator id="standard-basic" label="Password" value={this.state.password} onChange={this.changePasswordHandler} type="password" validators={['required']} errorMessages={['Password is required']} />
                             <CardActions style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                             <Button color="primary" variant="contained" type="submit">
                               Create Account
                             </Button>
                         </CardActions>
-                        </form>
+                        </ValidatorForm>
                         </CardContent>
                         
                     </Card>
