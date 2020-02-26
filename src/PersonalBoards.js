@@ -79,6 +79,9 @@ class PersonalBoards extends React.Component {
         .add({
             boardName: boardName,
             isPrivate: isPrivate,
+            articles: [],   // TODO: allow articles to be added initially ?
+            followers: [],
+            queue: []
         }).then(function(docRef) {
             console.log("success! docID", docRef.id);
         })
