@@ -1,5 +1,4 @@
 import React from 'react';
-import { FirebaseAuthConsumer } from '@react-firebase/auth';
 import firebase from "firebase/app";
 import { TextField, Card, CardActions, CardContent, Button, Typography } from '@material-ui/core';
 import logo from './Assets/fetch.png'
