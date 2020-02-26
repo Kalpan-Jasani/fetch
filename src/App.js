@@ -9,6 +9,7 @@ import { makeStyles } from '@material-ui/core';
 
 
 import Login from './Login';
+import Register from './Register'
 import Home from './Home';
 import config from './config'
 import About from './About';
