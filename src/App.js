@@ -9,7 +9,7 @@ import Login from './Login';
 import Home from './Home';
 import config from './config'
 import About from './About';
-
+import PersonalBoards from './PersonalBoards';
 
 class App extends React.Component {
     render() {
@@ -27,7 +27,7 @@ class App extends React.Component {
                                     <Home />
                                 </Route>
                                 <Route path="/boards">
-                                    <Home />
+                                    <PersonalBoards />
                                 </Route>
                                 <Route path="">
                                     <Home />
