@@ -13,7 +13,11 @@ class PersonalBoards extends React.Component {
             boardName: '',
             isPrivate: false,
             isDialogOpen: false,
+            isAddOpen: false,
             personalBoards: [],
+            url: '',
+            isDeleteDialogOpen: false,
+            selectedBoardDelete: "",
         }
     }
 
@@ -35,12 +39,12 @@ class PersonalBoards extends React.Component {
                 personalBoards.push(newPersonalBoard);
             });
             console.log("Current Personal Boards: ", personalBoards.join(", "));
-            
+
             this.setState({
                 personalBoards: personalBoards,
             });
         }.bind(this));
-        
+
     }
 
     handleInputChange = (event) => {
@@ -75,13 +79,16 @@ class PersonalBoards extends React.Component {
         .add({
             boardName: boardName,
             isPrivate: isPrivate,
+            articles: [],   // TODO: allow articles to be added initially ?
+            followers: [],
+            queue: []
         }).then(function(docRef) {
             console.log("success! docID", docRef.id);
         })
         .catch(function(error) {
             console.error("Error when writing doc to database ", error);
         });
-        
+
         // will close the dialog after submission
         this.setState({
             isDialogOpen: false,
@@ -89,8 +96,16 @@ class PersonalBoards extends React.Component {
     }
 
     handleDialogOpen = () => {
+
         this.setState({
             isDialogOpen: true,
+        });
+    }
+
+    handleAddOpen = () => {
+
+        this.setState({
+            isAddOpen: true,
         });
     }
 
@@ -103,8 +118,52 @@ class PersonalBoards extends React.Component {
         });
     }
 
-    handleDeleteBoard = (doc) => {
+    handleAddClose = () => {
+
+        this.setState({
+            isAddOpen: false,
+            url: ''
+        });
+    }
+
+    handleDeleteDialogOpen = (doc) => {
+        console.log("DOC ID: ", doc)
+        this.setState({
+            isDeleteDialogOpen: true,
+            selectedBoardDelete: doc,
+        });
+    }
+
+    handleDeleteDialogClose = () => {
+        // closes the dialog for delete
+        this.setState({
+            isDeleteDialogOpen: false,
+            selectedBoardDelete: "",
+        });
+    }
+
+    handleDeleteBoard = async (doc) => {
         console.log('Delete', doc);
+
+        await firebase.firestore()
+        .collection("personalBoards")
+        .doc("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded userid
+        .collection("pboards")
+        .doc(doc)
+        .delete()
+        .then(function() {
+            console.log("Personal board successfully deleted!");
+        })
+        .catch(function(error) {
+            console.error("Error deleting personal board: ", error);
+        });
+
+        // will close the dialog after submission
+        this.setState({
+            isDeleteDialogOpen: false,
+            selectedBoardDelete: "",
+        });
+
     }
 
     render() {
@@ -124,9 +183,8 @@ class PersonalBoards extends React.Component {
             <Dialog
                 open={this.state.isDialogOpen}
                 onClose={this.handleDialogClose}
-                aria-labelledby="form-dialog-title"
             >
-                <DialogTitle id="form-dialog-title">
+                <DialogTitle>
                     Create a new Personal Board!
                 </DialogTitle>
                 <DialogContent>
@@ -172,6 +230,22 @@ class PersonalBoards extends React.Component {
                 </DialogActions>
             </Dialog>
 
+
+
+            <Dialog
+                open={this.state.isDeleteDialogOpen}
+                onClose={this.handleDeleteDialogClose}
+            >
+                <DialogTitle>
+                    Are you sure you want to delete this Personal Board?
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={this.handleDeleteDialogClose}>No</Button>
+                    <Button onClick={() => this.handleDeleteBoard(this.state.selectedBoardDelete)} color="secondary">Yes</Button>
+                </DialogActions>
+
+            </Dialog>
+
             <div>
             {personalBoards.map(board => (
                 <div key={board.boardID} >
@@ -180,8 +254,8 @@ class PersonalBoards extends React.Component {
                       title={board.boardName}
                       subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
                       action={
-                        <IconButton onClick={() => this.handleDeleteBoard(board.boardID)}>
-                        <Delete />
+                        <IconButton onClick={() => this.handleDeleteDialogOpen(board.boardID)}>
+                            <Delete />
                         </IconButton>
                         }
                       >
@@ -189,7 +263,7 @@ class PersonalBoards extends React.Component {
                       <CardMedia style={{height: 0, paddingTop: '50%'}}
                         image={logo}
                         title="FETCH"
-                    />
+                      />
                     <CardActions>
                         <IconButton>
                             <PlayArrow/>
@@ -197,6 +271,39 @@ class PersonalBoards extends React.Component {
                         <Button>
                             View
                         </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={this.handleAddOpen}
+                        >
+                            Add Article
+                        </Button>
+
+                        <Dialog
+                            open={this.state.isAddOpen}
+                            onClose={this.handleAddClose}
+                        >
+                            <DialogTitle>
+                                Enter the URL of the artcile
+                            </DialogTitle>
+                            <DialogActions>
+                                <TextField
+                                    id="outlined-basic"
+                                    label="Enter URL"
+                                    placeholder="Enter web address"
+                                    value={this.state.url}
+                                    onChange={this.handleInputChange}
+                                    name="url"
+                                    type="text"
+                                    required
+                                    color="secondary"
+                                />
+                                <Button onClick={() => this.handleDeleteBoard(this.state.selectedBoardDelete)} color="secondary">Submit</Button>
+                                <Button onClick={this.handleAddClose}>Cancel</Button>
+
+                            </DialogActions>
+
+                        </Dialog>
                     </CardActions>
                   </Card>
                 </div>
@@ -208,4 +315,3 @@ class PersonalBoards extends React.Component {
 }
 
 export default PersonalBoards;
-
