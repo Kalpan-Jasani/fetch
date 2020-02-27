@@ -3,6 +3,7 @@ import { Drawer, Divider, Button, Avatar } from "@material-ui/core";
 import HomeIcon from '@material-ui/icons/Home';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { Link } from 'react-router-dom';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import firebase from 'firebase';
 
@@ -19,10 +20,9 @@ function Sidebar(props) {
                 paper: props.classes.drawerPaper,
             }}
         >
-            <div className="sidebar-item">     
-                <Avatar className={props.classes.avatar}>
-                    {firebase.auth().currentUser.displayName.split(" ").reduce((prev, curr) => prev + curr.charAt(0), "")}
-                </Avatar>
+            <div className="sidebar-item">
+                <AccountCircleIcon className="user-photo"/>
+                <p>{firebase.auth().currentUser.email}</p>
             </div>
             <Link to="/home" className="sidebar-item home link">
                 <HomeIcon/>

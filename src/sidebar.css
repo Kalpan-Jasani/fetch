@@ -7,6 +7,10 @@
     background-color: #eee;
 }
 
+.sidebar-item .user-photo {
+    height: "6rem";
+    width: "6rem";
+}
 .sidebar-item.home {
     display: flex;
     align-items: center;

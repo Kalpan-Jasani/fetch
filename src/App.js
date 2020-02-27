@@ -51,7 +51,7 @@ function App() {
                 <FirebaseAuthConsumer> 
                     {({ isSignedIn, user, providerId }) =>
                     isSignedIn ?
-                    <BasePage>
+                    <BasePage user={user}>
                         <Switch>
                             <Route path="/about">
                                 <About />
@@ -95,11 +95,6 @@ const useStyles = makeStyles(theme => ({
       flexGrow: 1,
       padding: theme.spacing(2),
     },
-    avatar: {
-        backgroundColor: "#aaa",
-        height: "6rem",
-        width: "6rem",
-    }
 }));
 
 
@@ -115,7 +110,7 @@ function BasePage(props) {
     const classes = useStyles();
     return (
         <div className={classes.root}>
-            <Sidebar classes={classes}/>
+            <Sidebar user={props.user} classes={classes}/>
             <div className={classes.content}>
                 {props.children}
             </div>
