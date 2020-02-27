@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Route, Switch } from 'react-router-dom';
+import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
 import { FirebaseAuthProvider, FirebaseAuthConsumer } from '@react-firebase/auth';
 
 import firebase from "firebase/app";
@@ -18,7 +18,6 @@ class App extends React.Component {
             <FirebaseAuthProvider firebase={firebase} {...config}>
                 <FirebaseAuthConsumer>
                     {({ isSignedIn, user, providerId }) =>
-                        isSignedIn ?
                         <HashRouter>
                             <Switch>
                                 <Route path="/about">
@@ -30,16 +29,21 @@ class App extends React.Component {
                                 <Route path="/boards">
                                     <PersonalBoards />
                                 </Route>
-                                <Route path="">
-                                    <Home />
-                                </Route>
                                 <Route path="/register">
                                   <Register />
                                 </Route>
+                                <Route path="/login">
+                                    <Login />
+                                </Route>
+                                <Route path="/" render={() => (
+                                  isSignedIn ? (
+                                    <Redirect to="/home"/>
+                                  ) : (
+                                    <Redirect to="/login"/>
+                                  )
+                                )}/>
                             </Switch>
                         </HashRouter>
-                        :
-                        <Login />
                     }
                 </FirebaseAuthConsumer>
             </FirebaseAuthProvider>

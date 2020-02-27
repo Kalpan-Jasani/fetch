@@ -2,6 +2,7 @@ import React from 'react';
 import firebase from "firebase/app";
 import { TextField, Card, CardActions, CardContent, Button, Typography } from '@material-ui/core';
 import logo from './Assets/fetch.png';
+import { withRouter } from 'react-router-dom';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 
 class Register extends React.Component {
@@ -15,12 +16,30 @@ class Register extends React.Component {
     }
 
     submitHandler = async (event) => {
-        var email, password = this.state
+        var email = this.state.email
+        var password = this.state.password;
+
         event.preventDefault()
-        firebase.auth().createUserWithEmailAndPassword(email, password).catch((error) => {
+        var result = await firebase.auth().createUserWithEmailAndPassword(email, password).catch((error) => {
             console.log(error.code);
-        })
-        
+        });
+
+        if (result === undefined) {
+            return;
+        }
+
+        var user = result.user;
+        await firebase.firestore()
+        .collection("users")
+        .doc(user.uid)
+        .set({
+            name: this.state.name,
+            email: user.email,
+            photoURL: user.photoURL,
+            platform: "email",
+        });
+
+        this.props.history.push("/home");
     }
 
     changeEmailHandler = (event) => {
@@ -68,4 +87,4 @@ class Register extends React.Component {
     }
 }
 
-export default Register;
+export default withRouter(Register);

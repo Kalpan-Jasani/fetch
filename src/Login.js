@@ -1,5 +1,6 @@
 import React from 'react';
 import firebase from "firebase/app";
+import { Link, withRouter } from 'react-router-dom';
 import { Card, CardActions, CardContent, Button, Typography } from '@material-ui/core';
 import red from '@material-ui/core/colors/red';
 import logo from './Assets/fetch.png';
@@ -52,7 +53,15 @@ class Login extends React.Component {
             console.log(error.code);
         });
 
+        if (result === undefined) {
+            return;
+        }
+
         console.log(result);
+        if (result.additionalUserInfo.isNewUser) {
+            this.createNewUser(result.user, "Google");
+        }
+        this.props.history.push("/home");
     }
 
     handleFacebookSignIn = async (event) => {
@@ -61,7 +70,15 @@ class Login extends React.Component {
             console.log(error.code);
         });
 
+        if (result === undefined) {
+            return;
+        }
+        
+        if (result.additionalUserInfo.isNewUser) {
+            this.createNewUser(result.user, "Facebook");
+        }
         console.log(result);
+        this.props.history.push("/home");
     }
 
     handleAppleSignIn = async (event) => {
@@ -70,7 +87,28 @@ class Login extends React.Component {
             console.log(error.code);
         });
 
+        if (result === undefined) {
+            return;
+        }
+
+        if (result.additionalUserInfo.isNewUser) {
+            this.createNewUser(result.user, "Apple");
+        }
         console.log(result);
+        this.props.history.push("/home");
+    }
+
+    createNewUser(user, platform) {
+        console.log(user);
+        firebase.firestore()
+        .collection("users")
+        .doc(user.uid)
+        .set({
+            name: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            platform: platform,
+        });
     }
 
     render() {
@@ -119,14 +157,13 @@ class Login extends React.Component {
                         </CardContent>
 
                     </Card>
-                    <Button color="primary" onClick={this.handleRegisterClick}>
+                    <Link to="/register">
                         Create New Account with Email?
-                    </Button>
-                    <div className='g-signin2'></div>
+                    </Link>
                 </body>
             </div>
         )
     }
 }
 
-export default Login;
+export default withRouter(Login);

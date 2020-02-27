@@ -1,6 +1,7 @@
 import React from 'react';
 import firebase from "firebase/app";
-import { Button } from "@material-ui/core"
+import { Button } from "@material-ui/core";
+import { withRouter } from 'react-router-dom';
 
 class Home extends React.Component {
     constructor(props) {
@@ -10,6 +11,7 @@ class Home extends React.Component {
 
     signOut = async (event) => {
         firebase.auth().signOut();
+        this.props.history.push("/login");
     }
 
     render() {
@@ -24,4 +26,4 @@ class Home extends React.Component {
     }
 }
 
-export default Home;
+export default withRouter(Home);
