@@ -14,6 +14,7 @@ import style from 'styled-theming';
 
 
 import Login from './Login';
+import ArticleForm from './ArticleForm';
 import Home from './Home';
 import config from './config'
 import About from './About';
@@ -48,7 +49,7 @@ function App() {
             <GlobalStyle />
             <ToggleMode />
             <FirebaseAuthProvider firebase={firebase} {...config}>
-                <FirebaseAuthConsumer> 
+                <FirebaseAuthConsumer>
                     {({ isSignedIn, user, providerId }) =>
                     isSignedIn ?
                     <BasePage user={user}>
@@ -99,18 +100,21 @@ const useStyles = makeStyles(theme => ({
 
 
 /**
- * 
- * @param {*} props: props contains children to display actual app content 
+ *
+ * @param {*} props: props contains children to display actual app content
  *  (non sidebar content)
- * 
- * This is the component which acts like a wrapper component to allow 
+ *
+ * This is the component which acts like a wrapper component to allow
  *  a sidebar to exist
  */
 function BasePage(props) {
-    const classes = useStyles();
+    const classes = useStyles
+    const [isDialogOpen, setOpenDialog] = React.useState(false);
+    const handleCloseDialog = () => setOpenDialog(false);
     return (
         <div className={classes.root}>
-            <Sidebar user={props.user} classes={classes}/>
+            <ArticleForm open={isDialogOpen} onClose={handleCloseDialog}/>
+            <Sidebar openForm = {setOpenDialog} user={props.user} classes={classes}/>
             <div className={classes.content}>
                 {props.children}
             </div>

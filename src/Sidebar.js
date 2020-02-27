@@ -39,11 +39,11 @@ function Sidebar(props) {
                 Community Boards
             </Link>
             <Divider/>
-            <Button id="add-article-sidebar">
+            <Button id="add-article-sidebar" onClick={()=>props.openForm(true)}>
                 <AddCircleOutlinedIcon/>
                 New article
             </Button>
-            
+
         </Drawer>
     )
 }

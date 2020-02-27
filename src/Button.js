@@ -14,6 +14,7 @@ const getBackground = style.variants('mode', 'variant', {
 
 const Button = styled.button`
   background-color: ${getBackground};
+  margin-left : 1300px;
 `;
 
 export default Button;

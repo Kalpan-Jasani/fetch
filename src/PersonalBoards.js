@@ -1,10 +1,21 @@
 import React from 'react';
-import { Button, Checkbox, TextField, FormControlLabel, IconButton } from '@material-ui/core';
+import { Button, TextField, FormControlLabel, IconButton } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
 import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
 import firebase from "firebase";
+import clsx from 'clsx';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import ListItemText from '@material-ui/core/ListItemText';
+import Select from '@material-ui/core/Select';
+import Checkbox from '@material-ui/core/Checkbox';
+import Chip from '@material-ui/core/Chip';
 import logo from './Assets/fetch.png'
+
 
 class PersonalBoards extends React.Component {
     constructor(props) {
@@ -46,6 +57,16 @@ class PersonalBoards extends React.Component {
 
     }
 
+    
+    handleChangeMultiple = (event) => {
+    const options = event.target;
+    const value = [];
+    for (let i = 0, l = options.length; i < l; i += 1) {
+      if (options[i].selected) {
+        value.push(options[i].value);
+      }
+    }
+  }
     handleInputChange = (event) => {
         const target = event.target;
         const value = target.type === 'checkbox' ? target.checked : target.value;
@@ -276,9 +297,28 @@ class PersonalBoards extends React.Component {
                     color="secondary"
                 />
 
+                <FormControl>
+                <InputLabel id="dropdown">Select Board</InputLabel>
+                <Select
+                    labelId="dropdown"
+                    id="multiple-boards"
+                    multiple
+                    value={personalBoards}
+                    onChange={this.handleChangeMultiple}
+                >
+
+
+                {personalBoards.map(board => (
+                    <MenuItem key={board.boardID} value={board.boardName}>
+                        {board.boardName}
+                    </MenuItem>
+                ))}
+                </Select>
+                </FormControl>
+
                 <DialogActions>
                     <Button onClick={this.handleAddClose}>Cancel</Button>
-                    <Button onClick={() => this.handleDeleteBoard(this.state.selectedBoardDelete)} color="primary">Add</Button>
+                    <Button color="primary">Add</Button>
 
 
                 </DialogActions>
