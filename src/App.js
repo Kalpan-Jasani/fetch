@@ -23,6 +23,7 @@ import PersonalBoards from './PersonalBoards';
 import Sidebar from './Sidebar';
 import useTheme from './useTheme';
 import ToggleMode from './ToggleMode';
+import Profile from './Profile';
 import PersonalBoard from './personalBoard';
 
 const drawerWidth = 240;  // width of the sidebar (can change to adjust)
@@ -69,6 +70,9 @@ function App() {
                                 </Route>
                                 <Route path="/login">
                                     <Login />
+                                </Route>
+                                <Route path="/profile">
+                                    <Profile />
                                 </Route>
                                 <Route path="/" render={() => (
                                   isSignedIn ? (

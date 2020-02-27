@@ -19,9 +19,7 @@ class Home extends React.Component {
     }
 
     handleClickOpen = (event) => {
-        this.setState({
-            open: true
-        });
+        this.props.history.push("/profile");
     }
 
     handleClickClose = (event) => {
@@ -56,7 +54,7 @@ class Home extends React.Component {
                     Sign Out
                 </Button>
                 <Button variant="outlined" color="secondary" onClick={this.handleClickOpen}>
-                    Delete Account
+                    Profile Page
                 </Button>
                 <Dialog open={this.state.open} onClose={this.handleClickClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
                     <DialogTitle id="alert-dialog-title">{"Delete Account?"}</DialogTitle>
