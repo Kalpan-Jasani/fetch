@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from '@material-ui/core';
 import firebase from 'firebase';
+import Button from '@material-ui/core/Button';
+import ArticleDisplay from './ArticleDisplay';
 
 function PersonalBoard(props) {
 
@@ -9,6 +11,7 @@ function PersonalBoard(props) {
     const [state, setState] = React.useState({
         board: null,
         articles: [],
+        isDialogOpen: false,
     });
     const db = firebase.firestore();
     const userid = firebase.auth().currentUser.uid;
@@ -52,6 +55,14 @@ function PersonalBoard(props) {
 
     };
 
+    const handleDialogOpen = () => {
+        setState(prevState => {return {...prevState, isDialogOpen: true}});
+    }
+
+    const handleDialogClose = () => {
+        setState(prevState => {return {...prevState, isDialogOpen: false}});
+    }
+
     return (
         <div>
             {
@@ -62,8 +73,16 @@ function PersonalBoard(props) {
             {
                 state.articles.map((article) => {
                     return (
-                        <div>
+                        <div style={{display: 'inline', float: 'left'}}>
                             <p>{article.name}</p>
+                            <Button variant="contained" color="secondary"  onClick={handleDialogOpen}>
+                                Preview 
+                            </Button>
+                            <ArticleDisplay 
+                              isDialogOpen={state.isDialogOpen} 
+                              handleDialogClose={handleDialogClose} 
+                              url={article.url} 
+                              ArticleName={article.name}/>
                         </div>
                     );
                 })

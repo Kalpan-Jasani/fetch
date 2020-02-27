@@ -1,12 +1,15 @@
 import React from 'react';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Star from '@material-ui/icons/Star';
 import StarBorder from '@material-ui/icons/StarBorder';
+import Button from '@material-ui/core/Button';
 import firebase from "firebase";
+import { green } from '@material-ui/core/colors';
 
 class ArticleDisplay extends React.Component {
     constructor(props) {
@@ -14,6 +17,9 @@ class ArticleDisplay extends React.Component {
         this.state = {
            url: '',
            isStarred: false,
+           isDialogOpen: false,
+           handleDialogClose: ()=> {},
+           ArticleName: '',
         }
     }
 
@@ -38,20 +44,34 @@ class ArticleDisplay extends React.Component {
         
     }
 
+
     render() {
         
         return (
-        <Card style={{maxWidth: 600, minHeight: 300 , margin: 25 }} >
-            <CardContent>
-                <iframe src="https://www.purdue.edu/registrar/calendars/2019-20-Academic-Calendar.html"  width="100%" height="500px" ></iframe>  {/*hardcoded url*/}
-            </CardContent>
-            <CardActions style={{ paddingLeft: 20 }}>
-                <FormControlLabel
-                    control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}
-                    label="Star"
-                />
-            </ CardActions>
-        </Card>
+            <Dialog 
+            open={this.props.isDialogOpen}
+            fullWidth={true}
+            >
+                <DialogTitle>
+                    {this.props.ArticleName}
+                </DialogTitle>
+                <DialogContent>
+                    <iframe src={this.props.url}  width="100%" height="500px" ></iframe>  {/*hardcoded url*/}
+                
+                    <DialogActions style={{ paddingLeft: 20 }}>
+                        <FormControlLabel
+                            control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}
+                            label="Star"
+                    />
+                        <Button variant="contained" color="Primary" onClick={this.props.handleDialogClose}>
+                        Go to Website
+                        </Button>
+                        <Button variant="contained" color="secondary" onClick={this.props.handleDialogClose} >
+                        Close
+                        </Button>
+                    </ DialogActions>
+                </ DialogContent>
+            </Dialog>
         );
   }
 
