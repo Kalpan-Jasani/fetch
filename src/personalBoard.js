@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-
+import { Link } from '@material-ui/core';
 import firebase from 'firebase';
 
 function PersonalBoard(props) {
@@ -27,14 +27,18 @@ function PersonalBoard(props) {
                 }
 
                 const board = boardDoc.data();
-                // const articleReferences = board.articles;
-                // const articlePromises = articleReferences.map(articleRef =>
-                //     articleRef.get().then((articleDoc) => articleDoc.data())
-                // );
-
-                // Promise.all(articlePromises).then(
-                //     (articles) => setState({articles: articles}));
-                setState({board: board});
+                const articleReferences = board.articles;
+                const articlePromises = articleReferences.map(articleRef =>
+                    articleRef.get().then((articleDoc) => articleDoc.data())
+                    );
+                    
+                Promise.all(articlePromises).then((articles) => {
+                    setState(prevState => {
+                        return {...prevState, articles: articles}
+                    })
+                    console.log(articles);
+                });
+                setState(prevState => {return {...prevState, board: board}});
             }).
             catch((err) =>console.log(err));
         }
@@ -55,8 +59,15 @@ function PersonalBoard(props) {
                 <h2>{state.board.boardName}</h2>
             }
 
-            {/* print names of the articles */}
-            <p>{id}</p>
+            {
+                state.articles.map((article) => {
+                    return (
+                        <div>
+                            <p>{article.name}</p>
+                        </div>
+                    );
+                })
+            }
         </div>
 
     )
