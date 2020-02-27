@@ -61,17 +61,16 @@ class ArticleForm extends React.Component {
       value.push(options[i].value);
     }
   }
+  this.setState({value: value});
 }
   handleInputChange = (event) => {
       const target = event.target;
       const value = target.type === 'checkbox' ? target.checked : target.value;
       const name = target.name;
-      this.setState({
-          [name]: value
-      });
+      this.setState({value: event.target.value});
   }
 
-  
+
   render() {
       const personalBoards = this.state.personalBoards;
 
@@ -80,7 +79,7 @@ class ArticleForm extends React.Component {
           <Dialog
               open={this.props.open}
               onClose={this.props.onClose}
-              onCancel={this.props.onClose}
+
           >
               <DialogTitle>
                   Enter the details of the article
@@ -89,8 +88,7 @@ class ArticleForm extends React.Component {
                   id="outlined-basic"
                   label="Enter Title"
                   placeholder="Enter name of the article"
-                  value={this.state.boardName}
-                  onChange={this.handleInputChange}
+                  value={this.state.value}
                   name="board Name"
                   type="text"
                   required
@@ -100,8 +98,7 @@ class ArticleForm extends React.Component {
                 id="outlined-basic"
                 label="Enter URL"
                 placeholder="Enter web address"
-                value={this.state.boardName}
-                onChange={this.handleInputChange}
+                value={this.state.value}
                 name="board Name"
                 type="text"
                 required
@@ -112,8 +109,7 @@ class ArticleForm extends React.Component {
                   id="outlined-basic"
                   label="Enter Description"
                   placeholder="Enter any comments"
-                  value={this.state.boardName}
-                  onChange={this.handleInputChange}
+                  value={this.state.value}
                   name="board Name"
                   type="text"
                   color="secondary"
