@@ -3,7 +3,8 @@ import { Route, Switch } from 'react-router-dom';
 import { FirebaseAuthProvider, FirebaseAuthConsumer } from '@react-firebase/auth';
 
 import firebase from "firebase/app";
-import 'firebase/auth';
+import 'firebase/auth'; // initialize
+import 'firebase/firestore';  // initialize
 
 import { makeStyles } from '@material-ui/core';
 import {
@@ -21,6 +22,7 @@ import PersonalBoards from './PersonalBoards';
 import Sidebar from './Sidebar';
 import useTheme from './useTheme';
 import ToggleMode from './ToggleMode';
+import PersonalBoard from './personalBoard';
 
 const drawerWidth = 240;  // width of the sidebar (can change to adjust)
 
@@ -58,6 +60,9 @@ function App() {
                             </Route>
                             <Route path="/home">
                                 <Home />
+                            </Route>
+                            <Route path="/boards/:id">
+                                <PersonalBoard />
                             </Route>
                             <Route path="/boards">
                                 <PersonalBoards />

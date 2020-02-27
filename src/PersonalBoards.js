@@ -4,6 +4,8 @@ import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } 
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
 import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
 import firebase from "firebase";
+import {Link} from 'react-router-dom';
+
 import logo from './Assets/fetch.png'
 
 class PersonalBoards extends React.Component {
@@ -25,7 +27,7 @@ class PersonalBoards extends React.Component {
         // updates automatically when new p board is added
         firebase.firestore()
         .collection("personalBoards")
-        .doc("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded user
+        .doc(firebase.auth().currentUser.uid) // hardcoded user
         .collection("pboards")
         .onSnapshot(function(querySnapshot) {
             var personalBoards = [];
@@ -73,7 +75,7 @@ class PersonalBoards extends React.Component {
         // make the new personal board here
         await firebase.firestore()
         .collection("personalBoards")
-        .doc("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded userid
+        .doc(firebase.auth().currentUser.uid) // hardcoded userid
         .collection("pboards")
         .add({
             boardName: boardName,
@@ -145,7 +147,7 @@ class PersonalBoards extends React.Component {
 
         await firebase.firestore()
         .collection("personalBoards")
-        .doc("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded userid
+        .doc(firebase.auth().currentUser.uid) // hardcoded userid
         .collection("pboards")
         .doc(doc)
         .delete()
@@ -325,7 +327,9 @@ class PersonalBoards extends React.Component {
                             <PlayArrow/>
                         </IconButton>
                         <Button>
-                            View
+                            <Link to={"/boards/"+board.boardID}>
+                                View
+                            </Link>
                         </Button>
                     </CardActions>
                   </Card>
