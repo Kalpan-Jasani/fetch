@@ -15,7 +15,6 @@ class PersonalBoards extends React.Component {
             isDialogOpen: false,
             isAddOpen: false,
             personalBoards: [],
-            url: '',
             isDeleteDialogOpen: false,
             selectedBoardDelete: "",
         }
@@ -121,8 +120,7 @@ class PersonalBoards extends React.Component {
     handleAddClose = () => {
 
         this.setState({
-            isAddOpen: false,
-            url: ''
+            isAddOpen: false
         });
     }
 
@@ -175,7 +173,7 @@ class PersonalBoards extends React.Component {
             </h1>
             <Button
                 variant="contained"
-                color="secondary"
+                color="primary"
                 onClick={this.handleDialogOpen}
             >
                 New Personal Board
@@ -230,6 +228,64 @@ class PersonalBoards extends React.Component {
                 </DialogActions>
             </Dialog>
 
+            <Button
+                variant="contained"
+                color="secondary"
+                onClick={this.handleAddOpen}
+            >
+                Add An Article
+            </Button>
+            <Dialog
+                open={this.state.isAddOpen}
+                onClose={this.handleAddClose}
+            >
+                <DialogTitle>
+                    Enter the details of the article
+                </DialogTitle>
+                <TextField
+                    id="outlined-basic"
+                    label="Enter Title"
+                    placeholder="Enter name of the article"
+                    value={this.state.boardName}
+                    onChange={this.handleInputChange}
+                    name="board Name"
+                    type="text"
+                    required
+                    color="secondary"
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Enter URL"
+                  placeholder="Enter web address"
+                  value={this.state.boardName}
+                  onChange={this.handleInputChange}
+                  name="board Name"
+                  type="text"
+                  required
+                  color="secondary"
+                />
+
+                <TextField
+                    id="outlined-basic"
+                    label="Enter Description"
+                    placeholder="Enter any comments"
+                    value={this.state.boardName}
+                    onChange={this.handleInputChange}
+                    name="board Name"
+                    type="text"
+                    color="secondary"
+                />
+
+                <DialogActions>
+                    <Button onClick={this.handleAddClose}>Cancel</Button>
+                    <Button onClick={() => this.handleDeleteBoard(this.state.selectedBoardDelete)} color="primary">Add</Button>
+
+
+                </DialogActions>
+
+            </Dialog>
+
+
 
 
             <Dialog
@@ -271,39 +327,6 @@ class PersonalBoards extends React.Component {
                         <Button>
                             View
                         </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={this.handleAddOpen}
-                        >
-                            Add Article
-                        </Button>
-
-                        <Dialog
-                            open={this.state.isAddOpen}
-                            onClose={this.handleAddClose}
-                        >
-                            <DialogTitle>
-                                Enter the URL of the artcile
-                            </DialogTitle>
-                            <DialogActions>
-                                <TextField
-                                    id="outlined-basic"
-                                    label="Enter URL"
-                                    placeholder="Enter web address"
-                                    value={this.state.url}
-                                    onChange={this.handleInputChange}
-                                    name="url"
-                                    type="text"
-                                    required
-                                    color="secondary"
-                                />
-                                <Button onClick={() => this.handleDeleteBoard(this.state.selectedBoardDelete)} color="secondary">Submit</Button>
-                                <Button onClick={this.handleAddClose}>Cancel</Button>
-
-                            </DialogActions>
-
-                        </Dialog>
                     </CardActions>
                   </Card>
                 </div>
