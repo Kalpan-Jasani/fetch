@@ -38,7 +38,6 @@ class Profile extends React.Component {
     }
 
     submitHandler = async (event) => {
-        console.log("hi")
         this.setState({
             saving: true
         });
