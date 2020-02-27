@@ -1,10 +1,23 @@
 import React from 'react';
-import { Button, Checkbox, TextField, FormControlLabel, IconButton } from '@material-ui/core';
+import { Button, TextField, FormControlLabel, IconButton } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
 import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
 import firebase from "firebase";
+import clsx from 'clsx';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import ListItemText from '@material-ui/core/ListItemText';
+import Select from '@material-ui/core/Select';
+import Checkbox from '@material-ui/core/Checkbox';
+import Chip from '@material-ui/core/Chip';
+import {Link} from 'react-router-dom';
+
 import logo from './Assets/fetch.png'
+
 
 class PersonalBoards extends React.Component {
     constructor(props) {
@@ -15,7 +28,6 @@ class PersonalBoards extends React.Component {
             isDialogOpen: false,
             isAddOpen: false,
             personalBoards: [],
-            url: '',
             isDeleteDialogOpen: false,
             selectedBoardDelete: "",
         }
@@ -26,7 +38,7 @@ class PersonalBoards extends React.Component {
         // updates automatically when new p board is added
         firebase.firestore()
         .collection("personalBoards")
-        .doc("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded user
+        .doc(firebase.auth().currentUser.uid) // hardcoded user
         .collection("pboards")
         .onSnapshot(function(querySnapshot) {
             var personalBoards = [];
@@ -47,6 +59,16 @@ class PersonalBoards extends React.Component {
 
     }
 
+    
+    handleChangeMultiple = (event) => {
+    const options = event.target;
+    const value = [];
+    for (let i = 0, l = options.length; i < l; i += 1) {
+      if (options[i].selected) {
+        value.push(options[i].value);
+      }
+    }
+  }
     handleInputChange = (event) => {
         const target = event.target;
         const value = target.type === 'checkbox' ? target.checked : target.value;
@@ -74,7 +96,7 @@ class PersonalBoards extends React.Component {
         // make the new personal board here
         await firebase.firestore()
         .collection("personalBoards")
-        .doc("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded userid
+        .doc(firebase.auth().currentUser.uid) // hardcoded userid
         .collection("pboards")
         .add({
             boardName: boardName,
@@ -121,8 +143,7 @@ class PersonalBoards extends React.Component {
     handleAddClose = () => {
 
         this.setState({
-            isAddOpen: false,
-            url: ''
+            isAddOpen: false
         });
     }
 
@@ -147,7 +168,7 @@ class PersonalBoards extends React.Component {
 
         await firebase.firestore()
         .collection("personalBoards")
-        .doc("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded userid
+        .doc(firebase.auth().currentUser.uid) // hardcoded userid
         .collection("pboards")
         .doc(doc)
         .delete()
@@ -175,7 +196,7 @@ class PersonalBoards extends React.Component {
             </h1>
             <Button
                 variant="contained"
-                color="secondary"
+                color="primary"
                 onClick={this.handleDialogOpen}
             >
                 New Personal Board
@@ -230,6 +251,83 @@ class PersonalBoards extends React.Component {
                 </DialogActions>
             </Dialog>
 
+            <Button
+                variant="contained"
+                color="secondary"
+                onClick={this.handleAddOpen}
+            >
+                Add An Article
+            </Button>
+            <Dialog
+                open={this.state.isAddOpen}
+                onClose={this.handleAddClose}
+            >
+                <DialogTitle>
+                    Enter the details of the article
+                </DialogTitle>
+                <TextField
+                    id="outlined-basic"
+                    label="Enter Title"
+                    placeholder="Enter name of the article"
+                    value={this.state.boardName}
+                    onChange={this.handleInputChange}
+                    name="board Name"
+                    type="text"
+                    required
+                    color="secondary"
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="Enter URL"
+                  placeholder="Enter web address"
+                  value={this.state.boardName}
+                  onChange={this.handleInputChange}
+                  name="board Name"
+                  type="text"
+                  required
+                  color="secondary"
+                />
+
+                <TextField
+                    id="outlined-basic"
+                    label="Enter Description"
+                    placeholder="Enter any comments"
+                    value={this.state.boardName}
+                    onChange={this.handleInputChange}
+                    name="board Name"
+                    type="text"
+                    color="secondary"
+                />
+
+                <FormControl>
+                <InputLabel id="dropdown">Select Board</InputLabel>
+                <Select
+                    labelId="dropdown"
+                    id="multiple-boards"
+                    multiple={true}
+                    value={personalBoards}
+                    onChange={this.handleChangeMultiple}
+                >
+
+
+                {personalBoards.map(board => (
+                    <MenuItem key={board.boardID} value={board.boardName}>
+                        {board.boardName}
+                    </MenuItem>
+                ))}
+                </Select>
+                </FormControl>
+
+                <DialogActions>
+                    <Button onClick={this.handleAddClose}>Cancel</Button>
+                    <Button color="primary">Add</Button>
+
+
+                </DialogActions>
+
+            </Dialog>
+
+
 
 
             <Dialog
@@ -269,41 +367,10 @@ class PersonalBoards extends React.Component {
                             <PlayArrow/>
                         </IconButton>
                         <Button>
-                            View
+                            <Link to={"/boards/"+board.boardID}>
+                                View
+                            </Link>
                         </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={this.handleAddOpen}
-                        >
-                            Add Article
-                        </Button>
-
-                        <Dialog
-                            open={this.state.isAddOpen}
-                            onClose={this.handleAddClose}
-                        >
-                            <DialogTitle>
-                                Enter the URL of the artcile
-                            </DialogTitle>
-                            <DialogActions>
-                                <TextField
-                                    id="outlined-basic"
-                                    label="Enter URL"
-                                    placeholder="Enter web address"
-                                    value={this.state.url}
-                                    onChange={this.handleInputChange}
-                                    name="url"
-                                    type="text"
-                                    required
-                                    color="secondary"
-                                />
-                                <Button onClick={() => this.handleDeleteBoard(this.state.selectedBoardDelete)} color="secondary">Submit</Button>
-                                <Button onClick={this.handleAddClose}>Cancel</Button>
-
-                            </DialogActions>
-
-                        </Dialog>
                     </CardActions>
                   </Card>
                 </div>
