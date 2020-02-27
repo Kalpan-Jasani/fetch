@@ -108,7 +108,7 @@ const useStyles = makeStyles(theme => ({
  *  a sidebar to exist
  */
 function BasePage(props) {
-    const classes = useStyles
+    const classes = useStyles();
     const [isDialogOpen, setOpenDialog] = React.useState(false);
     const handleCloseDialog = () => setOpenDialog(false);
     return (
