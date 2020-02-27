@@ -304,7 +304,7 @@ class PersonalBoards extends React.Component {
                 <Select
                     labelId="dropdown"
                     id="multiple-boards"
-                    multiple
+                    multiple={true}
                     value={personalBoards}
                     onChange={this.handleChangeMultiple}
                 >

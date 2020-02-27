@@ -18,129 +18,149 @@ import logo from './Assets/fetch.png'
 
 
 class ArticleForm extends React.Component {
-  constructor(props) {
-      super(props);
-      this.state = {
-          boardName: '',
-          isPrivate: false,
-          personalBoards: [],
-      }
-  }
-
-  componentDidMount() {
-      // gets the personal boards of the user
-      // updates automatically when new p board is added
-      firebase.firestore()
-      .collection("personalBoards")
-      .doc("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded user
-      .collection("pboards")
-      .onSnapshot(function(querySnapshot) {
-          var personalBoards = [];
-          querySnapshot.forEach(function(doc) {
-              let newPersonalBoard = {
-                  boardName: doc.data().boardName,
-                  isPrivate: doc.data().isPrivate,
-                  boardID: doc.id,
-              }
-              personalBoards.push(newPersonalBoard);
-          });
-          console.log("Current Personal Boards: ", personalBoards.join(", "));
-
-          this.setState({
-              personalBoards: personalBoards,
-          });
-      }.bind(this));
-
-  }
-
-  handleChangeMultiple = (event) => {
-  const options = event.target;
-  const value = [];
-  for (let i = 0, l = options.length; i < l; i += 1) {
-    if (options[i].selected) {
-      value.push(options[i].value);
+    constructor(props) {
+        super(props);
+        this.state = {
+            name: "",
+            url: "",
+            notes: "",
+            personalBoards: [],
+            selectedBoards: [],
+        }
     }
-  }
-  this.setState({value: value});
-}
-  handleInputChange = (event) => {
-      const target = event.target;
-      const value = target.type === 'checkbox' ? target.checked : target.value;
-      const name = target.name;
-      this.setState({value: event.target.value});
-  }
 
+    componentDidMount() {
+        // gets the personal boards of the user
+        // updates automatically when new p board is added
+        firebase.firestore()
+            .collection("personalBoards")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("pboards")
+            .onSnapshot(function (querySnapshot) {
+                var personalBoards = [];
+                querySnapshot.forEach(function (doc) {
+                    let newPersonalBoard = {
+                        boardName: doc.data().boardName,
+                        isPrivate: doc.data().isPrivate,
+                        boardID: doc.id,
+                    }
+                    personalBoards.push(newPersonalBoard);
+                });
+                console.log("Current Personal Boards: ", personalBoards.join(", "));
 
-  render() {
-      const personalBoards = this.state.personalBoards;
+                this.setState({
+                    personalBoards: personalBoards,
+                });
+            }.bind(this));
 
-      return <div>
+    }
 
-          <Dialog
-              open={this.props.open}
-              onClose={this.props.onClose}
+    handleInputChange = (event) => this.setState({ value: event.target.value });
 
-          >
-              <DialogTitle>
-                  Enter the details of the article
-              </DialogTitle>
-              <TextField
-                  id="outlined-basic"
-                  label="Enter Title"
-                  placeholder="Enter name of the article"
-                  value={this.state.value}
-                  name="board Name"
-                  type="text"
-                  required
-                  color="secondary"
-              />
-              <TextField
-                id="outlined-basic"
-                label="Enter URL"
-                placeholder="Enter web address"
-                value={this.state.value}
-                name="board Name"
-                type="text"
-                required
-                color="secondary"
-              />
+    render() {
+        const personalBoards = this.state.personalBoards;
 
-              <TextField
-                  id="outlined-basic"
-                  label="Enter Description"
-                  placeholder="Enter any comments"
-                  value={this.state.value}
-                  name="board Name"
-                  type="text"
-                  color="secondary"
-              />
+        return (
+            <Dialog
+                open={this.props.open}
+                onClose={this.props.onClose}
 
-              <FormControl>
-              <InputLabel id="dropdown">Select Board</InputLabel>
-              <Select
-                  labelId="dropdown"
-                  id="multiple-boards"
-                  multiple
-                  value={personalBoards}
-                  onChange={this.handleChangeMultiple}
-              >
+            >
+                <TextField
+                    id="outlined-basic"
+                    label="Enter Title"
+                    placeholder="Enter name of the article"
+                    value={this.state.name}
+                    name="name"
+                    type="text"
+                    required
+                    color="secondary"
+                    onChange={(e) => (this.setState({ name: e.target.value }))}
+                />
+                <TextField
+                    id="outlined-basic"
+                    label="URL"
+                    placeholder="Enter web address (http:// or https://)"
+                    value={this.state.url}
+                    name="url"
+                    type="text"
+                    required
+                    color="secondary"
+                    onChange={(e) => (this.setState({ url: e.target.value }))}
+                />
 
+                <TextField
+                    id="outlined-basic"
+                    label="Notes"
+                    placeholder="Enter any comments"
+                    value={this.state.notes}
+                    name="notes"
+                    type="text"
+                    color="secondary"
+                    onChange={(e) => (this.setState({ notes: e.target.value }))}
+                />
 
-              {personalBoards.map(board => (
-                  <MenuItem key={board.boardID} value={board.boardName}>
-                      {board.boardName}
-                  </MenuItem>
-              ))}
-              </Select>
-              </FormControl>
+                <FormControl>
+                    <InputLabel id="dropdown">Select Board</InputLabel>
+                    <Select
+                        labelId="dropdown"
+                        id="multiple-boards"
+                        multiple
+                        value={this.state.selectedBoards}
+                        onChange={(e) => this.setState({ selectedBoards: e.target.value })
+                        }
+                    >
+                        {personalBoards.map(board => (
+                            <MenuItem key={board.boardID} value={board.boardID}>
+                                {board.boardName}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
 
-              <DialogActions>
-                  <Button onClick={this.props.onClose}>Cancel</Button>
-                  <Button color="primary">Add</Button>
-              </DialogActions>
-          </Dialog>
-      </div>
-  }
+                <DialogActions>
+                    <Button onClick={this.props.onClose}>Cancel</Button>
+                    <Button color="primary" onClick={this.handleAdd}>Add</Button>
+                    {this.props.board &&
+                        <Button>Add to queue</Button>
+                    }
+                </DialogActions>
+            </Dialog>
+        );
+    }
+
+    handleAdd = () => {
+        const selectedBoards = [...this.state.selectedBoards];
+        const userid = firebase.auth().currentUser.uid;
+        const db = firebase.firestore();
+        const articlePromise = db.collection(`/localArticles/users/${userid}`).add({
+            name: this.state.name,
+            url: this.state.url,
+            notes: this.state.notes,
+            read: false,
+            starred: false,
+            time: new Date(),
+            user_reports: []
+        });
+
+        articlePromise.then((articleRef) => {
+            const userBoards = db.collection(`/personalBoards/${userid}/pboards`);
+            selectedBoards.forEach((boardId) => {
+                userBoards.doc(boardId).update({
+                    articles: firebase.firestore.FieldValue.arrayUnion(articleRef)
+                })
+            });
+        }).catch((err) => console.log(err));
+
+        this.setState({
+            name: "",
+            url: "",
+            notes: "",
+            personalBoards: [],
+            selectedBoards: [],
+        });
+        this.props.onClose();
+    }
 }
 
 export default ArticleForm;
