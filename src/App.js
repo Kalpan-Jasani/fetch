@@ -51,7 +51,7 @@ function App() {
                 <FirebaseAuthConsumer> 
                     {({ isSignedIn, user, providerId }) =>
                     isSignedIn ?
-                    <BasePage user={user}>
+                    <BasePage>
                         <Switch>
                             <Route path="/about">
                                 <About />
@@ -110,7 +110,7 @@ function BasePage(props) {
     const classes = useStyles();
     return (
         <div className={classes.root}>
-            <Sidebar user={props.user} classes={classes}/>
+            <Sidebar classes={classes}/>
             <div className={classes.content}>
                 {props.children}
             </div>
