@@ -1,6 +1,6 @@
 import React from 'react';
 import firebase from "firebase/app";
-import { TextField, Card, CardActions, CardContent, Button, Typography } from '@material-ui/core';
+import { Card, CardActions, CardContent, Button, Typography } from '@material-ui/core';
 import logo from './Assets/fetch.png';
 import { withRouter } from 'react-router-dom';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
@@ -43,15 +43,15 @@ class Register extends React.Component {
     }
 
     changeEmailHandler = (event) => {
-        this.setState({email: event.target.value})
+        this.setState({email: event.target.value});
     }
 
     changePasswordHandler = (event) => {
-        this.setState({password: event.target.value})
+        this.setState({password: event.target.value});
     }
 
     changeNameHandler = (event) => {
-        this.setState({name: event.target.value})
+        this.setState({name: event.target.value});
     }
 
     render() {
@@ -78,8 +78,7 @@ class Register extends React.Component {
                             </Button>
                         </CardActions>
                         </ValidatorForm>
-                        </CardContent>
-                        
+                        </CardContent>  
                     </Card>
                 </body>
             </div>
