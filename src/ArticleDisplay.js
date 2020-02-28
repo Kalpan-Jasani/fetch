@@ -37,44 +37,7 @@ class ArticleDisplay extends React.Component {
             isDeleteDialogOpen: true,
             selectedArticleDelete: doc,
         });
-    }
-
-    FetchQueue = () => {
-        var arr =[];
-        var docRef = firebase.firestore()
-        .collection("personalBoards")
-        .doc("2pGBLl2cV5g0PvpUV5gkmre9lfl1")
-        .collection("pboards").doc("4Nqka8epGxbU1T3lGxdg");
-
-        docRef.get().then(function(qdoc) {
-            
-            const board = qdoc.data();
-            const queueArticleReferences = board.queue;
-            const qpromise = queueArticleReferences.map(function(qref){
-                qref.get().then(function(qdoc){
-                    return {
-                        ref: qref,
-                        id: qdoc.id,
-                        ...qdoc.data()
-                    }
-                   
-                })
-                arr.push(qdoc);
-                console.log(arr);
-            });
-        })
-        .catch(function(error) {
-            console.log("Error getting documents: ", error);
-        });
-       
-      
-        this.setState({
-            Article: this.props,
-        });
-        
-        arr.unshift(this.state.Article);
-        
-    }
+    }    
 
 
     markRead = () => {
@@ -144,10 +107,16 @@ class ArticleDisplay extends React.Component {
         //setState(prevState => {return {...prevState, isDialogOpen: false}});
         this.setState({
             isDialogOpen: false,
-        })
+        });
     }
     
  
+    handleAddToQueue = () => {
+        this.props.addToQueue(this.props.articleRef, false);
+        this.setState({
+            isDialogOpen: false,
+        });
+    }
 
     render() {
 
@@ -188,8 +157,8 @@ class ArticleDisplay extends React.Component {
                             label="Star"
                     />
 
-                        <Button variant="contained" color="primary" onClick={this.FetchQueue}>
-                        front
+                        <Button variant="contained" color="primary" onClick={this.handleAddToQueue}>
+                            Add to queue
                         </Button>
                         <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                         Go to Website

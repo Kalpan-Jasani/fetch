@@ -33,7 +33,7 @@ function PersonalBoard(props) {
 
                 const board = boardDoc.data();
                 const articleReferences = board.articles;
-                const queueArticleReferences = board.queue;
+                const queueIds = board.queue.map(articleRef => articleRef.id);
                 const articlePromises = articleReferences.map(articleRef =>
                     articleRef.get().then((articleDoc) => {return {
                       ref: articleRef,
@@ -41,56 +41,44 @@ function PersonalBoard(props) {
                       ...articleDoc.data()
                     }}
                 ));
-
+                
                 Promise.all(articlePromises).then((articles) => {
                     const queue = [];
-                    articles.forEach(ref => {
-                        if(queueArticleReferences.includes(ref)) {
-                            queue.push(ref);
-                        }
-                    });
+                    queueIds.forEach((articleId) => {
+                        const article = articles.find(article => article.id == articleId);
+                        queue.push(article);
+                    })
+
                     setState(prevState => {
                         return {...prevState, articles: articles, queue: queue}
                     })
-                    console.log(articles);
                 });
 
-                const queuePromises = queueArticleReferences.map(articleRef =>
-                    articleRef.get().then((articleDoc) => {return {
-                      ref: articleRef,
-                      id: articleDoc.id,
-                      ...articleDoc.data()
-                    }}
-                ));
-
-                Promise.all(articlePromises).then((articles) => {
-                    setState(prevState => {
-                        return {...prevState, articles: articles}
-                    })
-                    console.log(articles);
-                });
                 setState(prevState => {return {...prevState, board: board}});
             }).
             catch((err) =>console.log(err));
         }
     });
 
-    const componentDidMount = () => {
-        // setup listener for the details of the board
-        // also obtain the references of all the articles
-            // loop through the article references and fetch the articles
-            // store these in the state as articles, by calling setState
+    const addToQueue = function(articleRef, front) {
 
-    };
+        const article = state.articles.find((article) => article.id == articleRef.id);
+        const userid = firebase.auth().currentUser.uid;
 
-    // const handleDialogOpen = () => {
-    //     setState(prevState => {return {...prevState, isDialogOpen: true}});
-    // }
+        // get copies of queue and references in queue
+        const queueRefs = [...state.board.queue];
+        const queue = [...state.queue];
+    
+        const boardRef = firebase.firestore()
+            .collection("personalBoards")
+            .doc(userid)
+            .collection("pboards").doc(id);
 
-    // const handleDialogClose = () => {
-    //     setState(prevState => {return {...prevState, isDialogOpen: false}});
-
-    // }
+        // update things
+        queueRefs.push(articleRef);
+        queue.push(article);
+        boardRef.update({queue: queueRefs}).then(setState(prevState => {return {...prevState, board: null}}));
+    }
 
     return (
         <div>
@@ -112,7 +100,9 @@ function PersonalBoard(props) {
                               ArticleName={article.name}
                               articleId={article.id}
                               articleRef={article.ref}
-                              boardId={id}/>
+                              boardId={id}
+                              addToQueue={addToQueue}/>
+                            <p>queue length: {state.queue.length}</p>
                         </div>
                     );
                 })
