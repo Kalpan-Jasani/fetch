@@ -5,6 +5,7 @@ import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
 import ArticleDisplay from './ArticleDisplay';
 import './personalBoard.css';
+import { Divider } from '@material-ui/core';
 
 
 function PersonalBoard(props) {
@@ -13,6 +14,7 @@ function PersonalBoard(props) {
     const [state, setState] = React.useState({
         board: null,
         articles: [],
+        queue: [],
         isDialogOpen: false,
     });
     const db = firebase.firestore();
@@ -32,6 +34,7 @@ function PersonalBoard(props) {
 
                 const board = boardDoc.data();
                 const articleReferences = board.articles;
+                const queueIds = board.queue.map(articleRef => articleRef.id);
                 const articlePromises = articleReferences.map(articleRef =>
                     articleRef.get().then((articleDoc) => {return {
                       ref: articleRef,
@@ -39,13 +42,19 @@ function PersonalBoard(props) {
                       ...articleDoc.data()
                     }}
                 ));
-
+                
                 Promise.all(articlePromises).then((articles) => {
-                    setState(prevState => {
-                        return {...prevState, articles: articles}
+                    const queue = [];
+                    queueIds.forEach((articleId) => {
+                        const article = articles.find(article => article.id == articleId);
+                        queue.push(article);
                     })
-                    console.log(articles);
+
+                    setState(prevState => {
+                        return {...prevState, articles: articles, queue: queue}
+                    })
                 });
+
                 setState(prevState => {return {...prevState, board: board}});
             }).
             catch((err) =>console.log(err));
@@ -56,51 +65,86 @@ function PersonalBoard(props) {
         setState(prevState => {return {...prevState, board: null, articles: []}});
     }
 
-    const componentDidMount = () => {
-        // setup listener for the details of the board
-        // also obtain the references of all the articles
-            // loop through the article references and fetch the articles
-            // store these in the state as articles, by calling setState
+    const addToQueue = function(articleRef, front) {
 
-    };
+        const article = state.articles.find((article) => article.id == articleRef.id);
+        const userid = firebase.auth().currentUser.uid;
 
-    // const handleDialogOpen = () => {
-    //     setState(prevState => {return {...prevState, isDialogOpen: true}});
-    // }
+        // get copies of queue and references in queue
+        const queueRefs = [...state.board.queue];
+        const queue = [...state.queue];
+    
+        const boardRef = firebase.firestore()
+            .collection("personalBoards")
+            .doc(userid)
+            .collection("pboards").doc(id);
 
-    // const handleDialogClose = () => {
-    //     setState(prevState => {return {...prevState, isDialogOpen: false}});
-
-    // }
+        // update things
+        queueRefs.push(articleRef);
+        queue.push(article);
+        boardRef.update({queue: queueRefs}).then(setState(prevState => {return {...prevState, board: null}}));
+    }
 
     return (
-        <div>
+        <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
             {
                 state.board &&
                 <h2>{state.board.boardName}</h2>
             }
 
-            {
-                state.articles.map((article) => {
-                    return (
-                        <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
-                            <p>{article.name}</p>
-                             
-                            <ArticleDisplay 
-                             // isDialogOpen={state.isDialogOpen} 
-                             // handleDialogClose={handleDialogClose} 
-                              url={article.url} 
-                              ArticleName={article.name}
-                              articleId={article.id}
-                              articleRef={article.ref}
-                              boardId={id}
-                              refreshBoard={handleRefreshBoard}
-                              readStatus={article.read}
-                              />
-                        </div>
-                    );
-                })
-            }
+            <h3>Articles ({state.articles.length})</h3>
+            <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                {
+                    
+                    state.articles.map((article) => {
+                        return (
+                            <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
+                                <p>{article.name}</p>
+                                
+                                <ArticleDisplay 
+                                // isDialogOpen={state.isDialogOpen} 
+                                // handleDialogClose={handleDialogClose} 
+                                url={article.url} 
+                                ArticleName={article.name}
+                                articleId={article.id}
+                                articleRef={article.ref}
+                                boardId={id}
+                                addToQueue={addToQueue}
+                                refreshBoard={handleRefreshBoard}
+                                readStatus={article.read}
+                                />
+                            </div>
+                        );
+                    })
+                }
+            </div>
+            <Divider />
+            <h3>Queue ({state.queue.length})</h3>
+
+            <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                {
+                    state.queue.map((article) => {
+                        return (
+                            <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
+                                <p>{article.name}</p>
+                                
+                                <ArticleDisplay 
+                                // isDialogOpen={state.isDialogOpen} 
+                                // handleDialogClose={handleDialogClose} 
+                                url={article.url} 
+                                ArticleName={article.name}
+                                articleId={article.id}
+                                articleRef={article.ref}
+                                boardId={id}
+                                addToQueue={addToQueue}
+                                refreshBoard={handleRefreshBoard}
+                                readStatus={article.read}
+                                />
+                            </div>
+                        );
+                    })
+                }
+            </div>
         </div>
 
     )

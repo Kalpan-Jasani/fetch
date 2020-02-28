@@ -10,6 +10,11 @@ import StarBorder from '@material-ui/icons/StarBorder';
 import Button from '@material-ui/core/Button';
 import firebase from "firebase";
 import { green } from '@material-ui/core/colors';
+import { useParams } from 'react-router-dom';
+import { func } from 'prop-types';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
 
 class ArticleDisplay extends React.Component {
     constructor(props) {
@@ -18,8 +23,10 @@ class ArticleDisplay extends React.Component {
           // url: '',
            isStarred: false,
            isDialogOpen: false,
+           queue: [],
           // handleDialogClose: ()=> {},
-           //ArticleName: '',
+           Article: {},
+           board: null,
         }
     }
 
@@ -30,7 +37,8 @@ class ArticleDisplay extends React.Component {
             isDeleteDialogOpen: true,
             selectedArticleDelete: doc,
         });
-    }
+    }    
+
 
     markRead = () => {
         this.props.articleRef.update({read: true});
@@ -101,7 +109,7 @@ class ArticleDisplay extends React.Component {
         //setState(prevState => {return {...prevState, isDialogOpen: false}});
         this.setState({
             isDialogOpen: false,
-        })
+        });
     }
     
     handlemarkUnread = () => {
@@ -114,6 +122,12 @@ class ArticleDisplay extends React.Component {
         this.props.refreshBoard();
     }
  
+    handleAddToQueue = () => {
+        this.props.addToQueue(this.props.articleRef, false);
+        this.setState({
+            isDialogOpen: false,
+        });
+    }
 
     render() {
        
@@ -147,6 +161,10 @@ class ArticleDisplay extends React.Component {
                             control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}
                             label="Star"
                     />
+
+                        <Button variant="contained" color="primary" onClick={this.handleAddToQueue}>
+                            Add to queue
+                        </Button>
                         <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                         Go to Website
                         </Button>
@@ -158,6 +176,7 @@ class ArticleDisplay extends React.Component {
                 </ DialogContent>
             </Dialog>
             </div>
+
         );
   }
 
