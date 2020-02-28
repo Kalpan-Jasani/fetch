@@ -15,13 +15,11 @@ class ArticleDisplay extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-           url: '',
+          // url: '',
            isStarred: false,
            isDialogOpen: false,
-           handleDialogClose: ()=> {},
-           ArticleName: '',
-           selectedArticleDelete: "",
-           isDeleteDialogOpen: false,
+          // handleDialogClose: ()=> {},
+           //ArticleName: '',
         }
     }
 
@@ -32,6 +30,10 @@ class ArticleDisplay extends React.Component {
             isDeleteDialogOpen: true,
             selectedArticleDelete: doc,
         });
+    }
+
+    markRead = () => {
+        this.props.articleRef.update({read: true});
     }
 
     handleDeleteDialogClose = () => {
@@ -65,16 +67,16 @@ class ArticleDisplay extends React.Component {
 
     handleOpenNewTab = (event) => {
         window.open(this.props.url);
+        this.markRead();
     }
 
-    handleDeleteArticle = async (event) => {
-
-      const target = event.target;
-
+    handleDeleteArticle = async () => {
 
       const userid = firebase.auth().currentUser.uid;
-     firebase.firestore().doc(`localArticles/users/${userid}/${this.props.id}`)
-      .delete()
+     firebase.firestore().doc(`personalBoards/${userid}/pboards/${this.props.boardId}`)
+      .update({
+          articles: firebase.firestore.FieldValue.arrayRemove(this.props.articleRef)
+      })
       .then(function() {
           console.log("Article successfully deleted!");
       })
@@ -82,25 +84,47 @@ class ArticleDisplay extends React.Component {
           console.error("Error deleting article: ", error);
       });
 
-      this.setState({
-          isDeleteDialogOpen: false,
-          selectedArticleDelete: "",
-      });
-
+    this.handleDialogClose();
     }
+
+      
+    handleDialogOpen = () => {
+        ///setState(prevState => {return {...prevState, isDialogOpen: true}});
+        this.setState({
+            isDialogOpen: true,
+        })
+    }
+
+    handleDialogClose = () => {
+        //setState(prevState => {return {...prevState, isDialogOpen: false}});
+        this.setState({
+            isDialogOpen: false,
+        })
+    }
+    
+ 
+
     render() {
 
         return (
-            <Dialog
-            open={this.props.isDialogOpen}
+
+            <div>
+
+            
+            <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
+                    Preview 
+            </Button>
+        
+            <Dialog 
+            open={this.state.isDialogOpen}
             fullWidth={true}
             >
                 <DialogTitle>
                     {this.props.ArticleName}
                 </DialogTitle>
                 <DialogContent>
-                    <iframe src={this.props.url}  width="100%" height="500px" ></iframe>  {/*hardcoded url*/}
-
+                    <iframe src={this.props.url}  width="100%" height="500px" ></iframe> 
+                
                     <DialogActions style={{ paddingLeft: 20 }}>
                         <FormControlLabel
                             control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}
@@ -109,13 +133,14 @@ class ArticleDisplay extends React.Component {
                         <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                         Go to Website
                         </Button>
-                        <Button variant="contained" color="secondary" onClick={this.props.handleDialogClose} >
+                        <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
                         Close
                         </Button>
                         <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">Delete</Button>
                     </ DialogActions>
                 </ DialogContent>
             </Dialog>
+            </div>
         );
   }
 

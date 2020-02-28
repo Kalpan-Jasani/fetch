@@ -4,6 +4,8 @@ import { Link } from '@material-ui/core';
 import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
 import ArticleDisplay from './ArticleDisplay';
+import './personalBoard.css';
+
 
 function PersonalBoard(props) {
 
@@ -32,6 +34,7 @@ function PersonalBoard(props) {
                 const articleReferences = board.articles;
                 const articlePromises = articleReferences.map(articleRef =>
                     articleRef.get().then((articleDoc) => {return {
+                      ref: articleRef,
                       id: articleDoc.id,
                       ...articleDoc.data()
                     }}
@@ -57,13 +60,14 @@ function PersonalBoard(props) {
 
     };
 
-    const handleDialogOpen = () => {
-        setState(prevState => {return {...prevState, isDialogOpen: true}});
-    }
+    // const handleDialogOpen = () => {
+    //     setState(prevState => {return {...prevState, isDialogOpen: true}});
+    // }
 
-    const handleDialogClose = () => {
-        setState(prevState => {return {...prevState, isDialogOpen: false}});
-    }
+    // const handleDialogClose = () => {
+    //     setState(prevState => {return {...prevState, isDialogOpen: false}});
+
+    // }
 
     return (
         <div>
@@ -75,17 +79,17 @@ function PersonalBoard(props) {
             {
                 state.articles.map((article) => {
                     return (
-                        <div style={{display: 'inline', float: 'left'}}>
+                        <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
                             <p>{article.name}</p>
-                            <Button variant="contained" color="secondary"  onClick={handleDialogOpen}>
-                                Preview
-                            </Button>
-                            <ArticleDisplay
-                              isDialogOpen={state.isDialogOpen}
-                              handleDialogClose={handleDialogClose}
-                              url={article.url}
+                             
+                            <ArticleDisplay 
+                             // isDialogOpen={state.isDialogOpen} 
+                             // handleDialogClose={handleDialogClose} 
+                              url={article.url} 
                               ArticleName={article.name}
-                              id={article.id}/>
+                              articleId={article.id}
+                              articleRef={article.ref}
+                              boardId={id}/>
                         </div>
                     );
                 })
