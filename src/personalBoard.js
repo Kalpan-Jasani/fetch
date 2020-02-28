@@ -55,13 +55,14 @@ function PersonalBoard(props) {
 
     };
 
-    const handleDialogOpen = () => {
-        setState(prevState => {return {...prevState, isDialogOpen: true}});
-    }
+    // const handleDialogOpen = () => {
+    //     setState(prevState => {return {...prevState, isDialogOpen: true}});
+    // }
 
-    const handleDialogClose = () => {
-        setState(prevState => {return {...prevState, isDialogOpen: false}});
-    }
+    // const handleDialogClose = () => {
+    //     setState(prevState => {return {...prevState, isDialogOpen: false}});
+
+    // }
 
     return (
         <div>
@@ -75,12 +76,10 @@ function PersonalBoard(props) {
                     return (
                         <div style={{display: 'inline', float: 'left'}}>
                             <p>{article.name}</p>
-                            <Button variant="contained" color="secondary"  onClick={handleDialogOpen}>
-                                Preview 
-                            </Button>
+                             
                             <ArticleDisplay 
-                              isDialogOpen={state.isDialogOpen} 
-                              handleDialogClose={handleDialogClose} 
+                             // isDialogOpen={state.isDialogOpen} 
+                             // handleDialogClose={handleDialogClose} 
                               url={article.url} 
                               ArticleName={article.name}/>
                         </div>

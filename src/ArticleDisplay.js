@@ -15,11 +15,11 @@ class ArticleDisplay extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-           url: '',
+          // url: '',
            isStarred: false,
            isDialogOpen: false,
-           handleDialogClose: ()=> {},
-           ArticleName: '',
+          // handleDialogClose: ()=> {},
+           //ArticleName: '',
         }
     }
 
@@ -44,34 +44,56 @@ class ArticleDisplay extends React.Component {
         
     }
 
+    handleDialogOpen = () => {
+        ///setState(prevState => {return {...prevState, isDialogOpen: true}});
+        this.setState({
+            isDialogOpen: true,
+        })
+    }
+
+    handleDialogClose = () => {
+        //setState(prevState => {return {...prevState, isDialogOpen: false}});
+        this.setState({
+            isDialogOpen: false,
+        })
+    }
 
     render() {
         
         return (
+
+            <div>
+
+            
+            <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
+                    Preview 
+            </Button>
+        
             <Dialog 
-            open={this.props.isDialogOpen}
+            open={this.state.isDialogOpen}
             fullWidth={true}
             >
                 <DialogTitle>
                     {this.props.ArticleName}
                 </DialogTitle>
                 <DialogContent>
-                    <iframe src={this.props.url}  width="100%" height="500px" ></iframe>  {/*hardcoded url*/}
+                    <iframe src={this.props.url}  width="100%" height="500px" ></iframe> 
                 
                     <DialogActions style={{ paddingLeft: 20 }}>
                         <FormControlLabel
                             control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}
                             label="Star"
                     />
-                        <Button variant="contained" color="Primary" onClick={this.props.handleDialogClose}>
+                        <Button variant="contained" color="Primary" >
                         Go to Website
                         </Button>
-                        <Button variant="contained" color="secondary" onClick={this.props.handleDialogClose} >
+                        <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
                         Close
                         </Button>
                     </ DialogActions>
                 </ DialogContent>
             </Dialog>
+            </div>
         );
   }
 
