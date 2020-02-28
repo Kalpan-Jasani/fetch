@@ -4,6 +4,8 @@ import { Link } from '@material-ui/core';
 import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
 import ArticleDisplay from './ArticleDisplay';
+import './personalBoard.css';
+
 
 function PersonalBoard(props) {
 
@@ -20,7 +22,6 @@ function PersonalBoard(props) {
     // using functional component cause of useParams above (and React liked
     // functional components more)
     useEffect(() => {
-        console.log("flag 1");
         if(state.board === null) {
             const boardRef = db.doc(`personalBoards/${userid}/pboards/${id}`);
             boardRef.get().then((boardDoc) => {
@@ -32,9 +33,13 @@ function PersonalBoard(props) {
                 const board = boardDoc.data();
                 const articleReferences = board.articles;
                 const articlePromises = articleReferences.map(articleRef =>
-                    articleRef.get().then((articleDoc) => articleDoc.data())
-                    );
-                    
+                    articleRef.get().then((articleDoc) => {return {
+                      ref: articleRef,
+                      id: articleDoc.id,
+                      ...articleDoc.data()
+                    }}
+                ));
+
                 Promise.all(articlePromises).then((articles) => {
                     setState(prevState => {
                         return {...prevState, articles: articles}
@@ -74,14 +79,17 @@ function PersonalBoard(props) {
             {
                 state.articles.map((article) => {
                     return (
-                        <div style={{display: 'inline', float: 'left'}}>
+                        <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
                             <p>{article.name}</p>
                              
                             <ArticleDisplay 
                              // isDialogOpen={state.isDialogOpen} 
                              // handleDialogClose={handleDialogClose} 
                               url={article.url} 
-                              ArticleName={article.name}/>
+                              ArticleName={article.name}
+                              articleId={article.id}
+                              articleRef={article.ref}
+                              boardId={id}/>
                         </div>
                     );
                 })

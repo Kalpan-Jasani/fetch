@@ -23,6 +23,27 @@ class ArticleDisplay extends React.Component {
         }
     }
 
+
+    handleDeleteDialogOpen = (doc) => {
+        console.log("DOC ID: ", doc)
+        this.setState({
+            isDeleteDialogOpen: true,
+            selectedArticleDelete: doc,
+        });
+    }
+
+    markRead = () => {
+        this.props.articleRef.update({read: true});
+    }
+
+    handleDeleteDialogClose = () => {
+        // closes the dialog for delete
+        this.setState({
+            isDeleteDialogOpen: false,
+            selectedArticleDelete: "",
+        });
+    }
+
     handleStar = async (event) => {
 
 
@@ -41,9 +62,32 @@ class ArticleDisplay extends React.Component {
         .update({
             starred: target.checked
         });
-        
+
     }
 
+    handleOpenNewTab = (event) => {
+        window.open(this.props.url);
+        this.markRead();
+    }
+
+    handleDeleteArticle = async () => {
+
+      const userid = firebase.auth().currentUser.uid;
+     firebase.firestore().doc(`personalBoards/${userid}/pboards/${this.props.boardId}`)
+      .update({
+          articles: firebase.firestore.FieldValue.arrayRemove(this.props.articleRef)
+      })
+      .then(function() {
+          console.log("Article successfully deleted!");
+      })
+      .catch(function(error) {
+          console.error("Error deleting article: ", error);
+      });
+
+    this.handleDialogClose();
+    }
+
+      
     handleDialogOpen = () => {
         ///setState(prevState => {return {...prevState, isDialogOpen: true}});
         this.setState({
@@ -57,9 +101,11 @@ class ArticleDisplay extends React.Component {
             isDialogOpen: false,
         })
     }
+    
+ 
 
     render() {
-        
+
         return (
 
             <div>
@@ -84,12 +130,13 @@ class ArticleDisplay extends React.Component {
                             control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}
                             label="Star"
                     />
-                        <Button variant="contained" color="Primary" >
+                        <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                         Go to Website
                         </Button>
                         <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
                         Close
                         </Button>
+                        <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">Delete</Button>
                     </ DialogActions>
                 </ DialogContent>
             </Dialog>
