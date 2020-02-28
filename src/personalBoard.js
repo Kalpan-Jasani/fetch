@@ -13,6 +13,7 @@ function PersonalBoard(props) {
     const [state, setState] = React.useState({
         board: null,
         articles: [],
+        queue: [],
         isDialogOpen: false,
     });
     const db = firebase.firestore();
@@ -32,7 +33,29 @@ function PersonalBoard(props) {
 
                 const board = boardDoc.data();
                 const articleReferences = board.articles;
+                const queueArticleReferences = board.queue;
                 const articlePromises = articleReferences.map(articleRef =>
+                    articleRef.get().then((articleDoc) => {return {
+                      ref: articleRef,
+                      id: articleDoc.id,
+                      ...articleDoc.data()
+                    }}
+                ));
+
+                Promise.all(articlePromises).then((articles) => {
+                    const queue = [];
+                    articles.forEach(ref => {
+                        if(queueArticleReferences.includes(ref)) {
+                            queue.push(ref);
+                        }
+                    });
+                    setState(prevState => {
+                        return {...prevState, articles: articles, queue: queue}
+                    })
+                    console.log(articles);
+                });
+
+                const queuePromises = queueArticleReferences.map(articleRef =>
                     articleRef.get().then((articleDoc) => {return {
                       ref: articleRef,
                       id: articleDoc.id,
