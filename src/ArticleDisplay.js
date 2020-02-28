@@ -10,6 +10,11 @@ import StarBorder from '@material-ui/icons/StarBorder';
 import Button from '@material-ui/core/Button';
 import firebase from "firebase";
 import { green } from '@material-ui/core/colors';
+import { useParams } from 'react-router-dom';
+import { func } from 'prop-types';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
 
 class ArticleDisplay extends React.Component {
     constructor(props) {
@@ -18,8 +23,10 @@ class ArticleDisplay extends React.Component {
           // url: '',
            isStarred: false,
            isDialogOpen: false,
+           queue: [],
           // handleDialogClose: ()=> {},
-           //ArticleName: '',
+           Article: {},
+           board: null,
         }
     }
 
@@ -31,6 +38,44 @@ class ArticleDisplay extends React.Component {
             selectedArticleDelete: doc,
         });
     }
+
+    FetchQueue = () => {
+        var arr =[];
+        var docRef = firebase.firestore()
+        .collection("personalBoards")
+        .doc("2pGBLl2cV5g0PvpUV5gkmre9lfl1")
+        .collection("pboards").doc("4Nqka8epGxbU1T3lGxdg");
+
+        docRef.get().then(function(qdoc) {
+            
+            const board = qdoc.data();
+            const queueArticleReferences = board.queue;
+            const qpromise = queueArticleReferences.map(function(qref){
+                qref.get().then(function(qdoc){
+                    return {
+                        ref: qref,
+                        id: qdoc.id,
+                        ...qdoc.data()
+                    }
+                   
+                })
+                arr.push(qdoc);
+                console.log(arr);
+            });
+        })
+        .catch(function(error) {
+            console.log("Error getting documents: ", error);
+        });
+       
+      
+        this.setState({
+            Article: this.props,
+        });
+        
+        arr.unshift(this.state.Article);
+        
+    }
+
 
     markRead = () => {
         this.props.articleRef.update({read: true});
@@ -106,6 +151,18 @@ class ArticleDisplay extends React.Component {
 
     render() {
 
+        // let queuedisplay;
+
+        // if(typeof queue != "undefined" && queue.length > 0){
+        //     queuedisplay = <Card >
+        //             <CardContent>
+                
+        //             </CardContent>
+        //              </Card>  
+        // } else {
+        //     queuedisplay = <p> No Queue to Display </p>
+        // }
+
         return (
 
             <div>
@@ -130,6 +187,10 @@ class ArticleDisplay extends React.Component {
                             control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}
                             label="Star"
                     />
+
+                        <Button variant="contained" color="primary" onClick={this.FetchQueue}>
+                        front
+                        </Button>
                         <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                         Go to Website
                         </Button>
@@ -140,7 +201,23 @@ class ArticleDisplay extends React.Component {
                     </ DialogActions>
                 </ DialogContent>
             </Dialog>
+            {this.state.Article.length > 0 ? (
+                this.state.Article.map(function(q){
+                    return(
+                    <Card >
+                         <CardContent>
+                            {q.id}
+                         </CardContent>
+                    </Card> 
+                )})
+               
+            ) :(
+              <p> No Articles in the queue</p>  
+            )
+            }
+             
             </div>
+
         );
   }
 
