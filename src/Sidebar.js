@@ -9,7 +9,18 @@ import firebase from 'firebase';
 
 import './sidebar.css';
 
+const getInitials = (string) => {
+    var names = string.split(' '),
+        initials = names[0].substring(0, 1).toUpperCase();
+
+    if (names.length > 1) {
+        initials += names[names.length - 1].substring(0, 1).toUpperCase();
+    }
+    return initials;
+}
+
 function Sidebar(props) {
+    var user = firebase.auth().currentUser;
     return (
         <Drawer
             variant="permanent"
@@ -21,12 +32,17 @@ function Sidebar(props) {
             }}
         >
             <div className="sidebar-item">
-                <AccountCircleIcon className="user-photo"/>
+                {user.photoURL === "" && user.displayName !== ""
+                    ? <Avatar>{getInitials(user.displayName)}</Avatar>
+                    : <Avatar src={user.photoURL} alt="" />}
                 <p>{firebase.auth().currentUser.email}</p>
             </div>
             <Link to="/home" className="sidebar-item home link">
                 <HomeIcon/>
                 <span>Home</span>
+            </Link>
+            <Link to="/profile" className="sidebar-item link">
+                Profile
             </Link>
             <Divider/>
             <Link to="/starred" className="sidebar-item starred link">
