@@ -175,21 +175,6 @@ class ArticleDisplay extends React.Component {
                     </ DialogActions>
                 </ DialogContent>
             </Dialog>
-            {this.state.Article.length > 0 ? (
-                this.state.Article.map(function(q){
-                    return(
-                    <Card >
-                         <CardContent>
-                            {q.id}
-                         </CardContent>
-                    </Card> 
-                )})
-               
-            ) :(
-              <p> No Articles in the queue</p>  
-            )
-            }
-             
             </div>
 
         );

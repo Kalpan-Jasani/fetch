@@ -5,6 +5,7 @@ import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
 import ArticleDisplay from './ArticleDisplay';
 import './personalBoard.css';
+import { Divider } from '@material-ui/core';
 
 
 function PersonalBoard(props) {
@@ -85,34 +86,65 @@ function PersonalBoard(props) {
     }
 
     return (
-        <div>
+        <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
             {
                 state.board &&
                 <h2>{state.board.boardName}</h2>
             }
 
-            {
-                state.articles.map((article) => {
-                    return (
-                        <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
-                            <p>{article.name}</p>
-                             
-                            <ArticleDisplay 
-                             // isDialogOpen={state.isDialogOpen} 
-                             // handleDialogClose={handleDialogClose} 
-                              url={article.url} 
-                              ArticleName={article.name}
-                              articleId={article.id}
-                              articleRef={article.ref}
-                              boardId={id}
-                              addToQueue={addToQueue}
-                              refreshBoard={handleRefreshBoard}
-                              readStatus={article.read}
-                              />
-                        </div>
-                    );
-                })
-            }
+            <h3>Articles ({state.articles.length})</h3>
+            <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                {
+                    
+                    state.articles.map((article) => {
+                        return (
+                            <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
+                                <p>{article.name}</p>
+                                
+                                <ArticleDisplay 
+                                // isDialogOpen={state.isDialogOpen} 
+                                // handleDialogClose={handleDialogClose} 
+                                url={article.url} 
+                                ArticleName={article.name}
+                                articleId={article.id}
+                                articleRef={article.ref}
+                                boardId={id}
+                                addToQueue={addToQueue}
+                                refreshBoard={handleRefreshBoard}
+                                readStatus={article.read}
+                                />
+                            </div>
+                        );
+                    })
+                }
+            </div>
+            <Divider />
+            <h3>Queue ({state.queue.length})</h3>
+
+            <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                {
+                    state.queue.map((article) => {
+                        return (
+                            <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
+                                <p>{article.name}</p>
+                                
+                                <ArticleDisplay 
+                                // isDialogOpen={state.isDialogOpen} 
+                                // handleDialogClose={handleDialogClose} 
+                                url={article.url} 
+                                ArticleName={article.name}
+                                articleId={article.id}
+                                articleRef={article.ref}
+                                boardId={id}
+                                addToQueue={addToQueue}
+                                refreshBoard={handleRefreshBoard}
+                                readStatus={article.read}
+                                />
+                            </div>
+                        );
+                    })
+                }
+            </div>
         </div>
 
     )
