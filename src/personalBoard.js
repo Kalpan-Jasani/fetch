@@ -60,6 +60,10 @@ function PersonalBoard(props) {
         }
     });
 
+    const handleRefreshBoard = () => {
+        setState(prevState => {return {...prevState, board: null, articles: []}});
+    }
+
     const addToQueue = function(articleRef, front) {
 
         const article = state.articles.find((article) => article.id == articleRef.id);
@@ -101,8 +105,10 @@ function PersonalBoard(props) {
                               articleId={article.id}
                               articleRef={article.ref}
                               boardId={id}
-                              addToQueue={addToQueue}/>
-                            <p>queue length: {state.queue.length}</p>
+                              addToQueue={addToQueue}
+                              refreshBoard={handleRefreshBoard}
+                              readStatus={article.read}
+                              />
                         </div>
                     );
                 })

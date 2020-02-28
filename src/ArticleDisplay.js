@@ -76,10 +76,11 @@ class ArticleDisplay extends React.Component {
     handleOpenNewTab = (event) => {
         window.open(this.props.url);
         this.markRead();
+        this.props.refreshBoard();
     }
 
     handleDeleteArticle = async () => {
-
+      const props = this.props;
       const userid = firebase.auth().currentUser.uid;
      firebase.firestore().doc(`personalBoards/${userid}/pboards/${this.props.boardId}`)
       .update({
@@ -87,6 +88,7 @@ class ArticleDisplay extends React.Component {
       })
       .then(function() {
           console.log("Article successfully deleted!");
+          props.refreshBoard();
       })
       .catch(function(error) {
           console.error("Error deleting article: ", error);
@@ -110,6 +112,15 @@ class ArticleDisplay extends React.Component {
         });
     }
     
+    handlemarkUnread = () => {
+        this.props.articleRef.update({read: false});
+        this.props.refreshBoard();
+    }
+
+    handlemarkRead = () => {
+        this.props.articleRef.update({read: true});
+        this.props.refreshBoard();
+    }
  
     handleAddToQueue = () => {
         this.props.addToQueue(this.props.articleRef, false);
@@ -119,19 +130,7 @@ class ArticleDisplay extends React.Component {
     }
 
     render() {
-
-        // let queuedisplay;
-
-        // if(typeof queue != "undefined" && queue.length > 0){
-        //     queuedisplay = <Card >
-        //             <CardContent>
-                
-        //             </CardContent>
-        //              </Card>  
-        // } else {
-        //     queuedisplay = <p> No Queue to Display </p>
-        // }
-
+       
         return (
 
             <div>
@@ -140,7 +139,13 @@ class ArticleDisplay extends React.Component {
             <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
                     Preview 
             </Button>
-        
+            <br/>
+            {this.props.readStatus ? 
+            <Button variant="outlined" onClick={this.handlemarkUnread}> Mark Unread </Button> 
+            : 
+            <Button variant="outlined" onClick={this.handlemarkRead}> Mark Read </Button>
+            }
+            
             <Dialog 
             open={this.state.isDialogOpen}
             fullWidth={true}
