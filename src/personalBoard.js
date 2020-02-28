@@ -52,6 +52,10 @@ function PersonalBoard(props) {
         }
     });
 
+    const handleRefreshBoard = () => {
+        setState(prevState => {return {...prevState, board: null, articles: []}});
+    }
+
     const componentDidMount = () => {
         // setup listener for the details of the board
         // also obtain the references of all the articles
@@ -89,7 +93,10 @@ function PersonalBoard(props) {
                               ArticleName={article.name}
                               articleId={article.id}
                               articleRef={article.ref}
-                              boardId={id}/>
+                              boardId={id}
+                              refreshBoard={handleRefreshBoard}
+                              readStatus={article.read}
+                              />
                         </div>
                     );
                 })
