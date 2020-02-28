@@ -95,11 +95,11 @@ class Profile extends React.Component {
         } else {
             console.log("User is not signed in!");
         }
+        firebase.auth().signOut();
         this.setState({
             loadDelete: false,
             open: false
         });
-        this.props.history.push("/login");
     }
 
     getInitials = (string) => {
