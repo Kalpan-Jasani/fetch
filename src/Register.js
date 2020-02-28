@@ -42,6 +42,24 @@ class Register extends React.Component {
                 platform: "Email",
             });
 
+            await firebase.firestore()
+            .collection("personalBoards")
+            .doc(user.uid)
+            .collection("pboards")
+            .add({
+                boardName: "General",
+                isPrivate: false,
+                articles: [],  
+                followers: [],
+                queue: []
+            }).then(function(docRef) {
+                console.log("success! docID", docRef.id);
+            })
+            .catch(function(error) {
+                console.error("Error when writing doc to database ", error);
+            });
+    
+
         this.props.history.push("/home");
     }
 
