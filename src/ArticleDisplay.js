@@ -20,7 +20,26 @@ class ArticleDisplay extends React.Component {
            isDialogOpen: false,
            handleDialogClose: ()=> {},
            ArticleName: '',
+           selectedArticleDelete: "",
+           isDeleteDialogOpen: false,
         }
+    }
+
+
+    handleDeleteDialogOpen = (doc) => {
+        console.log("DOC ID: ", doc)
+        this.setState({
+            isDeleteDialogOpen: true,
+            selectedArticleDelete: doc,
+        });
+    }
+
+    handleDeleteDialogClose = () => {
+        // closes the dialog for delete
+        this.setState({
+            isDeleteDialogOpen: false,
+            selectedArticleDelete: "",
+        });
     }
 
     handleStar = async (event) => {
@@ -48,6 +67,27 @@ class ArticleDisplay extends React.Component {
         window.open(this.props.url);
     }
 
+    handleDeleteArticle = async (event) => {
+
+      const target = event.target;
+
+
+      const userid = firebase.auth().currentUser.uid;
+     firebase.firestore().doc(`localArticles/users/${userid}/${this.props.id}`)
+      .delete()
+      .then(function() {
+          console.log("Article successfully deleted!");
+      })
+      .catch(function(error) {
+          console.error("Error deleting article: ", error);
+      });
+
+      this.setState({
+          isDeleteDialogOpen: false,
+          selectedArticleDelete: "",
+      });
+
+    }
     render() {
 
         return (
@@ -72,6 +112,7 @@ class ArticleDisplay extends React.Component {
                         <Button variant="contained" color="secondary" onClick={this.props.handleDialogClose} >
                         Close
                         </Button>
+                        <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">Delete</Button>
                     </ DialogActions>
                 </ DialogContent>
             </Dialog>

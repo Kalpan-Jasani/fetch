@@ -20,7 +20,6 @@ function PersonalBoard(props) {
     // using functional component cause of useParams above (and React liked
     // functional components more)
     useEffect(() => {
-        console.log("flag 1");
         if(state.board === null) {
             const boardRef = db.doc(`personalBoards/${userid}/pboards/${id}`);
             boardRef.get().then((boardDoc) => {
@@ -32,9 +31,12 @@ function PersonalBoard(props) {
                 const board = boardDoc.data();
                 const articleReferences = board.articles;
                 const articlePromises = articleReferences.map(articleRef =>
-                    articleRef.get().then((articleDoc) => articleDoc.data())
-                    );
-                    
+                    articleRef.get().then((articleDoc) => {return {
+                      id: articleDoc.id,
+                      ...articleDoc.data()
+                    }}
+                ));
+
                 Promise.all(articlePromises).then((articles) => {
                     setState(prevState => {
                         return {...prevState, articles: articles}
@@ -76,13 +78,14 @@ function PersonalBoard(props) {
                         <div style={{display: 'inline', float: 'left'}}>
                             <p>{article.name}</p>
                             <Button variant="contained" color="secondary"  onClick={handleDialogOpen}>
-                                Preview 
+                                Preview
                             </Button>
-                            <ArticleDisplay 
-                              isDialogOpen={state.isDialogOpen} 
-                              handleDialogClose={handleDialogClose} 
-                              url={article.url} 
-                              ArticleName={article.name}/>
+                            <ArticleDisplay
+                              isDialogOpen={state.isDialogOpen}
+                              handleDialogClose={handleDialogClose}
+                              url={article.url}
+                              ArticleName={article.name}
+                              id={article.id}/>
                         </div>
                     );
                 })
