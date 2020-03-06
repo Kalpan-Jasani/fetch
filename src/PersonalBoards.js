@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TextField, FormControlLabel, IconButton } from '@material-ui/core';
+import { Button, TextField, FormControlLabel, IconButton, Grid } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
 import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
@@ -344,10 +344,18 @@ class PersonalBoards extends React.Component {
 
             </Dialog>
 
-            <div>
+            <Grid
+              container
+              direction="row"
+              justify="flex-start"
+              alignItems="center"
+            >
             {personalBoards.map(board => (
-                <div key={board.boardID} >
-                  <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
+                <Grid 
+                key={board.boardID} 
+                item
+                >
+                  <Card style={{minWidth: 250, minHeight: 100, margin: 7}} >
                       <CardHeader
                       title={board.boardName}
                       subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
@@ -373,9 +381,9 @@ class PersonalBoards extends React.Component {
                         </Button>
                     </CardActions>
                   </Card>
-                </div>
+                </Grid>
               ))}
-            </div>
+            </Grid>
         </div>
     }
 
