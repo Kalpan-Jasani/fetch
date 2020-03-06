@@ -38,8 +38,9 @@ class PersonalBoards extends React.Component {
         // updates automatically when new p board is added
         firebase.firestore()
         .collection("personalBoards")
-        .doc(firebase.auth().currentUser.uid) // hardcoded user
+        .doc(firebase.auth().currentUser.uid)
         .collection("pboards")
+        .orderBy("timestamp")
         .onSnapshot(function(querySnapshot) {
             var personalBoards = [];
             querySnapshot.forEach(function(doc) {
@@ -96,14 +97,15 @@ class PersonalBoards extends React.Component {
         // make the new personal board here
         await firebase.firestore()
         .collection("personalBoards")
-        .doc(firebase.auth().currentUser.uid) // hardcoded userid
+        .doc(firebase.auth().currentUser.uid)
         .collection("pboards")
         .add({
             boardName: boardName,
             isPrivate: isPrivate,
             articles: [],   // TODO: allow articles to be added initially ?
             followers: [],
-            queue: []
+            queue: [],
+            timestamp: Date.now(),
         }).then(function(docRef) {
             console.log("success! docID", docRef.id);
         })
