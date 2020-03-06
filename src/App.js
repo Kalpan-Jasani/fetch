@@ -50,7 +50,7 @@ function App() {
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle />
-            <ToggleMode />
+            
             <FirebaseAuthProvider firebase={firebase} {...config}>
                 <FirebaseAuthConsumer>
                     {({ isSignedIn, user, providerId }) =>
