@@ -1,16 +1,17 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.js
-src/config.js
+/web_app/src/config.js
 
 # testing
-/coverage
+/web_app/coverage
 
 # production
-/build
+/web_app/build
+# note: chrome_extension build contains source files as it is only partial build
 
 # misc
 .DS_Store
