@@ -13,8 +13,12 @@ class ArticleForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            name: "",
+            url: "",
+            notes: "",
             personalBoards: [],
             selectedBoards: [],
+            submitted: false
         }
     }
 
@@ -99,12 +103,18 @@ class ArticleForm extends React.Component {
                             ))}
                         </Select>
                     </FormControl>
-                    <button id="confirm">Ok</button>
+                    <div>
+                        <Button onClick={this.handleAdd} id="confirm" disabled={this.state.submitted}>
+                            {!this.state.submitted ? "Ok" : "Added!"}
+                        </Button>
+                    </div>
                 </form>
         );
     }
 
-    handleAdd = () => {
+    handleAdd = (e) => {
+        e.preventDefault(); // prevent submission of form 
+                            // (update is not by HTTP POST but by Firebase call)
         const selectedBoards = [...this.state.selectedBoards];
         const userid = firebase.auth().currentUser.uid;
         const db = firebase.firestore();
@@ -120,21 +130,17 @@ class ArticleForm extends React.Component {
 
         articlePromise.then((articleRef) => {
             const userBoards = db.collection(`/personalBoards/${userid}/pboards`);
-            selectedBoards.forEach((boardId) => {
+            const boardPromises = selectedBoards.map((boardId) => {
                 userBoards.doc(boardId).update({
                     articles: firebase.firestore.FieldValue.arrayUnion(articleRef)
                 })
             });
-        }).catch((err) => console.log(err));
+            Promise.all(boardPromises).then(() => {
+                this.setState({submitted: true});
+            }).catch(err => console.log(err));
 
-        this.setState({
-            name: "",
-            url: "",
-            notes: "",
-            personalBoards: [],
-            selectedBoards: [],
-        });
-        this.props.onClose();
+        }).catch((err) => console.log(err));
+        
     }
 }
 
