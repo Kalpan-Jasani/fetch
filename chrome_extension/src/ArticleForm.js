@@ -1,20 +1,13 @@
 import React from 'react';
-import { Button, TextField, FormControlLabel, IconButton, FormGroup } from '@material-ui/core';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
-import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
-import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
+import { Button, TextField, FormControl, IconButton, FormGroup } from '@material-ui/core';
 import firebase from "firebase";
 import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import ListItemText from '@material-ui/core/ListItemText';
 import Select from '@material-ui/core/Select';
-import Checkbox from '@material-ui/core/Checkbox';
-import Chip from '@material-ui/core/Chip';
 
+import './ArticleForm.css';
 
 class ArticleForm extends React.Component {
     constructor(props) {
@@ -51,62 +44,61 @@ class ArticleForm extends React.Component {
 
     }
 
-    /**
-     * submit the selection for the new article
-     * TODO: can change add button to be added (Added!) and disabled
-     */
-    submit = () => {
-
-    }
-
     render() {
         const personalBoards = this.state.personalBoards;
 
         return (
                 <form>
-
-                    <InputLabel htmlFor="name">Name</InputLabel>
-                    <Input
-                        id="name"
-                        placeholder="Enter name of the article"
+                    <TextField
+                        label="Name"
                         value={this.state.name}
+                        name="name"
+                        type="text"
                         required
                         color="secondary"
                         onChange={(e) => (this.setState({ name: e.target.value }))}
                     />
-                    <InputLabel htmlFor="url">URL</InputLabel>
-                    <Input
-                        id="url"
-                        placeholder="Enter web address (http:// or https://)"
+                    <TextField
+                        id="outlined-basic"
+                        label="Url"
+                        placeholder="(http:// or https://)"
                         value={this.state.url}
+                        name="url"
+                        type="text"
                         required
                         color="secondary"
                         onChange={(e) => (this.setState({ url: e.target.value }))}
                     />
-                    <InputLabel htmlFor="notes">Notes</InputLabel>
-                    <Input
-                        id="notes"
+
+                    <TextField
+                        id="outlined-basic"
                         label="Notes"
-                        placeholder="Enter any comments"
                         value={this.state.notes}
+                        name="notes"
                         type="text"
+                        color="secondary"
+                        multiline
+                        rows="3"
                         onChange={(e) => (this.setState({ notes: e.target.value }))}
                     />
-                    <InputLabel id="dropdown">Select Board</InputLabel>
-                    <Select
-                        labelId="dropdown"
-                        id="multiple-boards"
-                        multiple
-                        value={this.state.selectedBoards}
-                        onChange={(e) => this.setState({ selectedBoards: e.target.value })
-                        }
-                    >
-                        {personalBoards.map(board => (
-                            <MenuItem key={board.boardID} value={board.boardID}>
-                                {board.boardName}
-                            </MenuItem>
-                        ))}
-                    </Select>
+
+                    <FormControl>
+                        <InputLabel id="dropdown">Boards</InputLabel>
+                        <Select
+                            labelId="dropdown"
+                            id="multiple-boards"
+                            multiple
+                            value={this.state.selectedBoards}
+                            onChange={(e) => this.setState({ selectedBoards: e.target.value })
+                            }
+                        >
+                            {personalBoards.map(board => (
+                                <MenuItem key={board.boardID} value={board.boardID}>
+                                    {board.boardName}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                     <button id="confirm">Ok</button>
                 </form>
         );
