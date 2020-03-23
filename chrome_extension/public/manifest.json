@@ -7,5 +7,5 @@
         "default_icon": "logo192.png",
         "default_popup": "index.html"
     },
-    "content_security_policy": "script-src 'self' 'sha256-hrABjXgkmzJSAYJz7Tb8+vCZlVwt6UMWGfHKxDlE+2k='; object-src 'self'"
+    "content_security_policy": "script-src 'self' 'sha256-hrABjXgkmzJSAYJz7Tb8+vCZlVwt6UMWGfHKxDlE+2k=' https://apis.google.com; object-src 'self'"
 }
