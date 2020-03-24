@@ -1,3 +1,4 @@
+/* global chrome */
 import React from 'react';
 import { Button, TextField, FormControl, IconButton, FormGroup } from '@material-ui/core';
 import firebase from "firebase";
@@ -20,11 +21,35 @@ class ArticleForm extends React.Component {
             selectedBoards: [],
             submitted: false
         }
+        
+        this.tabQueried = false;   // non state variable! denoting whether chrome tab is queried
     }
 
     componentDidMount = () => {
+
+        if(!this.tabQueried) {
+            // try and read from the current active tab, grab the url and title 
+            // and use that for the url and name fields
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                if(tabs.length == 0) {
+                    return;     // no active tab on current window? weird
+                }
+        
+                const t = tabs[0];
+                this.setState({
+                    name: t.title && t.title,
+                    url: t.url && t.url
+                });
+            });
+
+            this.tabQueried = true;      // mark as queried so that re mounting does
+                                    // not result in another query to chrome
+        }
+        
         // gets the personal boards of the user
         // updates automatically when new p board is added
+        // TODO: this thing gets set up everytime the component mounts 
+        // (so every re-render makes new listener)
         firebase.firestore()
             .collection("personalBoards")
             .doc(firebase.auth().currentUser.uid)
