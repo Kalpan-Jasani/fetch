@@ -1,26 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+
+import firebase from "firebase/app";
+import 'firebase/auth';
+
+import {Button} from "@material-ui/core";
+
 import './App.css';
+import firebaseConfig from './config';
+import Login from './Login';
+
+firebase.initializeApp(firebaseConfig);
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [signedIn, setSignIn] = useState(false);
+
+    useEffect(() => {
+        firebase.auth().onAuthStateChanged((user) => {
+            console.log('flag 1');
+            console.log(user);
+            setSignIn(user ? true : false);
+        }, 
+            (err) => alert("Login error: " + String(err))
+        );
+    })
+
+    return (
+        signedIn ?
+            <div className="App">
+                <p>Signed in as {firebase.auth().currentUser.displayName } </p>
+                <Button onClick={() => firebase.auth().signOut()}>Sign out</Button>
+            </div>
+            :
+            <Login className="App"/>
+    );
 }
 
 export default App;
