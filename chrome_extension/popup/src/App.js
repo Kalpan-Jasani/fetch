@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+/* global chrome */
+// above line is ES Lint syntax, basically declares that this variable would be
+// present when the code runs, so is not an error
+import React, { useState, useEffect } from 'react';
 
 import firebaseConfig from './config';
 
@@ -14,21 +17,23 @@ firebase.initializeApp(firebaseConfig);
 function App() {
     const [signedIn, updateSignInState] = useState(false);
 
-    firebase.auth().onAuthStateChanged(
-        (user) => {
-            if(user) {
-                updateSignInState(true);
-                console.log("user logged in");
-            }
-            else {
+    useEffect(() => {   // listen for changes in sign in state. TODO: also use localStorage for fast response
+        firebase.auth().onAuthStateChanged(
+            (user) => {
+                if(user) {
+                    updateSignInState(true);
+                    console.log("user logged in");
+                }
+                else {
+                    updateSignInState(false);
+                }
+            },(e) => {
+                console.log("error in firebase authorization");
                 updateSignInState(false);
+                console.log(e);
             }
-        },(e) => {
-            console.log("error in firebase authorization");
-            updateSignInState(false);
-            console.log(e);
-        }
-    );
+        );
+    });
 
     return (
         <div className="App">
@@ -36,25 +41,13 @@ function App() {
                 signedIn ?
                 <ArticleForm />
                 :
-                <Login/>
+                <p>You are not signed in, acceess options page to sign in</p>
             }
-            <br/> {/* new line */}
-            <button onClick={() => firebase.auth().signOut()}>Logout</button>
+            <div>
+                <a target="_blank" href={`chrome-extension://odmffghdonlgbjgdoffnaebfpheamcok/options/index.html`}>Options</a>
+            </div>
         </div>
     );
-}
-
-const handleGoogleSignIn = (event) => {
-    var googleProvider = new firebase.auth.GoogleAuthProvider();
-    firebase.auth().signInWithPopup(googleProvider).catch((error) => {
-        console.error(error.code);
-    });
-}
-
-function Login() {
-    return (
-        <button onClick={handleGoogleSignIn}>Sign in with Google (for now)</button>
-    )
 }
 
 export default App;

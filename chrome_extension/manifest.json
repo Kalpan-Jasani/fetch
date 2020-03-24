@@ -7,5 +7,6 @@
         "default_icon": "logo192.png",
         "default_popup": "index.html"
     },
-    "content_security_policy": "script-src 'self' 'sha256-hrABjXgkmzJSAYJz7Tb8+vCZlVwt6UMWGfHKxDlE+2k=' https://apis.google.com; object-src 'self'"
+    "options_page": "options/index.html",
+    "content_security_policy": "script-src 'self' 'sha256-hrABjXgkmzJSAYJz7Tb8+vCZlVwt6UMWGfHKxDlE+2k=' 'sha256-yr7qeAD+VIDXyFsIYP4tLlePmXZ3cXRV9GEFUs39pY8=' https://apis.google.com; object-src 'self'"
 }
