@@ -44,7 +44,7 @@ function App() {
                     <ArticleForm />
                 </div>
                 :
-                <p>You are not signed in, acceess options page to sign in</p>
+                <p>You are not signed in, access options page to sign in</p>
             }
             <div id="options-container">
                 <a target="_blank" href={`chrome-extension://odmffghdonlgbjgdoffnaebfpheamcok/options/index.html`}>Options</a>
