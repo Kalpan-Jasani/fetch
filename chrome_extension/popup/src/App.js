@@ -39,11 +39,14 @@ function App() {
         <div className="App">
             {
                 signedIn ?
-                <ArticleForm />
+                <div id="popup-content">
+                    <h3>Fetch</h3>
+                    <ArticleForm />
+                </div>
                 :
                 <p>You are not signed in, acceess options page to sign in</p>
             }
-            <div>
+            <div id="options-container">
                 <a target="_blank" href={`chrome-extension://odmffghdonlgbjgdoffnaebfpheamcok/options/index.html`}>Options</a>
             </div>
         </div>
