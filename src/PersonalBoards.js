@@ -250,14 +250,6 @@ class PersonalBoards extends React.Component {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            <Button
-                variant="contained"
-                color="secondary"
-                onClick={this.handleAddOpen}
-            >
-                Add An Article
-            </Button>
             <Dialog
                 open={this.state.isAddOpen}
                 onClose={this.handleAddClose}

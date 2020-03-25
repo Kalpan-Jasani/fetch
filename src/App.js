@@ -25,6 +25,7 @@ import useTheme from './useTheme';
 import ToggleMode from './ToggleMode';
 import Profile from './Profile';
 import PersonalBoard from './personalBoard';
+import Users from './Users';
 
 const drawerWidth = 240;  // width of the sidebar (can change to adjust)
 
@@ -74,6 +75,9 @@ function App() {
                             </Route>
                             <Route path="/profile">
                                 <Profile />
+                            </Route>
+                            <Route path="/users">
+                                <Users />
                             </Route>
                             <Route>
                                 <Home />
