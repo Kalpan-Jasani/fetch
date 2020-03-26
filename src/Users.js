@@ -10,6 +10,8 @@ class Users extends React.Component {
         super(props);
         this.state = {"users": undefined, "search": ""}
         this.filterSearch = this.filterSearch.bind(this);
+        this.getUserCards = this.getUserCards.bind(this);
+        this.getInitials = this.getInitials.bind(this);
     }
 
     componentDidMount() {
@@ -22,11 +24,13 @@ class Users extends React.Component {
                     var profiles = [];
                     data.forEach((doc) => {
                         var fields = doc.data();
-                        profiles.push({
-                            name: fields.name,
-                            photoUrl: fields.photoUrl,
-                            id: doc.id
-                        });
+                        if (fields.name !== null) {
+                            profiles.push({
+                                name: fields.name,
+                                photoURL: fields.photoURL,
+                                id: doc.id
+                            });
+                        }
                     });
                     console.log(profiles);
                     this.setState({
@@ -38,15 +42,42 @@ class Users extends React.Component {
 
     filterSearch(query) {
         if (this.state.users !== undefined) {
-          console.log("start");
           var names = this.state.users.filter((x) => {
               if (x.name !== null) {
                 return x.name.includes(query);
               }
           })
-          console.log(names);
+          this.setState({
+              search: names
+          });
         };
-        
+    }
+
+    getInitials = (string) => {
+        var names = string.split(' '),
+            initials = names[0].substring(0, 1).toUpperCase();
+
+        if (names.length > 1) {
+            initials += names[names.length - 1].substring(0, 1).toUpperCase();
+        }
+        return initials;
+    }
+
+    getUserCards() {
+        if (this.state.users === undefined) {
+            return <div style={{justifyContent: 'center', alignItems: 'center'}}>
+                <text>No Users Found</text>
+            </div>
+        } else {
+            return this.state.users.map((user) => {
+                return <div style={{justifyContent: 'center', alignItems: 'center', maxWidth: 100}}>
+                    {user.photoUrl === "" && user.name !== ""
+                        ? <Avatar>{this.getInitials(user.name)}</Avatar>
+                        : <Avatar src={user.photoURL} alt="" />}
+                    <text>{user.name}</text>
+                </div>
+            })
+        }
     }
 
 
@@ -68,7 +99,13 @@ class Users extends React.Component {
                 }}
             />
             <body>
-                <text>hi</text>
+                <Card style={{ minWidth: 550, minHeight: 400, marginBottom: 25, marginTop: 50 }}>
+                        <CardContent>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', height: '100%', width: '100%' }}>
+                                {this.getUserCards()}
+                            </div>
+                        </CardContent>
+                    </Card>
             </body>
          </div>   
         )
