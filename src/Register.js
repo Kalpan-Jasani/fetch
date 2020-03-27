@@ -51,7 +51,8 @@ class Register extends React.Component {
                 isPrivate: false,
                 articles: [],  
                 followers: [],
-                queue: []
+                queue: [],
+                timestamp: Date.now(),
             }).then(function(docRef) {
                 console.log("success! docID", docRef.id);
             })
