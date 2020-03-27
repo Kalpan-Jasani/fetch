@@ -56,19 +56,11 @@ function Sidebar(props) {
                 Community Boards
             </Link>
             <Divider/>
+            <ToggleMode/>
             <Button id="add-article-sidebar" onClick={()=>props.openForm(true)}>
                 <AddCircleOutlinedIcon/>
                 New article
             </Button>
-            <Grid
-              container
-              justify="center"
-              alignItems="center"
-            >
-            <ToggleMode/>
-            </Grid>
-            
-
         </Drawer>
     )
 }
