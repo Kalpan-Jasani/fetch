@@ -20,6 +20,7 @@ import Home from './Home';
 import config from './config'
 import About from './About';
 import PersonalBoards from './PersonalBoards';
+import CommunityBoards from './CommunityBoards';
 import Sidebar from './Sidebar';
 import useTheme from './useTheme';
 import ToggleMode from './ToggleMode';
@@ -76,7 +77,7 @@ function App() {
                                 <Profile />
                             </Route>
                             <Route>
-                                <Home />
+                                <CommunityBoards />
                             </Route>
                         </Switch>
                     </BasePage>

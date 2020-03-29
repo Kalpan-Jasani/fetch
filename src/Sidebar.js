@@ -49,7 +49,7 @@ function Sidebar(props) {
                 Starred articles
             </Link>
             <Link to="/boards" className="sidebar-item personal-boards link">
-                Boards
+                Personal Boards
             </Link>
             <Link to="/community-boards" className="sidebar-item community-boards link">
                 Community Boards
@@ -57,7 +57,11 @@ function Sidebar(props) {
             <Divider/>
             <Button id="add-article-sidebar" onClick={()=>props.openForm(true)}>
                 <AddCircleOutlinedIcon/>
-                New article
+                Personal Article
+            </Button>
+            <Button id="add-communityarticle-sidebar" onClick={()=>props.openForm(true)}>
+                <AddCircleOutlinedIcon/>
+                Community Article
             </Button>
 
         </Drawer>
