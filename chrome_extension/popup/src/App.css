@@ -1,0 +1,20 @@
+.App {
+  text-align: center;
+  height: 335px;
+  width: 335px;
+  padding: 0.5rem;
+}
+
+#popup-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 2;
+}
+
+#options-container {
+  display: flex;
+}
+
+#options-container > a {
+  margin-left: auto;
+}

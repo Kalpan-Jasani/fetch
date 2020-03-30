@@ -1,9 +1,10 @@
 import React from 'react';
-import { Drawer, Divider, Button, Avatar } from "@material-ui/core";
+import { Drawer, Divider, Button, Avatar, Grid } from "@material-ui/core";
 import HomeIcon from '@material-ui/icons/Home';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { Link } from 'react-router-dom';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import ToggleMode from './ToggleMode';
 
 import firebase from 'firebase';
 
@@ -55,6 +56,7 @@ function Sidebar(props) {
                 Community Boards
             </Link>
             <Divider/>
+            <ToggleMode/>
             <Button id="add-article-sidebar" onClick={()=>props.openForm(true)}>
                 <AddCircleOutlinedIcon/>
                 Personal Article
@@ -63,7 +65,6 @@ function Sidebar(props) {
                 <AddCircleOutlinedIcon/>
                 Community Article
             </Button>
-
         </Drawer>
     )
 }
