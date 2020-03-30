@@ -8,10 +8,12 @@ class Users extends React.Component {
     
     constructor(props) {
         super(props);
-        this.state = {"users": undefined, "search": ""}
+        this.state = {"users": undefined, "search": "", "currentUser": undefined}
         this.filterSearch = this.filterSearch.bind(this);
         this.getUserCards = this.getUserCards.bind(this);
         this.getInitials = this.getInitials.bind(this);
+        this.followUser = this.followUser.bind(this);
+        this.unfollowUser = this.unfollowUser.bind(this);
     }
 
     componentDidMount() {
@@ -22,6 +24,7 @@ class Users extends React.Component {
                 .onSnapshot((querySnapshot) => {
                     var data = querySnapshot.docs;
                     var profiles = [];
+                    var currUser;
                     data.forEach((doc) => {
                         var fields = doc.data();
                         if (fields.name !== null && doc.id !== user.uid) {
@@ -30,11 +33,20 @@ class Users extends React.Component {
                                 photoURL: fields.photoURL,
                                 id: doc.id
                             });
+                        } else if (doc.id === user.uid) {
+                            currUser = {
+                                name: fields.name,
+                                photoURL: fields.photoURL,
+                                id: doc.id,
+                                following: fields.following
+                            };
                         }
                     });
                     console.log(profiles);
+                    console.log(currUser);
                     this.setState({
                         users: profiles,
+                        currentUser: currUser,
                     });
                 }).bind(this);
         }
@@ -51,6 +63,59 @@ class Users extends React.Component {
               search: names
           });
         };
+    }
+
+    async followUser(uid) {
+        var user = firebase.auth().currentUser;
+        if (user.uid !== undefined) {
+            var path = firebase.firestore()
+            .collection("users")
+            .doc(user.uid);
+
+            await firebase.firestore().runTransaction((transaction) => {
+                return transaction.get(path).then((doc) => {
+                    var fields = doc.data();
+                    var following = fields.following ?? [];
+                    following.push(uid);
+                    console.log(following);
+
+                    transaction.update(path, {following: following});
+                })
+            });
+
+            console.log("success")
+        } else {
+            console.log("User is not signed in!");
+        }
+    }
+
+    async unfollowUser(uid) {
+        var user = firebase.auth().currentUser;
+        if (user.uid !== undefined) {
+            var path = firebase.firestore()
+            .collection("users")
+            .doc(user.uid);
+
+            await firebase.firestore().runTransaction((transaction) => {
+                return transaction.get(path).then((doc) => {
+                    var fields = doc.data();
+                    var following = fields.following ?? [];
+                    var index = following.indexOf(uid);
+                    if (index > -1) {
+                        following.splice(index, 1);
+                    } else {
+                        console.log("user is not following!");
+                    }
+                    console.log(following);
+
+                    transaction.update(path, {following: following});
+                })
+            });
+
+            console.log("success")
+        } else {
+            console.log("User is not signed in!");
+        }
     }
 
     getInitials = (string) => {
@@ -71,13 +136,19 @@ class Users extends React.Component {
         } else {
             return this.state.users.map((user) => {
                 return <div style={{justifyContent: 'center', display: 'flex', alignItems: 'center', flexDirection: 'column', minWidth: 200, minHeight: 100, margin: 10, borderBottom: 1, borderTop: 0, borderLeft: 0, borderRight: 0, borderStyle: 'solid', borderColor: 'grey'}}>
-                    {user.photoUrl === "" && user.name !== ""
-                        ? <Avatar style={{height: 120, width: 120}}>{this.getInitials(user.name)}</Avatar>
+                    {user.photoURL === "" && user.name !== ""
+                        ? <Avatar style={{height: 55, width: 55}}>{this.getInitials(user.name)}</Avatar>
                         : <Avatar src={user.photoURL} alt="" style={{height: 55, width: 55}}/>}
                     <div style={{height: 10}} />
                     <Typography style={{fontSize: 20}}>{user.name}</Typography>
                     <div style={{height: 10}} />
-                    <Button color="primary" variant="outlined">Follow</Button>
+                    {(this.state.currentUser.following ?? []).includes(user.id) 
+                    ? <Button onClick={() => this.unfollowUser(user.id)} color="secondary" variant="outlined">
+                        Unfollow
+                    </Button>
+                    : <Button onClick={() => this.followUser(user.id)} color="primary" variant="outlined">
+                        Follow
+                    </Button>}
                     <div style={{height: 10}} />
                 </div>
             })
