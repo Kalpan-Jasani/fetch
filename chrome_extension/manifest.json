@@ -1,0 +1,15 @@
+{
+    "name": "Fetch",
+    "manifest_version": 2,
+    "version": "0.0.1",
+    "description": "Quickly bookmark pages for 'Fetch' application",
+    "browser_action": {
+        "default_icon": "logo192.png",
+        "default_popup": "index.html"
+    },
+    "options_page": "options/index.html",
+    "content_security_policy": "script-src 'self' 'sha256-hrABjXgkmzJSAYJz7Tb8+vCZlVwt6UMWGfHKxDlE+2k=' 'sha256-yr7qeAD+VIDXyFsIYP4tLlePmXZ3cXRV9GEFUs39pY8=' https://apis.google.com; object-src 'self'",
+    "permissions": [
+        "activeTab"
+    ]
+}
