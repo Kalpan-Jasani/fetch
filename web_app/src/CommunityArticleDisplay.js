@@ -1,4 +1,5 @@
 import React from 'react';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -66,14 +67,12 @@ class CommunityArticleDisplay extends React.Component {
 
 
     handleDialogOpen = () => {
-        ///setState(prevState => {return {...prevState, isDialogOpen: true}});
         this.setState({
             isDialogOpen: true,
         })
     }
 
     handleDialogClose = () => {
-        //setState(prevState => {return {...prevState, isDialogOpen: false}});
         this.setState({
             isDialogOpen: false,
         });
@@ -82,15 +81,11 @@ class CommunityArticleDisplay extends React.Component {
     render() {
 
         return (
-
             <div>
-
-
             <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
                     Preview
             </Button>
             <br/>
-            
             <Dialog
             open={this.state.isDialogOpen}
             fullWidth={true}
@@ -98,13 +93,11 @@ class CommunityArticleDisplay extends React.Component {
                 <DialogTitle>
                     {this.props.ArticleName}
                 </DialogTitle>
+
                 <DialogContent>
                     <iframe src={this.props.url}  width="100%" height="500px" ></iframe>
-
                     <DialogActions style={{ paddingLeft: 20 }}>
-                        <FormControlLabel/>
-
-
+                     <VisibilityIcon/>
                         <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                         Go to Website
                         </Button>

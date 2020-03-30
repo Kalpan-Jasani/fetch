@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Link } from '@material-ui/core';
 import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
-import ArticleDisplay from './ArticleDisplay';
+import CommunityArticleDisplay from './CommunityArticleDisplay';
 import './personalBoard.css';
 import { Divider } from '@material-ui/core';
 
@@ -13,7 +13,8 @@ function CommunityBoard(props) {
     const { id } = useParams();
     const [state, setState] = React.useState({
         board: null,
-        articles: []
+        articles: [],
+        isDialogOpen: false,
     });
     const db = firebase.firestore();
     const userid = firebase.auth().currentUser.uid;
@@ -72,6 +73,16 @@ function CommunityBoard(props) {
                         return (
                             <div key={article.id} style={{display: 'inline', float: 'left', marginLeft: '1rem'}}>
                                 <p>{article.name}</p>
+                                <CommunityArticleDisplay
+                                // isDialogOpen={state.isDialogOpen}
+                                // handleDialogClose={handleDialogClose}
+                                url={article.url}
+                                ArticleName={article.name}
+                                articleId={article.id}
+                                articleRef={article.ref}
+                                boardId={id}
+                                refreshBoard={handleRefreshBoard}
+                                />
                             </div>
                         );
                     })
