@@ -50,16 +50,20 @@ function Sidebar(props) {
                 Starred articles
             </Link>
             <Link to="/boards" className="sidebar-item personal-boards link">
-                Boards
+                Personal Boards
             </Link>
             <Link to="/community-boards" className="sidebar-item community-boards link">
                 Community Boards
             </Link>
             <Divider/>
             <ToggleMode/>
-            <Button id="add-article-sidebar" onClick={()=>props.openForm(true)}>
+            <Button id="add-article-sidebar" onClick={()=>props.openForm1(true)}>
                 <AddCircleOutlinedIcon/>
-                New article
+                Personal Article
+            </Button>
+            <Button id="add-communityarticle-sidebar" onClick={()=>props.openForm2(true)}>
+                <AddCircleOutlinedIcon/>
+                Community Article
             </Button>
         </Drawer>
     )

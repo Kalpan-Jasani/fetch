@@ -16,10 +16,13 @@ import style from 'styled-theming';
 import Register from './Register';
 import Login from './Login';
 import ArticleForm from './ArticleForm';
+import CommunityArticleForm from './CommunityArticleForm';
 import Home from './Home';
 import config from './config'
 import About from './About';
 import PersonalBoards from './PersonalBoards';
+import CommunityBoards from './CommunityBoards';
+import CommunityBoard from './communityBoard';
 import Sidebar from './Sidebar';
 import useTheme from './useTheme';
 import ToggleMode from './ToggleMode';
@@ -75,8 +78,11 @@ function App() {
                             <Route path="/profile">
                                 <Profile />
                             </Route>
-                            <Route>
-                                <Home />
+                            <Route path="/community-boards/:id">
+                                <CommunityBoard />
+                            </Route>
+                            <Route path="/community-boards">
+                                <CommunityBoards />
                             </Route>
                         </Switch>
                     </BasePage>
@@ -129,11 +135,15 @@ const useStyles = makeStyles(theme => ({
 function BasePage(props) {
     const classes = useStyles();
     const [isDialogOpen, setOpenDialog] = React.useState(false);
+    const [isDialogOpen2, setOpenDialog2] = React.useState(false);
     const handleCloseDialog = () => setOpenDialog(false);
+    const handleCloseDialog2 = () => setOpenDialog2(false);
     return (
         <div className={classes.root}>
             <ArticleForm open={isDialogOpen} onClose={handleCloseDialog}/>
-            <Sidebar openForm = {setOpenDialog} user={props.user} classes={classes}/>
+            <CommunityArticleForm open={isDialogOpen2} onClose={handleCloseDialog2}/>
+            <Sidebar openForm1={setOpenDialog} openForm2={setOpenDialog2} user={props.user} classes={classes}/>
+
             <div className={classes.content}>
                 {props.children}
             </div>
