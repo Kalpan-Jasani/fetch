@@ -8,7 +8,7 @@ class Users extends React.Component {
     
     constructor(props) {
         super(props);
-        this.state = {"users": undefined, "search": "", "currentUser": undefined}
+        this.state = {"users": undefined, "search": "", "currentUser": undefined, "searchedUsers": undefined}
         this.filterSearch = this.filterSearch.bind(this);
         this.getUserCards = this.getUserCards.bind(this);
         this.getInitials = this.getInitials.bind(this);
@@ -47,6 +47,7 @@ class Users extends React.Component {
                     this.setState({
                         users: profiles,
                         currentUser: currUser,
+                        searchedUsers: profiles,
                     });
                 }).bind(this);
         }
@@ -60,7 +61,7 @@ class Users extends React.Component {
               }
           })
           this.setState({
-              search: names
+              searchedUsers: names
           });
         };
     }
@@ -134,7 +135,7 @@ class Users extends React.Component {
                 <text>No Users Found</text>
             </div>
         } else {
-            return this.state.users.map((user) => {
+            return this.state.searchedUsers.map((user) => {
                 return <div style={{justifyContent: 'center', display: 'flex', alignItems: 'center', flexDirection: 'column', minWidth: 200, minHeight: 100, margin: 10, borderBottom: 1, borderTop: 0, borderLeft: 0, borderRight: 0, borderStyle: 'solid', borderColor: 'grey'}}>
                     {user.photoURL === "" && user.name !== ""
                         ? <Avatar style={{height: 55, width: 55}}>{this.getInitials(user.name)}</Avatar>
@@ -167,7 +168,12 @@ class Users extends React.Component {
                         search: value
                     });
                 }}
-                onRequestSearch={() => console.log('onRequestSearch')}
+                onCancelSearch={() => {
+                    this.filterSearch("");
+                    this.setState({
+                        search: ""
+                    });
+                }}
                 style={{
                   margin: '0 auto',
                   maxWidth: 800
