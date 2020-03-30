@@ -24,7 +24,7 @@ class Users extends React.Component {
                     var profiles = [];
                     data.forEach((doc) => {
                         var fields = doc.data();
-                        if (fields.name !== null) {
+                        if (fields.name !== null && doc.id !== user.uid) {
                             profiles.push({
                                 name: fields.name,
                                 photoURL: fields.photoURL,
@@ -70,11 +70,15 @@ class Users extends React.Component {
             </div>
         } else {
             return this.state.users.map((user) => {
-                return <div style={{justifyContent: 'center', alignItems: 'center', maxWidth: 100}}>
+                return <div style={{justifyContent: 'center', display: 'flex', alignItems: 'center', flexDirection: 'column', minWidth: 200, minHeight: 100, margin: 10, borderBottom: 1, borderTop: 0, borderLeft: 0, borderRight: 0, borderStyle: 'solid', borderColor: 'grey'}}>
                     {user.photoUrl === "" && user.name !== ""
-                        ? <Avatar>{this.getInitials(user.name)}</Avatar>
-                        : <Avatar src={user.photoURL} alt="" />}
-                    <text>{user.name}</text>
+                        ? <Avatar style={{height: 120, width: 120}}>{this.getInitials(user.name)}</Avatar>
+                        : <Avatar src={user.photoURL} alt="" style={{height: 55, width: 55}}/>}
+                    <div style={{height: 10}} />
+                    <Typography style={{fontSize: 20}}>{user.name}</Typography>
+                    <div style={{height: 10}} />
+                    <Button color="primary" variant="outlined">Follow</Button>
+                    <div style={{height: 10}} />
                 </div>
             })
         }
@@ -101,7 +105,7 @@ class Users extends React.Component {
             <body>
                 <Card style={{ minWidth: 550, minHeight: 400, marginBottom: 25, marginTop: 50 }}>
                         <CardContent>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', height: '100%', width: '100%' }}>
+                            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', height: '100%', width: '100%' }}>
                                 {this.getUserCards()}
                             </div>
                         </CardContent>
