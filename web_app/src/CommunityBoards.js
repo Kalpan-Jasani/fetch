@@ -27,8 +27,6 @@ class CommunityBoards extends React.Component{
       isDialogOpen: false,
       isAddOpen: false,
       communityBoards: [],
-
-
     }
   }
 
@@ -41,12 +39,12 @@ class CommunityBoards extends React.Component{
       .onSnapshot(function(querySnapshot) {
           var communityBoards = [];
           querySnapshot.forEach(function(doc) {
-              let newPersonalBoard = {
+              let newCommunityBoard = {
                   name: doc.data().name,
                   isPrivate: false,
                   boardID: doc.id,
               }
-              communityBoards.push(newPersonalBoard);
+              communityBoards.push(newCommunityBoard);
           });
           console.log("Current Personal Boards: ", communityBoards.join(", "));
 
@@ -218,7 +216,7 @@ handleInputChange = (event) => {
                           <PlayArrow/>
                       </IconButton>
                       <Button>
-                          <Link to={"/boards/"+board.boardID}>
+                          <Link to={"/community-boards/"+board.boardID}>
                               View
                           </Link>
                       </Button>

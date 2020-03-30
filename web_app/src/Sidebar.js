@@ -57,11 +57,11 @@ function Sidebar(props) {
             </Link>
             <Divider/>
             <ToggleMode/>
-            <Button id="add-article-sidebar" onClick={()=>props.openForm(true)}>
+            <Button id="add-article-sidebar" onClick={()=>props.openForm1(true)}>
                 <AddCircleOutlinedIcon/>
                 Personal Article
             </Button>
-            <Button id="add-communityarticle-sidebar" onClick={()=>props.openForm(true)}>
+            <Button id="add-communityarticle-sidebar" onClick={()=>props.openForm2(true)}>
                 <AddCircleOutlinedIcon/>
                 Community Article
             </Button>
