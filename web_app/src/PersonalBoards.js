@@ -252,7 +252,6 @@ class PersonalBoards extends React.Component {
                     </Button>
                 </DialogActions>
             </Dialog>
-
             <Dialog
                 open={this.state.isDeleteDialogOpen}
                 onClose={this.handleDeleteDialogClose}

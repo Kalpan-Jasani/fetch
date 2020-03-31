@@ -7,7 +7,7 @@ import { withRouter } from 'react-router-dom';
 class Profile extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "" }
+        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined }
         this.signOut = this.signOut.bind(this);
         this.handleClickClose = this.handleClickClose.bind(this);
         this.handleClickOpen = this.handleClickOpen.bind(this);
@@ -30,7 +30,8 @@ class Profile extends React.Component {
                             name: data.name,
                             email: data.email,
                             photoURL: data.photoURL,
-                            platform: data.platform
+                            platform: data.platform,
+                            following: data.following ?? [],
                         });
                     }
                 }).bind(this);
@@ -139,6 +140,9 @@ class Profile extends React.Component {
                                         {`Platform: ${this.state.platform}`}
                                     </Typography>
                                     : null}
+                                <Typography gutterBottom variant="body1">
+                                    {`Following: ${(this.state.following ?? []).length.toString()} users`}
+                                </Typography>
                                 <TextValidator id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} validators={['required']} errorMessages={['This field is required']} />
                                 <TextValidator id="standard-basic" label="Photo URL" value={this.state.photoURL} onChange={this.changePhotoURLHandler} />
                                 <CardActions style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>

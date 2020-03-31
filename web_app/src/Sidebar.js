@@ -45,6 +45,9 @@ function Sidebar(props) {
             <Link to="/profile" className="sidebar-item link">
                 Profile
             </Link>
+            <Link to="/users" className="sidebar-item link">
+                Users
+            </Link>
             <Divider/>
             <Link to="/starred" className="sidebar-item starred link">
                 Starred articles
