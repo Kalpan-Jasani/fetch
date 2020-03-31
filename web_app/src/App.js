@@ -82,14 +82,14 @@ function App() {
                             <Route path="/users">
                                 <Users />
                             </Route>
-                            <Route>
-                                <Home />
-                            </Route>
                             <Route path="/community-boards/:id">
                                 <CommunityBoard />
                             </Route>
                             <Route path="/community-boards">
                                 <CommunityBoards />
+                            </Route>
+                            <Route>
+                                <Home />
                             </Route>
                         </Switch>
                     </BasePage>
