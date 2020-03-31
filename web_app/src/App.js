@@ -23,6 +23,7 @@ import About from './About';
 import PersonalBoards from './PersonalBoards';
 import CommunityBoards from './CommunityBoards';
 import CommunityBoard from './communityBoard';
+import FollowDisplay from './FollowDisplay';
 import Sidebar from './Sidebar';
 import useTheme from './useTheme';
 import ToggleMode from './ToggleMode';
@@ -81,6 +82,12 @@ function App() {
                             </Route>
                             <Route path="/users">
                                 <Users />
+                            </Route>
+                            <Route path="/followers">
+                                <FollowDisplay />
+                            </Route>
+                            <Route path="/following">
+                                <FollowDisplay />
                             </Route>
                             <Route>
                                 <Home />

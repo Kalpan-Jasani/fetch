@@ -2,7 +2,7 @@ import React from 'react';
 import firebase from "firebase/app";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress, Card, CardContent, CardActions, Typography, Avatar } from "@material-ui/core";
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 class Profile extends React.Component {
     constructor(props) {
@@ -142,12 +142,12 @@ class Profile extends React.Component {
                                     </Typography>
                                     : null}
                                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                                    <Typography gutterBottom variant="body1">
+                                    <Link to={{pathname: "/following", state: {header: "Following", users: (this.state.following ?? [])}}}>
                                         {`Following: ${(this.state.following ?? []).length.toString()} users`}
-                                    </Typography>
-                                    <Typography gutterBottom variant="body1">
+                                    </Link>
+                                    <Link to={{pathname: "/followers", state: {header: "Followers", users: (this.state.followers ?? [])}}}>
                                         {`Followers: ${(this.state.followers ?? []).length.toString()} users`}
-                                    </Typography>
+                                    </Link>
                                 </div>
                                 <TextValidator id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} validators={['required']} errorMessages={['This field is required']} />
                                 <TextValidator id="standard-basic" label="Photo URL" value={this.state.photoURL} onChange={this.changePhotoURLHandler} />
