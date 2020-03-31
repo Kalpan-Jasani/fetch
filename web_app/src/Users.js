@@ -69,9 +69,11 @@ class Users extends React.Component {
     async followUser(uid) {
         var user = firebase.auth().currentUser;
         if (user.uid !== undefined) {
-            var path = firebase.firestore()
-            .collection("users")
-            .doc(user.uid);
+            var path = firebase.firestore().collection("users").doc(user.uid);
+
+            var followPath = firebase.firestore().collection("users").doc(uid);
+            console.log(`Follow path ${user.uid}`);
+            console.log(`Other path ${uid}`);
 
             await firebase.firestore().runTransaction((transaction) => {
                 return transaction.get(path).then((doc) => {
@@ -84,6 +86,17 @@ class Users extends React.Component {
                 })
             });
 
+            await firebase.firestore().runTransaction((followTransaction) => {
+                return followTransaction.get(followPath).then((doc) => {
+                    var fields = doc.data();
+                    var followers = fields.followers ?? [];
+                    followers.push(user.uid);
+                    console.log(followers);
+
+                    followTransaction.update(followPath, {followers: followers});
+                })
+            });
+
             console.log("success")
         } else {
             console.log("User is not signed in!");
@@ -93,9 +106,9 @@ class Users extends React.Component {
     async unfollowUser(uid) {
         var user = firebase.auth().currentUser;
         if (user.uid !== undefined) {
-            var path = firebase.firestore()
-            .collection("users")
-            .doc(user.uid);
+            var path = firebase.firestore().collection("users").doc(user.uid);
+
+            var followPath = firebase.firestore().collection("users").doc(uid);
 
             await firebase.firestore().runTransaction((transaction) => {
                 return transaction.get(path).then((doc) => {
@@ -110,6 +123,22 @@ class Users extends React.Component {
                     console.log(following);
 
                     transaction.update(path, {following: following});
+                })
+            });
+
+            await firebase.firestore().runTransaction((followTransaction) => {
+                return followTransaction.get(followPath).then((doc) => {
+                    var fields = doc.data();
+                    var followers = fields.followers ?? [];
+                    var index = followers.indexOf(user.uid);
+                    if (index > -1) {
+                        followers.splice(index, 1);
+                    } else {
+                        console.log("user is not a follower!");
+                    }
+                    console.log(followers);
+
+                    followTransaction.update(followPath, {followers: followers});
                 })
             });
 

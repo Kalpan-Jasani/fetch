@@ -7,7 +7,7 @@ import { withRouter } from 'react-router-dom';
 class Profile extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined }
+        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined, followers: undefined }
         this.signOut = this.signOut.bind(this);
         this.handleClickClose = this.handleClickClose.bind(this);
         this.handleClickOpen = this.handleClickOpen.bind(this);
@@ -32,6 +32,7 @@ class Profile extends React.Component {
                             photoURL: data.photoURL,
                             platform: data.platform,
                             following: data.following ?? [],
+                            followers: data.followers ?? [],
                         });
                     }
                 }).bind(this);
@@ -140,9 +141,14 @@ class Profile extends React.Component {
                                         {`Platform: ${this.state.platform}`}
                                     </Typography>
                                     : null}
-                                <Typography gutterBottom variant="body1">
-                                    {`Following: ${(this.state.following ?? []).length.toString()} users`}
-                                </Typography>
+                                <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                    <Typography gutterBottom variant="body1">
+                                        {`Following: ${(this.state.following ?? []).length.toString()} users`}
+                                    </Typography>
+                                    <Typography gutterBottom variant="body1">
+                                        {`Followers: ${(this.state.followers ?? []).length.toString()} users`}
+                                    </Typography>
+                                </div>
                                 <TextValidator id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} validators={['required']} errorMessages={['This field is required']} />
                                 <TextValidator id="standard-basic" label="Photo URL" value={this.state.photoURL} onChange={this.changePhotoURLHandler} />
                                 <CardActions style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>
