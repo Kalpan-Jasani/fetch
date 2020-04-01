@@ -25,6 +25,7 @@ import useTheme from './useTheme';
 import ToggleMode from './ToggleMode';
 import Profile from './Profile';
 import PersonalBoard from './personalBoard';
+import StarredItems from './StarredItems';
 
 const drawerWidth = 240;  // width of the sidebar (can change to adjust)
 
@@ -75,8 +76,8 @@ function App() {
                             <Route path="/profile">
                                 <Profile />
                             </Route>
-                            <Route>
-                                <Home />
+                            <Route path="/starred">
+                                <StarredItems />
                             </Route>
                         </Switch>
                     </BasePage>
