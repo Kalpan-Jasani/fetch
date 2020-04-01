@@ -16,8 +16,11 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 
+
 class ArticleDisplay extends React.Component {
+    
     constructor(props) {
+        
         super(props);
         this.state = {
           // url: '',
@@ -30,6 +33,30 @@ class ArticleDisplay extends React.Component {
         }
     }
 
+    componentDidMount = () => {
+        const userid = firebase.auth().currentUser.uid;
+      
+        firebase.firestore()
+        .collection("localArticles")
+        .doc("users")
+        .collection(userid)
+        .doc(this.props.articleId).get()
+        .then((doc)=> {  //DocSnapshot
+            if (doc.exists) {
+                const data = doc.data();
+                this.setState({
+                    isStarred: data.starred
+            });
+    
+            } else {
+                // snapshot.data() will be undefined in this case
+                console.log("No such document!");
+               
+            }       
+        
+        });
+}
+    
 
     handleDeleteDialogOpen = (doc) => {
         console.log("DOC ID: ", doc)
@@ -54,24 +81,28 @@ class ArticleDisplay extends React.Component {
 
     handleStar = async (event) => {
 
-
+        const userid = firebase.auth().currentUser.uid;
         const target = event.target;
-        console.log("Star Value: " + target.checked);
+        //console.log(target);
         const isStarred = !this.state.isStarred;
 
-        this.setState({
-                isStarred: isStarred
-        });
-
-       await firebase.firestore().collection("localArticles")
-        .doc("users")
-        .collection("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded userid
-        .doc("2nhPDNTTDFoYGgmFO4aD")
+       await firebase.firestore()
+       .collection("localArticles")
+       .doc("users")
+       .collection(userid)
+       .doc(this.props.articleId)
         .update({
-            starred: target.checked
+            starred: isStarred
         });
+        //localArticles/users/dyowPzsYamSpt9flHICbi5Rk9Cs2/oRPhPbqdE9JzehU0AKnN
 
+
+        this.setState({
+            isStarred: isStarred
+        });
     }
+
+
 
     handleOpenNewTab = (event) => {
         window.open(this.props.url);
