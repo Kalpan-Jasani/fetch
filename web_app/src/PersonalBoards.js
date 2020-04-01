@@ -60,7 +60,7 @@ class PersonalBoards extends React.Component {
 
     }
 
-    
+
     handleChangeMultiple = (event) => {
     const options = event.target;
     const value = [];
@@ -252,86 +252,6 @@ class PersonalBoards extends React.Component {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            <Button
-                variant="contained"
-                color="secondary"
-                onClick={this.handleAddOpen}
-            >
-                Add An Article
-            </Button>
-            <Dialog
-                open={this.state.isAddOpen}
-                onClose={this.handleAddClose}
-            >
-                <DialogTitle>
-                    Enter the details of the article
-                </DialogTitle>
-                <TextField
-                    id="outlined-basic"
-                    label="Enter Title"
-                    placeholder="Enter name of the article"
-                    value={this.state.boardName}
-                    onChange={this.handleInputChange}
-                    name="board Name"
-                    type="text"
-                    required
-                    color="secondary"
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="Enter URL"
-                  placeholder="Enter web address"
-                  value={this.state.boardName}
-                  onChange={this.handleInputChange}
-                  name="board Name"
-                  type="text"
-                  required
-                  color="secondary"
-                />
-
-                <TextField
-                    id="outlined-basic"
-                    label="Enter Description"
-                    placeholder="Enter any comments"
-                    value={this.state.boardName}
-                    onChange={this.handleInputChange}
-                    name="board Name"
-                    type="text"
-                    color="secondary"
-                />
-
-                <FormControl>
-                <InputLabel id="dropdown">Select Board</InputLabel>
-                <Select
-                    labelId="dropdown"
-                    id="multiple-boards"
-                    multiple={true}
-                    value={personalBoards}
-                    onChange={this.handleChangeMultiple}
-                >
-
-
-                {personalBoards.map(board => (
-                    <MenuItem key={board.boardID} value={board.boardName}>
-                        {board.boardName}
-                    </MenuItem>
-                ))}
-                </Select>
-                </FormControl>
-
-                <DialogActions>
-                    <Button onClick={this.handleAddClose}>Cancel</Button>
-                    <Button color="primary">Add</Button>
-
-
-                </DialogActions>
-
-            </Dialog>
-
-
-
-
             <Dialog
                 open={this.state.isDeleteDialogOpen}
                 onClose={this.handleDeleteDialogClose}

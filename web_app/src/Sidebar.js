@@ -45,21 +45,28 @@ function Sidebar(props) {
             <Link to="/profile" className="sidebar-item link">
                 Profile
             </Link>
+            <Link to="/users" className="sidebar-item link">
+                Users
+            </Link>
             <Divider/>
             <Link to="/starred" className="sidebar-item starred link">
                 Starred articles
             </Link>
             <Link to="/boards" className="sidebar-item personal-boards link">
-                Boards
+                Personal Boards
             </Link>
             <Link to="/community-boards" className="sidebar-item community-boards link">
                 Community Boards
             </Link>
             <Divider/>
             <ToggleMode/>
-            <Button id="add-article-sidebar" onClick={()=>props.openForm(true)}>
+            <Button id="add-article-sidebar" onClick={()=>props.openForm1(true)}>
                 <AddCircleOutlinedIcon/>
-                New article
+                Personal Article
+            </Button>
+            <Button id="add-communityarticle-sidebar" onClick={()=>props.openForm2(true)}>
+                <AddCircleOutlinedIcon/>
+                Community Article
             </Button>
         </Drawer>
     )

@@ -64,7 +64,7 @@ class ArticleDisplay extends React.Component {
             isDeleteDialogOpen: true,
             selectedArticleDelete: doc,
         });
-    }    
+    }
 
 
     markRead = () => {
@@ -128,21 +128,21 @@ class ArticleDisplay extends React.Component {
     this.handleDialogClose();
     }
 
-      
+
     handleDialogOpen = () => {
-        ///setState(prevState => {return {...prevState, isDialogOpen: true}});
+
         this.setState({
             isDialogOpen: true,
         })
     }
 
     handleDialogClose = () => {
-        //setState(prevState => {return {...prevState, isDialogOpen: false}});
+        
         this.setState({
             isDialogOpen: false,
         });
     }
-    
+
     handlemarkUnread = () => {
         this.props.articleRef.update({read: false});
         this.props.refreshBoard();
@@ -152,7 +152,7 @@ class ArticleDisplay extends React.Component {
         this.props.articleRef.update({read: true});
         this.props.refreshBoard();
     }
- 
+
     handleAddToQueue = () => {
         this.props.addToQueue(this.props.articleRef, false);
         this.setState({
@@ -161,23 +161,23 @@ class ArticleDisplay extends React.Component {
     }
 
     render() {
-       
+
         return (
 
             <div>
 
-            
+
             <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
-                    Preview 
+                    Preview
             </Button>
             <br/>
-            {this.props.readStatus ? 
-            <Button variant="outlined" onClick={this.handlemarkUnread}> Mark Unread </Button> 
-            : 
+            {this.props.readStatus ?
+            <Button variant="outlined" onClick={this.handlemarkUnread}> Mark Unread </Button>
+            :
             <Button variant="outlined" onClick={this.handlemarkRead}> Mark Read </Button>
             }
-            
-            <Dialog 
+
+            <Dialog
             open={this.state.isDialogOpen}
             fullWidth={true}
             >
@@ -185,8 +185,8 @@ class ArticleDisplay extends React.Component {
                     {this.props.ArticleName}
                 </DialogTitle>
                 <DialogContent>
-                    <iframe src={this.props.url}  width="100%" height="500px" ></iframe> 
-                
+                    <iframe src={this.props.url}  width="100%" height="500px" ></iframe>
+
                     <DialogActions style={{ paddingLeft: 20 }}>
                         <FormControlLabel
                             control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}

@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^4.9.2",
     "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.46",
     "@react-firebase/auth": "^0.2.10",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -12,6 +13,7 @@
     "eslint-plugin-flowtype": "^3.13.0",
     "firebase": "^7.8.1",
     "local-storage-fallback": "^4.1.1",
+    "material-ui-search-bar": "^1.0.0-beta.14",
     "react": "^16.12.0",
     "react-apple-login": "^1.0.10",
     "react-dom": "^16.12.0",
