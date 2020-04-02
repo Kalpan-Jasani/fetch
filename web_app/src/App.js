@@ -27,6 +27,7 @@ import FollowDisplay from './FollowDisplay';
 import Sidebar from './Sidebar';
 import useTheme from './useTheme';
 import Profile from './Profile';
+import PersonalBoardList from './PersonalBoardList';
 import PersonalBoard from './personalBoard';
 import Users from './Users';
 
@@ -67,6 +68,9 @@ function App() {
                             <Route path="/home">
                                 <Home />
                             </Route>
+                            <Route path="/boards/:ownerid/:id">
+                                <PersonalBoard />
+                            </Route>
                             <Route path="/boards/:id">
                                 <PersonalBoard />
                             </Route>
@@ -78,6 +82,9 @@ function App() {
                             </Route>
                             <Route path="/profile/:id">
                                 <Profile />
+                            </Route>
+                            <Route path="/pboards/list/:id">
+                                <PersonalBoardList />
                             </Route>
                             <Route path="/users">
                                 <Users />

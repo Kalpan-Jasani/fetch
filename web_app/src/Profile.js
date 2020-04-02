@@ -41,21 +41,33 @@ class Profile extends React.Component {
         if (user !== undefined) {
             console.log(this.state);
             firebase.firestore()
-                .collection("users")
-                .doc(user)
-                .onSnapshot((documentSnapshot) => {
-                    var data = documentSnapshot.data();
-                    if (data !== undefined) {
-                        this.setState({
-                            name: data.name,
-                            email: data.email,
-                            photoURL: data.photoURL,
-                            platform: data.platform,
-                            following: data.following ?? [],
-                            followers: data.followers ?? [],
-                        });
-                    }
-                }).bind(this);
+            .collection("users")
+            .doc(user)
+            .onSnapshot((documentSnapshot) => {
+                var data = documentSnapshot.data();
+                if (data !== undefined) {
+                    this.setState({
+                        name: data.name,
+                        email: data.email,
+                        photoURL: data.photoURL,
+                        platform: data.platform,
+                        following: data.following ?? [],
+                        followers: data.followers ?? [],
+                    });
+                }
+            }).bind(this);
+
+            firebase.firestore()
+            .collection("personalBoards")
+            .doc(user)
+            .collection("pboards")
+            .where("isPrivate", "==", false)
+            .onSnapshot((querySnapshot) => {
+                console.log(querySnapshot.docs.length);
+                this.setState({
+                    pboardCount: querySnapshot.docs.length,
+                });
+            });
         }
     }
 
@@ -151,7 +163,7 @@ class Profile extends React.Component {
                             <ValidatorForm
                                 onSubmit={this.submitHandler}
                                 instantValidate={false}
-                                style={{ paddingLeft: 50, flexDirection: 'column', display: 'flex', paddingRight: 50, justifyContent: 'space-around', height: 350 }}
+                                style={{ paddingLeft: 50, flexDirection: 'column', display: 'flex', paddingRight: 50, justifyContent: 'space-around', height: 400 }}
                             >
                                 {this.state.editMode 
                                 ? null
@@ -173,6 +185,9 @@ class Profile extends React.Component {
                                         {`Followers: ${(this.state.followers ?? []).length.toString()} users`}
                                     </Link>
                                 </div>
+                                <Link to={`/pboards/list/${this.state.uid}`}>
+                                    {`Personal Boards: ${this.state.pboardCount}`}
+                                </Link>
                                 {this.state.editMode
                                 ? <TextValidator id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} validators={['required']} errorMessages={['This field is required']} />
                                 : null

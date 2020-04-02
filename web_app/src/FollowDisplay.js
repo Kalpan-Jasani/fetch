@@ -143,7 +143,7 @@ class FollowDisplay extends React.Component {
     getUserCards() {
         if (this.state.users === undefined || this.state.users.length === 0) {
             return <div style={{justifyContent: 'center', alignItems: 'center'}}>
-                <text>None</text>
+                <h2>None</h2>
             </div>
         } else {
             return this.state.users.map((user) => {

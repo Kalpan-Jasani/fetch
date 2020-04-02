@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Link } from '@material-ui/core';
+import { Link, CircularProgress } from '@material-ui/core';
 import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
 import ArticleDisplay from './ArticleDisplay';
@@ -10,15 +10,18 @@ import { Divider } from '@material-ui/core';
 
 function PersonalBoard(props) {
 
-    const { id } = useParams();
+    const { ownerid, id } = useParams();
     const [state, setState] = React.useState({
         board: null,
+        followers: [],
         articles: [],
         queue: [],
         isDialogOpen: false,
+        saving: false,
     });
     const db = firebase.firestore();
-    const userid = firebase.auth().currentUser.uid;
+    const userid = ownerid ?? firebase.auth().currentUser.uid;
+    const currID = firebase.auth().currentUser.uid;
 
     // similar to componentDidMount / update but for a function components
     // using functional component cause of useParams above (and React liked
@@ -55,7 +58,7 @@ function PersonalBoard(props) {
                     })
                 });
 
-                setState(prevState => {return {...prevState, board: board}});
+                setState(prevState => {return {...prevState, board: board, followers: board.followers}});
             }).
             catch((err) =>console.log(err));
         }
@@ -85,12 +88,82 @@ function PersonalBoard(props) {
         boardRef.update({queue: queueRefs}).then(setState(prevState => {return {...prevState, board: null}}));
     }
 
+    const followBoard = async () => {
+        if (ownerid !== undefined) {
+            setState(prevState => {return {...prevState, saving: true}});
+            var path = firebase.firestore()
+            .collection("personalBoards")
+            .doc(ownerid)
+            .collection("pboards")
+            .doc(id);
+
+            var updatedFollowers;
+            await firebase.firestore().runTransaction((transaction) => {
+                return transaction.get(path).then((doc) => {
+                    var fields = doc.data();
+                    var followers = fields.followers ?? [];
+                    followers.push(currID);
+
+                    updatedFollowers = followers;
+
+                    transaction.update(path, {followers: followers});
+                })
+            });
+
+            setState(prevState => {return {...prevState, followers: updatedFollowers, saving: false}});
+        }
+    }
+
+    const unfollowBoard = async () => {
+        if (ownerid !== undefined) {
+            setState(prevState => {return {...prevState, saving: true}});
+            var path = firebase.firestore()
+            .collection("personalBoards")
+            .doc(ownerid)
+            .collection("pboards")
+            .doc(id);
+            
+            var updatedFollowers;
+            await firebase.firestore().runTransaction((transaction) => {
+                return transaction.get(path).then((doc) => {
+                    var fields = doc.data();
+                    var followers = fields.followers ?? [];
+                    var index = followers.indexOf(currID);
+                    if (index > -1) {
+                        followers.splice(index, 1);
+                    } else {
+                        console.log("user is not a follower!");
+                    }
+
+                    updatedFollowers = followers;
+
+                    transaction.update(path, {followers: followers});
+                });
+            });
+
+            setState(prevState => {return {...prevState, followers: updatedFollowers, saving: false}});
+        }
+    }
+
     return (
         <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
             {
                 state.board &&
                 <h2>{state.board.boardName}</h2>
             }
+            <div style={{ position: 'relative', width: 100 }}>
+            {ownerid && ownerid !== currID ?
+                (state.followers ?? []).includes(currID) 
+                    ? <Button onClick={() => unfollowBoard()} color="secondary" variant="outlined" style={{width: 100}} disabled={state.saving}>
+                        Unfollow
+                    </Button>
+                    : <Button onClick={() => followBoard()} color="primary" variant="outlined" style={{width: 100}} disabled={state.saving}>
+                        Follow
+                    </Button>
+            : null}
+            {state.saving && <CircularProgress size={24} style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -12, marginLeft: -12 }} />}
+            </div>
+            <div style={{height: 25}} />
 
             <h3>Articles ({state.articles.length})</h3>
             <div style={{display: 'flex', flexWrap: 'wrap'}}>
