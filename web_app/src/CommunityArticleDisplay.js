@@ -17,6 +17,7 @@ import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
 
 class CommunityArticleDisplay extends React.Component {
+    _isMounted = false;
     constructor(props) {
         super(props);
         this.state = {
@@ -28,6 +29,7 @@ class CommunityArticleDisplay extends React.Component {
     }
 
     componentDidMount() {
+        this._isMounted = true;
         // gets the personal boards of the user
         // updates automatically when new p board is added
         firebase.firestore()
@@ -37,11 +39,17 @@ class CommunityArticleDisplay extends React.Component {
             //console.log("Data ", doc.data())
             var data = doc.data();
             var eyebrowArr = data.users_eyebrows;
-            this.setState({
-                eyebrowArray: eyebrowArr,
-            });
+            if(this._isMounted){
+                this.setState({
+                    eyebrowArray: eyebrowArr,
+                });
+            }
             
         }.bind(this));
+    }
+
+    componentWillUnmount(){
+        this._isMounted = false;
     }
 
     handleDeleteDialogOpen = (doc) => {

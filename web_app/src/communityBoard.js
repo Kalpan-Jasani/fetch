@@ -5,7 +5,7 @@ import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
 import CommunityArticleDisplay from './CommunityArticleDisplay';
 import './personalBoard.css';
-import { Divider } from '@material-ui/core';
+import { Divider, Select, MenuItem, InputLabel } from '@material-ui/core';
 
 
 function CommunityBoard(props) {
@@ -19,6 +19,9 @@ function CommunityBoard(props) {
     const db = firebase.firestore();
     const userid = firebase.auth().currentUser.uid;
 
+    const [commboardsort, setSort] = React.useState('10');
+    const [open, setOpen] = React.useState(false);
+      
     // similar to componentDidMount / update but for a function components
     // using functional component cause of useParams above (and React liked
     // functional components more)
@@ -42,7 +45,11 @@ function CommunityBoard(props) {
                 ));
 
                 Promise.all(articlePromises).then((articles) => {
-
+                    // sort community articles in descending order
+                    //console.log("VALUE: ", commboardsort)
+                    if(commboardsort === "20"){
+                        articles.sort((a, b) => (a.users_eyebrows.length < b.users_eyebrows.length) ? 1 : -1)
+                    }
                     setState(prevState => {
                         return {...prevState, articles: articles}
                     })
@@ -59,14 +66,42 @@ function CommunityBoard(props) {
     }
 
 
+    const handleChange = (event) => {
+        setSort(event.target.value);
+        handleRefreshBoard()
+    };
+      
+    const handleClose = () => {
+        setOpen(false);
+    };
+      
+    const handleOpen = () => {
+        setOpen(true);
+    };
+
     return (
         <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
             {
                 state.board &&
                 <h2>{state.board.name}</h2>
             }
-
-            <h3>Articles ({state.articles.length})</h3>
+            
+            <h3>Articles ({state.articles.length})
+            
+            <InputLabel id="SortByLabel">Sort By</InputLabel>
+                <Select 
+                  labelId="SortByLabel" 
+                  id="select"
+                  open={open}
+                  onClose={handleClose}
+                  onOpen={handleOpen}
+                  value={commboardsort}
+                  onChange={handleChange}
+                >
+                    <MenuItem value="10">None</MenuItem>
+                    <MenuItem value="20">Raised Eyebrow Count</MenuItem>
+                </Select>
+            </h3>
             <div style={{display: 'flex', flexWrap: 'wrap'}}>
                 {
                     state.articles.map((article) => {
