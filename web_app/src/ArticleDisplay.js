@@ -79,14 +79,14 @@ class ArticleDisplay extends React.Component {
         });
     }
 
-    handleStar = (event) => {
+    handleStar = async (event) => {
 
         const userid = firebase.auth().currentUser.uid;
         const target = event.target;
         //console.log(target);
         const isStarred = !this.state.isStarred;
 
-       this.props.articleRef.update({starred: isStarred});
+       await this.props.articleRef.update({starred: isStarred});
 
         this.setState({
             isStarred: isStarred
