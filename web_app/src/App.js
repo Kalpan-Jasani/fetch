@@ -97,6 +97,9 @@ function App() {
                             <Route path="/community-boards">
                                 <CommunityBoards />
                             </Route>
+                            <Route>
+                                <Home />
+                            </Route>
                         </Switch>
                     </BasePage>
                     :

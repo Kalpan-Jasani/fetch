@@ -131,7 +131,7 @@ class CommunityArticleForm extends React.Component {
         const selectedBoards = [...this.state.selectedBoards];
         const userid = firebase.auth().currentUser.uid;
         const db = firebase.firestore();
-        const user_ref = db.collection(`/users/${userid}`);
+        const user_ref = db.doc(`/users/${userid}`);
         const articlePromise = db.collection(`/communityArticles`).add({
             name: this.state.name,
             url: this.state.url,
