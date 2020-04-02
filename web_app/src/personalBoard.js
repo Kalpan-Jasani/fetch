@@ -109,6 +109,7 @@ function PersonalBoard(props) {
                                 articleId={article.id}
                                 articleRef={article.ref}
                                 boardId={id}
+                                articleStarred={article.starred}
                                 addToQueue={addToQueue}
                                 refreshBoard={handleRefreshBoard}
                                 readStatus={article.read}
@@ -133,6 +134,7 @@ function PersonalBoard(props) {
                                 // handleDialogClose={handleDialogClose} 
                                 url={article.url} 
                                 ArticleName={article.name}
+                                articleStarred={article.starred}
                                 articleId={article.id}
                                 articleRef={article.ref}
                                 boardId={id}

@@ -24,7 +24,7 @@ class ArticleDisplay extends React.Component {
         super(props);
         this.state = {
           // url: '',
-           isStarred: false,
+          // isStarred: false,
            isDialogOpen: false,
            queue: [],
           // handleDialogClose: ()=> {},
@@ -33,29 +33,29 @@ class ArticleDisplay extends React.Component {
         }
     }
 
-    componentDidMount = () => {
-        const userid = firebase.auth().currentUser.uid;
+//     componentDidMount = () => {
+//         const userid = firebase.auth().currentUser.uid;
       
-        firebase.firestore()
-        .collection("localArticles")
-        .doc("users")
-        .collection(userid)
-        .doc(this.props.articleId).get()
-        .then((doc)=> {  //DocSnapshot
-            if (doc.exists) {
-                const data = doc.data();
-                this.setState({
-                    isStarred: data.starred
-            });
+//         firebase.firestore()
+//         .collection("localArticles")
+//         .doc("users")
+//         .collection(userid)
+//         .doc(this.props.articleId).get()
+//         .then((doc)=> {  //DocSnapshot
+//             if (doc.exists) {
+//                 const data = doc.data();
+//                 this.setState({
+//                     isStarred: data.starred
+//             });
     
-            } else {
-                // snapshot.data() will be undefined in this case
-                console.log("No such document!");
+//             } else {
+//                 // snapshot.data() will be undefined in this case
+//                 console.log("No such document!");
                
-            }       
+//             }       
         
-        });
-}
+//         });
+// }
     
 
     handleDeleteDialogOpen = (doc) => {
@@ -79,14 +79,14 @@ class ArticleDisplay extends React.Component {
         });
     }
 
-    handleStar = async (event) => {
+    handleStar = (event) => {
 
         const userid = firebase.auth().currentUser.uid;
         const target = event.target;
         //console.log(target);
-        const isStarred = !this.state.isStarred;
+        const isStarred = !this.props.articleStarred;
 
-       await firebase.firestore()
+       firebase.firestore()
        .collection("localArticles")
        .doc("users")
        .collection(userid)
@@ -97,9 +97,9 @@ class ArticleDisplay extends React.Component {
         //localArticles/users/dyowPzsYamSpt9flHICbi5Rk9Cs2/oRPhPbqdE9JzehU0AKnN
 
 
-        this.setState({
-            isStarred: isStarred
-        });
+        // this.setState({
+        //     isStarred: isStarred
+        // });
     }
 
 
@@ -189,7 +189,7 @@ class ArticleDisplay extends React.Component {
 
                     <DialogActions style={{ paddingLeft: 20 }}>
                         <FormControlLabel
-                            control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}
+                            control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.props.articleStarred} onClick={this.handleStar} />}
                             label="Star"
                     />
 
