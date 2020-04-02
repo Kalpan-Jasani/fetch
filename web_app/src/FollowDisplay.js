@@ -1,35 +1,44 @@
 import React from 'react';
 import firebase from "firebase/app";
 import { Card, CardContent, Typography, Avatar } from "@material-ui/core";
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 
 class FollowDisplay extends React.Component {
     
     constructor(props) {
         super(props);
-        this.state = {"users": undefined}
+
+        var query;
+        var header;
+        if (this.props.match.path.includes("following")) {
+            query = "followers";
+            header = "Following"
+        } else {
+            query = "following";
+            header = "Followers"; 
+        }
+
+        this.state = {"users": undefined, query: query, header: header}
         this.getUserCards = this.getUserCards.bind(this);
         this.getInitials = this.getInitials.bind(this);
     }
 
     componentDidMount() {
         var user = firebase.auth().currentUser;
-        var users = this.props.location.state.users;
         if (user !== undefined) {
             firebase.firestore()
                 .collection("users")
+                .where(`${this.state.query}`, "array-contains", `${this.props.match.params.id}`)
                 .onSnapshot((querySnapshot) => {
                     var data = querySnapshot.docs;
                     var profiles = [];
                     data.forEach((doc) => {
                         var fields = doc.data();
-                        if (users.includes(doc.id)) {
-                            profiles.push({
-                                name: fields.name,
-                                photoURL: fields.photoURL,
-                                id: doc.id
-                            });
-                        }
+                        profiles.push({
+                            name: fields.name,
+                            photoURL: fields.photoURL,
+                            id: doc.id
+                        });
                     });
                     console.log(profiles);
                     this.setState({
@@ -145,6 +154,9 @@ class FollowDisplay extends React.Component {
                     <div style={{height: 10}} />
                     <Typography style={{fontSize: 20}}>{user.name}</Typography>
                     <div style={{height: 10}} />
+                    <Link to={`/profile/${user.id}`}>
+                        View Profile
+                    </Link>
                 </div>
             })
         }
@@ -155,7 +167,7 @@ class FollowDisplay extends React.Component {
         console.log(this.props);
         return (
          <div>
-            <h1>{this.props.location.state.header}</h1>
+            <h1>{this.state.header}</h1>
             <body>
                 <Card style={{ minWidth: 550, minHeight: 400, marginBottom: 25, marginTop: 50 }}>
                         <CardContent>

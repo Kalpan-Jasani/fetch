@@ -77,16 +77,19 @@ function App() {
                             <Route path="/login">
                                 <Redirect to="/home"/>
                             </Route>
+                            <Route path="/profile/:id">
+                                <Profile />
+                            </Route>
                             <Route path="/profile">
                                 <Profile />
                             </Route>
                             <Route path="/users">
                                 <Users />
                             </Route>
-                            <Route path="/followers">
+                            <Route path="/followers/:id">
                                 <FollowDisplay />
                             </Route>
-                            <Route path="/following">
+                            <Route path="/following/:id">
                                 <FollowDisplay />
                             </Route>
                             <Route>

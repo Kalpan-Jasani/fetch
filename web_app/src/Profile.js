@@ -2,12 +2,19 @@ import React from 'react';
 import firebase from "firebase/app";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress, Card, CardContent, CardActions, Typography, Avatar } from "@material-ui/core";
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { Link, withRouter } from 'react-router-dom';
+import { Link, withRouter, useParams } from 'react-router-dom';
 
 class Profile extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined, followers: undefined }
+        const uid = this.props.match.params.id;
+
+        var currUID = uid ?? firebase.auth().currentUser.uid;
+        var editMode = false;
+        if (this.props.location.state !== undefined && this.props.location.state.editMode !== undefined) {
+            editMode = this.props.location.state.editMode;
+        }
+        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined, followers: undefined, uid: currUID, editMode: editMode }
         this.signOut = this.signOut.bind(this);
         this.handleClickClose = this.handleClickClose.bind(this);
         this.handleClickOpen = this.handleClickOpen.bind(this);
@@ -18,11 +25,11 @@ class Profile extends React.Component {
     }
 
     componentDidMount() {
-        var user = firebase.auth().currentUser;
+        var user = this.state.uid;
         if (user !== undefined) {
             firebase.firestore()
                 .collection("users")
-                .doc(user.uid)
+                .doc(user)
                 .onSnapshot((documentSnapshot) => {
                     var data = documentSnapshot.data();
                     if (data !== undefined) {
@@ -142,10 +149,10 @@ class Profile extends React.Component {
                                     </Typography>
                                     : null}
                                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                                    <Link to={{pathname: "/following", state: {header: "Following", users: (this.state.following ?? [])}}}>
+                                    <Link to={{pathname: `/following/${this.state.uid}`, state: {header: "Following", users: (this.state.following ?? [])}}}>
                                         {`Following: ${(this.state.following ?? []).length.toString()} users`}
                                     </Link>
-                                    <Link to={{pathname: "/followers", state: {header: "Followers", users: (this.state.followers ?? [])}}}>
+                                    <Link to={{pathname: `/followers/${this.state.uid}`, state: {header: "Followers", users: (this.state.followers ?? [])}}}>
                                         {`Followers: ${(this.state.followers ?? []).length.toString()} users`}
                                     </Link>
                                 </div>
