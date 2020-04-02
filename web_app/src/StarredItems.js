@@ -9,12 +9,14 @@ class StarredItems extends React.Component {
         this.state = {
             articles: []
         }
+
+        this.unsubscribe = undefined;
     }
 
     componentDidMount() {
         const userid = firebase.auth().currentUser.uid;
 
-        firebase.firestore()
+        this.unsubscribe = firebase.firestore()
         .collection("localArticles")
         .doc("users")
         .collection(userid)
@@ -39,8 +41,11 @@ class StarredItems extends React.Component {
        }.bind(this));
     }
 
+    componentWillUnmount() {
+        this.unsubscribe();
+    }
 
-    render () {
+    render() {
 
         return (
                 

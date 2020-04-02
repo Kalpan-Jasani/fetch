@@ -15,35 +15,9 @@ class StarredArticleDisplay extends React.Component {
         super(props);
         this.state = {
            isDialogOpen: false,
-           Article: {},
-           isStarred: this.props.starred,
         }
     }
 
-    componentDidMount = () => {
-        const userid = firebase.auth().currentUser.uid;
-        firebase.firestore()
-        .collection("localArticles")
-        .doc("users")
-        .collection(userid)
-        .doc(this.props.articleId)
-        .get()
-        .then((doc)=> {  //DocSnapshot
-            if (doc.exists) {
-                const data = doc.data();
-                this.setState({
-                    isStarred: data.starred
-            });
-    
-            } else {
-                // snapshot.data() will be undefined in this case
-                console.log("No such document!");
-               
-            }       
-        
-        });
-       
-}
 
     handleOpenNewTab = (event) => {
         window.open(this.props.url);
@@ -62,17 +36,12 @@ class StarredArticleDisplay extends React.Component {
         });
     }
 
-    handleStar = async (event) => {
+    handleStar = (event) => {
 
         const userid = firebase.auth().currentUser.uid;
         const target = event.target;
-        const isStarred = !this.state.isStarred;
-
-        this.setState({
-            isStarred: isStarred,
-            isDialogOpen: false
-        });
-
+        const isStarred = !this.props.articleStarred;
+        
         firebase.firestore()
         .collection("localArticles")
         .doc("users")
@@ -81,8 +50,6 @@ class StarredArticleDisplay extends React.Component {
         .update({
             starred: isStarred
         });
-
-      
 
        // window.location.reload();
     }
