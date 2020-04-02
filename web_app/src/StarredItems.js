@@ -1,6 +1,6 @@
 import React from 'react';
 import firebase from "firebase";
-import ArticleDisplay from './ArticleDisplay';
+import StarredArticleDisplay from './StarredArticleDisplay';
 
 class StarredItems extends React.Component {
     
@@ -43,18 +43,18 @@ class StarredItems extends React.Component {
                       <li>{article.name}</li>
                     </ul>
                         
-                          {/* <ArticleDisplay 
+                          <StarredArticleDisplay 
                             // isDialogOpen={state.isDialogOpen} 
                             // handleDialogClose={handleDialogClose} 
                             url={article.url} 
                             ArticleName={article.name}
                             articleId={article.id}
                             articleRef={article.ref}
-                            boardId= {null}
+                        //    boardId= {null}
                             //  addToQueue={addToQueue}
                             //  refreshBoard={handleRefreshBoard}
                             readStatus={article.read}
-                        /> */}
+                        />
                   </div> 
                   );
                 }
