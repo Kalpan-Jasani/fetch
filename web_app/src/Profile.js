@@ -11,7 +11,7 @@ class Profile extends React.Component {
 
         var currUID = uid ?? firebase.auth().currentUser.uid;
         var editMode = firebase.auth().currentUser.uid === currUID;
-        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined, followers: undefined, uid: currUID, editMode: editMode, pboardCount: 0 }
+        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined, followers: undefined, uid: currUID, editMode: editMode, pboardCount: 0, pboardFollowing: [] }
         this.signOut = this.signOut.bind(this);
         this.handleClickClose = this.handleClickClose.bind(this);
         this.handleClickOpen = this.handleClickOpen.bind(this);
@@ -55,6 +55,7 @@ class Profile extends React.Component {
                         platform: data.platform,
                         following: data.following ?? [],
                         followers: data.followers ?? [],
+                        pboardFollowing: data.pboardFollowing ?? [],
                     });
                 }
             }).bind(this);
@@ -289,9 +290,14 @@ class Profile extends React.Component {
                                         {`Followers: ${(this.state.followers ?? []).length.toString()} users`}
                                     </Link>
                                 </div>
-                                <Link to={`/pboards/list/${this.state.uid}`}>
-                                    {`Personal Boards: ${this.state.pboardCount}`}
-                                </Link>
+                                <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                    <Link to={`/pboards/followlist/${this.state.uid}`}>
+                                        {`Personal Boards Followed: ${this.state.pboardFollowing.length}`}
+                                    </Link>
+                                    <Link to={`/pboards/list/${this.state.uid}`}>
+                                        {`Personal Boards: ${this.state.pboardCount}`}
+                                    </Link>
+                                </div>
                                 {this.state.editMode
                                 ? <TextValidator id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} validators={['required']} errorMessages={['This field is required']} />
                                 : null
