@@ -48,12 +48,13 @@ class StarredItems extends React.Component {
     render() {
 
         return (
-                
-                this.state.articles.map((article) => {
+            <div style={{display: 'inline-block', margin: '20px'}}>
+                <h3> Starred Articles ({this.state.articles.length})</h3>
+               { this.state.articles.map((article) => {
                   return (
-                <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
-                      <h1>{article.name}</h1>
-                        
+                <div className={article.read ? "article-read": "article-unread"} style={{ margin: '20px'}} >
+                      <p1>{article.name}</p1>
+                        <br></br>
                           <StarredArticleDisplay 
                             url={article.url} 
                             ArticleName={article.name}
@@ -64,7 +65,9 @@ class StarredItems extends React.Component {
                   </div> 
                   );
                 }
-        ));
+        )}
+        </div>
+        );
         
     }
 
