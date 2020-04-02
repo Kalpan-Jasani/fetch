@@ -1,0 +1,10 @@
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+#dialog .MuiPaper-root[role="dialog"] {
+    height: 22rem;
+    width: 20rem;
+    padding: 0.5rem;
+}
