@@ -8,7 +8,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import Star from '@material-ui/icons/Star';
 import StarBorder from '@material-ui/icons/StarBorder';
-
+import firebase from "firebase";
 
 class StarredArticleDisplay extends React.Component {
     constructor(props) {
@@ -16,12 +16,18 @@ class StarredArticleDisplay extends React.Component {
         this.state = {
            isDialogOpen: false,
            Article: {},
-           isStarred: false,
+           isStarred: this.props.starred,
         }
     }
 
-    componentDidMount() {
-        this.props.articleRef.get()
+    componentDidMount = () => {
+        const userid = firebase.auth().currentUser.uid;
+        firebase.firestore()
+        .collection("localArticles")
+        .doc("users")
+        .collection(userid)
+        .doc(this.props.articleId)
+        .get()
         .then((doc)=> {  //DocSnapshot
             if (doc.exists) {
                 const data = doc.data();
@@ -34,8 +40,10 @@ class StarredArticleDisplay extends React.Component {
                 console.log("No such document!");
                
             }       
+        
         });
-    }
+       
+}
 
     handleOpenNewTab = (event) => {
         window.open(this.props.url);
@@ -55,16 +63,30 @@ class StarredArticleDisplay extends React.Component {
     }
 
     handleStar = async (event) => {
-    
+
+        const userid = firebase.auth().currentUser.uid;
         const target = event.target;
         const isStarred = !this.state.isStarred;
-        await this.props.articleRef.update({starred: isStarred});
+
         this.setState({
-            isStarred: isStarred
+            isStarred: isStarred,
+            isDialogOpen: false
         });
 
-        window.location.reload();
+        firebase.firestore()
+        .collection("localArticles")
+        .doc("users")
+        .collection(userid)
+        .doc(this.props.articleId)
+        .update({
+            starred: isStarred
+        });
+
+      
+
+       // window.location.reload();
     }
+
 
     render() {
 
@@ -86,7 +108,7 @@ class StarredArticleDisplay extends React.Component {
                     <iframe src={this.props.url}  width="100%" height="500px" ></iframe>
                     <DialogActions style={{ paddingLeft: 20 }}>
                         <FormControlLabel
-                                control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}
+                                control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.props.articleStarred} onClick={this.handleStar} />}
                                 label="Star"
                         />
                         <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>

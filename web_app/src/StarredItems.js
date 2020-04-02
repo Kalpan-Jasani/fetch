@@ -12,7 +12,7 @@ class StarredItems extends React.Component {
     }
 
     componentDidMount() {
-        const userid = firebase.auth().currentUser.uid
+        const userid = firebase.auth().currentUser.uid;
 
         firebase.firestore()
         .collection("localArticles")
@@ -23,14 +23,22 @@ class StarredItems extends React.Component {
             var articles = [];
             console.log(querySnapshot);
             querySnapshot.forEach(function(doc) {
-                articles.push(doc.data());
-                console.log(doc.data());
+                var article = {
+                    url: doc.data().url,
+                    name: doc.data().name,
+                    read: doc.data().read,
+                    starred: doc.data().starred,
+                    id: doc.id
+                }
+                articles.push(article);
+                console.log(article);
             });
             this.setState({
                 articles: articles,
             });
        }.bind(this));
-}
+    }
+
 
     render () {
 
@@ -39,20 +47,13 @@ class StarredItems extends React.Component {
                 this.state.articles.map((article) => {
                   return (
                 <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
-                    <ul>
-                      <li>{article.name}</li>
-                    </ul>
+                      <h1>{article.name}</h1>
                         
                           <StarredArticleDisplay 
-                            // isDialogOpen={state.isDialogOpen} 
-                            // handleDialogClose={handleDialogClose} 
                             url={article.url} 
                             ArticleName={article.name}
+                            articleStarred={article.starred}
                             articleId={article.id}
-                            articleRef={article.ref}
-                        //    boardId= {null}
-                            //  addToQueue={addToQueue}
-                            //  refreshBoard={handleRefreshBoard}
                             readStatus={article.read}
                         />
                   </div> 
