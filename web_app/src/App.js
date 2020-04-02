@@ -103,9 +103,6 @@ function App() {
                             <Route path="/following/:id">
                                 <FollowDisplay />
                             </Route>
-                            <Route>
-                                <Home />
-                            </Route>
                             <Route path="/community-boards/:id">
                                 <CommunityBoard />
                             </Route>
