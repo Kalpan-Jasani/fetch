@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TextField, FormControlLabel, IconButton } from '@material-ui/core';
+import { Button, TextField, FormControlLabel, IconButton, Grid } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
 import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
@@ -15,8 +15,11 @@ import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import {Link} from 'react-router-dom';
+import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 
-import logo from './Assets/fetch.png'
+
+import logo from './Assets/fetch.png';
+import './communityBoards.css';
 
 class CommunityBoards extends React.Component{
   constructor(props){
@@ -153,8 +156,10 @@ handleInputChange = (event) => {
               variant="contained"
               color="primary"
               onClick={this.handleDialogOpen}
+              id="add-community"
           >
-              New Community Board
+              <AddCircleOutlinedIcon/>
+              Create a community
           </Button>
           <Dialog
               open={this.state.isDialogOpen}
@@ -197,34 +202,41 @@ handleInputChange = (event) => {
               </DialogActions>
           </Dialog>
 
-          <div>
-          {communityBoards.map(board => (
-              <div key={board.boardID} >
-                <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
-                    <CardHeader
-                    title={board.name}
-                    subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
+          <Grid id="boards-grid"
+            container
+            direction="row"
+            justify="flex-start"
+            alignItems="center"
+          >
+            {communityBoards.map(board => (
+                <Grid 
+                  key={board.boardID} 
+                  item>
+                    <Card style={{width: 250, height: 300, margin: '0.5rem'}} >
+                        <CardHeader
+                        title={board.name}
+                        subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
 
-                    >
-                    </CardHeader>
-                    <CardMedia style={{height: 0, paddingTop: '50%'}}
-                      image={logo}
-                      title="FETCH"
-                    />
-                  <CardActions>
-                      <IconButton>
-                          <PlayArrow/>
-                      </IconButton>
-                      <Button>
-                          <Link to={"/community-boards/"+board.boardID}>
-                              View
-                          </Link>
-                      </Button>
-                  </CardActions>
-                </Card>
-              </div>
+                        >
+                        </CardHeader>
+                        <CardMedia style={{height: 0, paddingTop: '50%'}}
+                        image={logo}
+                        title="FETCH"
+                        />
+                        <CardActions>
+                            <IconButton>
+                                <PlayArrow/>
+                            </IconButton>
+                            <Button>
+                                <Link to={"/community-boards/"+board.boardID}>
+                                    View
+                                </Link>
+                            </Button>
+                        </CardActions>
+                    </Card>
+                </Grid>
             ))}
-          </div>
+          </Grid>
       </div>
   }
 

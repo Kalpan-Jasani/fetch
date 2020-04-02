@@ -1,0 +1,11 @@
+#boards-grid .MuiCardMedia-root {
+    background-size: contain;
+}
+
+button#add-personal-board {
+    margin-bottom: 1.5rem;
+}
+
+button#add-personal-board .MuiSvgIcon-root {
+    margin-right: 0.2rem;
+}
