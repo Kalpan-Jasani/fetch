@@ -81,6 +81,7 @@ function CommunityBoard(props) {
                                 articleId={article.id}
                                 articleRef={article.ref}
                                 boardId={id}
+                                eyebrowArr={article.users_eyebrows}
                                 refreshBoard={handleRefreshBoard}
                                 />
                             </div>
