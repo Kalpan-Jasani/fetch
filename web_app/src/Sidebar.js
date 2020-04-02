@@ -41,7 +41,7 @@ function Sidebar(props) {
                 <HomeIcon/>
                 <span>Home</span>
             </Link>
-            <Link to={{pathname: "/profile", state: {editMode: true, uid: user.uid}}} className="sidebar-item link">
+            <Link to={`/profile/${user.uid}`} className="sidebar-item link">
                 Profile
             </Link>
             <Link to="/users" className="sidebar-item link">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import { FirebaseAuthProvider, FirebaseAuthConsumer } from '@react-firebase/auth';
 
 import firebase from "firebase/app";
@@ -26,7 +26,6 @@ import CommunityBoard from './communityBoard';
 import FollowDisplay from './FollowDisplay';
 import Sidebar from './Sidebar';
 import useTheme from './useTheme';
-import ToggleMode from './ToggleMode';
 import Profile from './Profile';
 import PersonalBoard from './personalBoard';
 import Users from './Users';
@@ -78,9 +77,6 @@ function App() {
                                 <Redirect to="/home"/>
                             </Route>
                             <Route path="/profile/:id">
-                                <Profile />
-                            </Route>
-                            <Route path="/profile">
                                 <Profile />
                             </Route>
                             <Route path="/users">

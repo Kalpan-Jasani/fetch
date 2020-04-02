@@ -2,7 +2,7 @@ import React from 'react';
 import firebase from "firebase/app";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress, Card, CardContent, CardActions, Typography, Avatar } from "@material-ui/core";
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { Link, withRouter, useParams } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 class Profile extends React.Component {
     constructor(props) {
@@ -10,10 +10,7 @@ class Profile extends React.Component {
         const uid = this.props.match.params.id;
 
         var currUID = uid ?? firebase.auth().currentUser.uid;
-        var editMode = false;
-        if (this.props.location.state !== undefined && this.props.location.state.editMode !== undefined) {
-            editMode = this.props.location.state.editMode;
-        }
+        var editMode = firebase.auth().currentUser.uid === currUID;
         this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined, followers: undefined, uid: currUID, editMode: editMode }
         this.signOut = this.signOut.bind(this);
         this.handleClickClose = this.handleClickClose.bind(this);
@@ -22,11 +19,27 @@ class Profile extends React.Component {
         this.changeNameHandler = this.changeNameHandler.bind(this);
         this.changePhotoURLHandler = this.changePhotoURLHandler.bind(this);
         this.submitHandler = this.submitHandler.bind(this);
+        this.getUserData = this.getUserData.bind(this);
     }
 
     componentDidMount() {
-        var user = this.state.uid;
+        this.getUserData();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.match.params.id !== prevProps.match.params.id) {
+            const nextUID = this.props.match.params.id;
+            this.setState({
+                uid: nextUID,
+                editMode: nextUID === firebase.auth().currentUser.uid
+            }, this.getUserData(nextUID));
+        }
+    }
+
+    getUserData(nextUID) {
+        var user = nextUID ?? this.state.uid;
         if (user !== undefined) {
+            console.log(this.state);
             firebase.firestore()
                 .collection("users")
                 .doc(user)
@@ -140,6 +153,10 @@ class Profile extends React.Component {
                                 instantValidate={false}
                                 style={{ paddingLeft: 50, flexDirection: 'column', display: 'flex', paddingRight: 50, justifyContent: 'space-around', height: 350 }}
                             >
+                                {this.state.editMode 
+                                ? null
+                                : <Typography>{`Name: ${this.state.name}`}</Typography>
+                                }
                                 <Typography gutterBottom variant="body1">
                                     {`Email: ${this.state.email}`}
                                 </Typography>
@@ -156,9 +173,15 @@ class Profile extends React.Component {
                                         {`Followers: ${(this.state.followers ?? []).length.toString()} users`}
                                     </Link>
                                 </div>
-                                <TextValidator id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} validators={['required']} errorMessages={['This field is required']} />
-                                <TextValidator id="standard-basic" label="Photo URL" value={this.state.photoURL} onChange={this.changePhotoURLHandler} />
-                                <CardActions style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>
+                                {this.state.editMode
+                                ? <TextValidator id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} validators={['required']} errorMessages={['This field is required']} />
+                                : null
+                                }
+                                {this.state.editMode
+                                ? <TextValidator id="standard-basic" label="Photo URL" value={this.state.photoURL} onChange={this.changePhotoURLHandler} />
+                                : null}
+                                {this.state.editMode
+                                ? <CardActions style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>
                                     <div style={{ position: 'relative' }}>
                                         <Button color="primary" variant="contained" disabled={this.state.saving} type="submit">
                                             Save
@@ -166,6 +189,7 @@ class Profile extends React.Component {
                                         {this.state.saving && <CircularProgress size={24} style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -12, marginLeft: -12 }} />}
                                     </div>
                                 </CardActions>
+                                : null}
                             </ValidatorForm>
                         </CardContent>
                     </Card>

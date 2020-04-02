@@ -157,6 +157,7 @@ class FollowDisplay extends React.Component {
                     <Link to={`/profile/${user.id}`}>
                         View Profile
                     </Link>
+                    <div style={{height: 10}} />
                 </div>
             })
         }
