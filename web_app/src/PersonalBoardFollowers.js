@@ -3,22 +3,12 @@ import firebase from "firebase/app";
 import { Card, CardContent, Typography, Avatar, Button } from "@material-ui/core";
 import { withRouter, Link } from 'react-router-dom';
 
-class FollowDisplay extends React.Component {
+class PersonalBoardFollowers extends React.Component {
     
     constructor(props) {
         super(props);
 
-        var query;
-        var header;
-        if (this.props.match.path.includes("following")) {
-            query = "followers";
-            header = "Following"
-        } else {
-            query = "following";
-            header = "Followers"; 
-        }
-
-        this.state = {"users": undefined, query: query, header: header}
+        this.state = {"users": undefined}
         this.getUserCards = this.getUserCards.bind(this);
         this.getInitials = this.getInitials.bind(this);
     }
@@ -28,7 +18,7 @@ class FollowDisplay extends React.Component {
         if (user !== undefined) {
             firebase.firestore()
                 .collection("users")
-                .where(`${this.state.query}`, "array-contains", `${this.props.match.params.id}`)
+                .where('pboardFollowing', 'array-contains', `${this.props.match.params.id}`)
                 .onSnapshot((querySnapshot) => {
                     var data = querySnapshot.docs;
                     var profiles = [];
@@ -170,7 +160,7 @@ class FollowDisplay extends React.Component {
         console.log(this.props);
         return (
          <div>
-            <h1>{this.state.header}</h1>
+            <h1>{"Followers"}</h1>
             <body>
                 <Card style={{ minWidth: 550, minHeight: 400, marginBottom: 25, marginTop: 50 }}>
                         <CardContent>
@@ -185,4 +175,4 @@ class FollowDisplay extends React.Component {
     }
 }
 
-export default withRouter(FollowDisplay);
+export default withRouter(PersonalBoardFollowers);

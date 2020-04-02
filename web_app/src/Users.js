@@ -12,8 +12,6 @@ class Users extends React.Component {
         this.filterSearch = this.filterSearch.bind(this);
         this.getUserCards = this.getUserCards.bind(this);
         this.getInitials = this.getInitials.bind(this);
-        this.followUser = this.followUser.bind(this);
-        this.unfollowUser = this.unfollowUser.bind(this);
     }
 
     componentDidMount() {
@@ -66,88 +64,6 @@ class Users extends React.Component {
         };
     }
 
-    async followUser(uid) {
-        var user = firebase.auth().currentUser;
-        if (user.uid !== undefined) {
-            var path = firebase.firestore().collection("users").doc(user.uid);
-
-            var followPath = firebase.firestore().collection("users").doc(uid);
-            console.log(`Follow path ${user.uid}`);
-            console.log(`Other path ${uid}`);
-
-            await firebase.firestore().runTransaction((transaction) => {
-                return transaction.get(path).then((doc) => {
-                    var fields = doc.data();
-                    var following = fields.following ?? [];
-                    following.push(uid);
-                    console.log(following);
-
-                    transaction.update(path, {following: following});
-                })
-            });
-
-            await firebase.firestore().runTransaction((followTransaction) => {
-                return followTransaction.get(followPath).then((doc) => {
-                    var fields = doc.data();
-                    var followers = fields.followers ?? [];
-                    followers.push(user.uid);
-                    console.log(followers);
-
-                    followTransaction.update(followPath, {followers: followers});
-                })
-            });
-
-            console.log("success")
-        } else {
-            console.log("User is not signed in!");
-        }
-    }
-
-    async unfollowUser(uid) {
-        var user = firebase.auth().currentUser;
-        if (user.uid !== undefined) {
-            var path = firebase.firestore().collection("users").doc(user.uid);
-
-            var followPath = firebase.firestore().collection("users").doc(uid);
-
-            await firebase.firestore().runTransaction((transaction) => {
-                return transaction.get(path).then((doc) => {
-                    var fields = doc.data();
-                    var following = fields.following ?? [];
-                    var index = following.indexOf(uid);
-                    if (index > -1) {
-                        following.splice(index, 1);
-                    } else {
-                        console.log("user is not following!");
-                    }
-                    console.log(following);
-
-                    transaction.update(path, {following: following});
-                })
-            });
-
-            await firebase.firestore().runTransaction((followTransaction) => {
-                return followTransaction.get(followPath).then((doc) => {
-                    var fields = doc.data();
-                    var followers = fields.followers ?? [];
-                    var index = followers.indexOf(user.uid);
-                    if (index > -1) {
-                        followers.splice(index, 1);
-                    } else {
-                        console.log("user is not a follower!");
-                    }
-                    console.log(followers);
-
-                    followTransaction.update(followPath, {followers: followers});
-                })
-            });
-
-            console.log("success")
-        } else {
-            console.log("User is not signed in!");
-        }
-    }
-
     getInitials = (string) => {
         var names = string.split(' '),
             initials = names[0].substring(0, 1).toUpperCase();
@@ -172,21 +88,11 @@ class Users extends React.Component {
                     <div style={{height: 10}} />
                     <Typography style={{fontSize: 20}}>{user.name}</Typography>
                     <div style={{height: 10}} />
-                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                        {(this.state.currentUser.following ?? []).includes(user.id) 
-                        ? <Button onClick={() => this.unfollowUser(user.id)} color="secondary" variant="outlined">
-                            Unfollow
+                    <Link to={`/profile/${user.id}`} style={{textDecoration: 'none'}}>
+                        <Button color="primary" variant="outlined">
+                            View Profile
                         </Button>
-                        : <Button onClick={() => this.followUser(user.id)} color="primary" variant="outlined">
-                            Follow
-                        </Button>}
-                        <div style={{width: 15}}/>
-                        <Link to={`/profile/${user.id}`} style={{textDecoration: 'none'}}>
-                            <Button color="primary" variant="outlined">
-                                View Profile
-                            </Button>
-                        </Link>
-                    </div>
+                    </Link>
                     <div style={{height: 10}} />
                 </div>
             })

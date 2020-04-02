@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Link, CircularProgress } from '@material-ui/core';
+import { useParams, Link } from 'react-router-dom';
+import { CircularProgress } from '@material-ui/core';
 import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
 import ArticleDisplay from './ArticleDisplay';
@@ -59,8 +59,7 @@ function PersonalBoard(props) {
                 });
 
                 setState(prevState => {return {...prevState, board: board, followers: board.followers}});
-            }).
-            catch((err) =>console.log(err));
+            }).catch((err) =>console.log(err));
         }
     });
 
@@ -97,6 +96,8 @@ function PersonalBoard(props) {
             .collection("pboards")
             .doc(id);
 
+            var userPath = firebase.firestore().collection("users").doc(currID);
+
             var updatedFollowers;
             await firebase.firestore().runTransaction((transaction) => {
                 return transaction.get(path).then((doc) => {
@@ -107,6 +108,17 @@ function PersonalBoard(props) {
                     updatedFollowers = followers;
 
                     transaction.update(path, {followers: followers});
+                })
+            });
+
+            await firebase.firestore().runTransaction((followTransaction) => {
+                return followTransaction.get(userPath).then((doc) => {
+                    var fields = doc.data();
+                    var pboardFollowing = fields.pboardFollowing ?? [];
+                    pboardFollowing.push(id);
+                    console.log(pboardFollowing);
+
+                    followTransaction.update(userPath, {pboardFollowing: pboardFollowing});
                 })
             });
 
@@ -123,6 +135,8 @@ function PersonalBoard(props) {
             .collection("pboards")
             .doc(id);
             
+            var userPath = firebase.firestore().collection("users").doc(currID);
+
             var updatedFollowers;
             await firebase.firestore().runTransaction((transaction) => {
                 return transaction.get(path).then((doc) => {
@@ -141,6 +155,21 @@ function PersonalBoard(props) {
                 });
             });
 
+            await firebase.firestore().runTransaction((followTransaction) => {
+                return followTransaction.get(userPath).then((doc) => {
+                    var fields = doc.data();
+                    var pboardFollowing = fields.pboardFollowing ?? [];
+                    var index = pboardFollowing.indexOf(id);
+                    if (index > -1) {
+                        pboardFollowing.splice(index, 1);
+                    } else {
+                        console.log("user is not a follower!");
+                    }
+
+                    followTransaction.update(userPath, {pboardFollowing: pboardFollowing});
+                })
+            });
+
             setState(prevState => {return {...prevState, followers: updatedFollowers, saving: false}});
         }
     }
@@ -151,6 +180,10 @@ function PersonalBoard(props) {
                 state.board &&
                 <h2>{state.board.boardName}</h2>
             }
+            <Link to={`/pboards/followers/${userid}/${id}`}>
+                <h3>{`Followers: ${state.followers.length}`}</h3>
+            </Link>
+            <div style={{height: 15}}/>
             <div style={{ position: 'relative', width: 100 }}>
             {ownerid && ownerid !== currID ?
                 (state.followers ?? []).includes(currID) 

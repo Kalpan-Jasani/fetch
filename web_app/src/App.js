@@ -28,6 +28,7 @@ import Sidebar from './Sidebar';
 import useTheme from './useTheme';
 import Profile from './Profile';
 import PersonalBoardList from './PersonalBoardList';
+import PersonalBoardFollowers from './PersonalBoardFollowers';
 import PersonalBoard from './personalBoard';
 import Users from './Users';
 
@@ -85,6 +86,9 @@ function App() {
                             </Route>
                             <Route path="/pboards/list/:id">
                                 <PersonalBoardList />
+                            </Route>
+                            <Route path="/pboards/followers/:ownerid/:id">
+                                <PersonalBoardFollowers />
                             </Route>
                             <Route path="/users">
                                 <Users />

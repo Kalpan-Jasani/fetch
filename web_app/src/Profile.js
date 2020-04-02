@@ -11,7 +11,7 @@ class Profile extends React.Component {
 
         var currUID = uid ?? firebase.auth().currentUser.uid;
         var editMode = firebase.auth().currentUser.uid === currUID;
-        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined, followers: undefined, uid: currUID, editMode: editMode }
+        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined, followers: undefined, uid: currUID, editMode: editMode, pboardCount: 0 }
         this.signOut = this.signOut.bind(this);
         this.handleClickClose = this.handleClickClose.bind(this);
         this.handleClickOpen = this.handleClickOpen.bind(this);
@@ -20,6 +20,8 @@ class Profile extends React.Component {
         this.changePhotoURLHandler = this.changePhotoURLHandler.bind(this);
         this.submitHandler = this.submitHandler.bind(this);
         this.getUserData = this.getUserData.bind(this);
+        this.unfollowUser = this.unfollowUser.bind(this);
+        this.followUser = this.followUser.bind(this);
     }
 
     componentDidMount() {
@@ -146,7 +148,109 @@ class Profile extends React.Component {
         return initials;
     }
 
+    async followUser(uid) {
+        var user = firebase.auth().currentUser;
+        if (user.uid !== undefined) {
+            this.setState({
+                saving: true,
+            });
+            var path = firebase.firestore().collection("users").doc(user.uid);
+
+            var followPath = firebase.firestore().collection("users").doc(uid);
+            console.log(`Follow path ${user.uid}`);
+            console.log(`Other path ${uid}`);
+            var updatedFollowers;
+
+            await firebase.firestore().runTransaction((transaction) => {
+                return transaction.get(path).then((doc) => {
+                    var fields = doc.data();
+                    var following = fields.following ?? [];
+                    following.push(uid);
+                    console.log(following);
+
+                    transaction.update(path, {following: following});
+                })
+            });
+
+            await firebase.firestore().runTransaction((followTransaction) => {
+                return followTransaction.get(followPath).then((doc) => {
+                    var fields = doc.data();
+                    var followers = fields.followers ?? [];
+                    followers.push(user.uid);
+                    console.log(followers);
+                    updatedFollowers = followers;
+
+                    followTransaction.update(followPath, {followers: followers});
+                })
+            });
+
+            this.setState({
+                followers: updatedFollowers,
+                saving: false,
+            });
+
+            console.log("success")
+        } else {
+            console.log("User is not signed in!");
+        }
+    }
+
+    async unfollowUser(uid) {
+        var user = firebase.auth().currentUser;
+        if (user.uid !== undefined) {
+            this.setState({
+                saving: true,
+            });
+            var path = firebase.firestore().collection("users").doc(user.uid);
+
+            var followPath = firebase.firestore().collection("users").doc(uid);
+            var updatedFollowers;
+            await firebase.firestore().runTransaction((transaction) => {
+                return transaction.get(path).then((doc) => {
+                    var fields = doc.data();
+                    var following = fields.following ?? [];
+                    var index = following.indexOf(uid);
+                    if (index > -1) {
+                        following.splice(index, 1);
+                    } else {
+                        console.log("user is not following!");
+                    }
+                    console.log(following);
+
+                    transaction.update(path, {following: following});
+                })
+            });
+
+            await firebase.firestore().runTransaction((followTransaction) => {
+                return followTransaction.get(followPath).then((doc) => {
+                    var fields = doc.data();
+                    var followers = fields.followers ?? [];
+                    var index = followers.indexOf(user.uid);
+                    if (index > -1) {
+                        followers.splice(index, 1);
+                    } else {
+                        console.log("user is not a follower!");
+                    }
+                    console.log(followers);
+                    updatedFollowers = followers;
+
+                    followTransaction.update(followPath, {followers: followers});
+                })
+            });
+
+            this.setState({
+                followers: updatedFollowers,
+                saving: false,
+            });
+
+            console.log("success")
+        } else {
+            console.log("User is not signed in!");
+        }
+    }
+
     render() {
+        var loggedInID = firebase.auth().currentUser.uid;
         return (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <body style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -195,16 +299,24 @@ class Profile extends React.Component {
                                 {this.state.editMode
                                 ? <TextValidator id="standard-basic" label="Photo URL" value={this.state.photoURL} onChange={this.changePhotoURLHandler} />
                                 : null}
-                                {this.state.editMode
-                                ? <CardActions style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>
+                                
+                                <CardActions style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>
                                     <div style={{ position: 'relative' }}>
-                                        <Button color="primary" variant="contained" disabled={this.state.saving} type="submit">
-                                            Save
-                                        </Button>
-                                        {this.state.saving && <CircularProgress size={24} style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -12, marginLeft: -12 }} />}
+                                        {this.state.editMode
+                                            ? <Button color="primary" variant="contained" disabled={this.state.saving} type="submit">
+                                                Save
+                                            </Button>
+                                            : (this.state.followers ?? []).includes(loggedInID) 
+                                                ? <Button onClick={() => this.unfollowUser(this.state.uid)} color="secondary" variant="outlined" style={{width: 100}} disabled={this.state.saving}>
+                                                    Unfollow
+                                                </Button>
+                                                : <Button onClick={() => this.followUser(this.state.uid)} color="primary" variant="outlined" style={{width: 100}} disabled={this.state.saving}>
+                                                    Follow
+                                                </Button>}
+                                            {this.state.saving && <CircularProgress size={24} style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -12, marginLeft: -12 }} />}
                                     </div>
                                 </CardActions>
-                                : null}
+                                
                             </ValidatorForm>
                         </CardContent>
                     </Card>
