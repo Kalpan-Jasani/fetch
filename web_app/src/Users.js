@@ -2,7 +2,7 @@ import React from 'react';
 import firebase from "firebase/app";
 import SearchBar from 'material-ui-search-bar';
 import { Button, Card, CardContent, Typography, Avatar } from "@material-ui/core";
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 
 class Users extends React.Component {
     
@@ -172,13 +172,21 @@ class Users extends React.Component {
                     <div style={{height: 10}} />
                     <Typography style={{fontSize: 20}}>{user.name}</Typography>
                     <div style={{height: 10}} />
-                    {(this.state.currentUser.following ?? []).includes(user.id) 
-                    ? <Button onClick={() => this.unfollowUser(user.id)} color="secondary" variant="outlined">
-                        Unfollow
-                    </Button>
-                    : <Button onClick={() => this.followUser(user.id)} color="primary" variant="outlined">
-                        Follow
-                    </Button>}
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        {(this.state.currentUser.following ?? []).includes(user.id) 
+                        ? <Button onClick={() => this.unfollowUser(user.id)} color="secondary" variant="outlined">
+                            Unfollow
+                        </Button>
+                        : <Button onClick={() => this.followUser(user.id)} color="primary" variant="outlined">
+                            Follow
+                        </Button>}
+                        <div style={{width: 15}}/>
+                        <Link to={`/profile/${user.id}`} style={{textDecoration: 'none'}}>
+                            <Button color="primary" variant="outlined">
+                                View Profile
+                            </Button>
+                        </Link>
+                    </div>
                     <div style={{height: 10}} />
                 </div>
             })

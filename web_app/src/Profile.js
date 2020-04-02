@@ -209,7 +209,8 @@ class Profile extends React.Component {
                         </CardContent>
                     </Card>
                 </body>
-                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', paddingLeft: 150, paddingRight: 150 }}>
+                {this.state.editMode
+                ? <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', paddingLeft: 150, paddingRight: 150 }}>
                     <Button color="primary" variant="contained" onClick={this.signOut}>
                         Sign Out
                     </Button>
@@ -217,6 +218,7 @@ class Profile extends React.Component {
                         Delete Account
                     </Button>
                 </div>
+                : null}
                 <Dialog open={this.state.open} onClose={this.handleClickClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
                     <DialogTitle id="alert-dialog-title">{"Delete Account?"}</DialogTitle>
                     <DialogContent>
