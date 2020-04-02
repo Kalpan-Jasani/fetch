@@ -86,20 +86,8 @@ class ArticleDisplay extends React.Component {
         //console.log(target);
         const isStarred = !this.props.articleStarred;
 
-       firebase.firestore()
-       .collection("localArticles")
-       .doc("users")
-       .collection(userid)
-       .doc(this.props.articleId)
-        .update({
-            starred: isStarred
-        });
-        //localArticles/users/dyowPzsYamSpt9flHICbi5Rk9Cs2/oRPhPbqdE9JzehU0AKnN
+       await this.props.articleRef.update({starred: isStarred});
 
-
-        // this.setState({
-        //     isStarred: isStarred
-        // });
     }
 
 
