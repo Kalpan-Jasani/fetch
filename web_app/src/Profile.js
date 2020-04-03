@@ -2,12 +2,16 @@ import React from 'react';
 import firebase from "firebase/app";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress, Card, CardContent, CardActions, Typography, Avatar } from "@material-ui/core";
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 class Profile extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined }
+        const uid = this.props.match.params.id;
+
+        var currUID = uid ?? firebase.auth().currentUser.uid;
+        var editMode = firebase.auth().currentUser.uid === currUID;
+        this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined, followers: undefined, uid: currUID, editMode: editMode, pboardCount: 0, pboardFollowing: [] }
         this.signOut = this.signOut.bind(this);
         this.handleClickClose = this.handleClickClose.bind(this);
         this.handleClickOpen = this.handleClickOpen.bind(this);
@@ -15,26 +19,58 @@ class Profile extends React.Component {
         this.changeNameHandler = this.changeNameHandler.bind(this);
         this.changePhotoURLHandler = this.changePhotoURLHandler.bind(this);
         this.submitHandler = this.submitHandler.bind(this);
+        this.getUserData = this.getUserData.bind(this);
+        this.unfollowUser = this.unfollowUser.bind(this);
+        this.followUser = this.followUser.bind(this);
     }
 
     componentDidMount() {
-        var user = firebase.auth().currentUser;
+        this.getUserData();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.match.params.id !== prevProps.match.params.id) {
+            const nextUID = this.props.match.params.id;
+            this.setState({
+                uid: nextUID,
+                editMode: nextUID === firebase.auth().currentUser.uid
+            }, this.getUserData(nextUID));
+        }
+    }
+
+    getUserData(nextUID) {
+        var user = nextUID ?? this.state.uid;
         if (user !== undefined) {
+            console.log(this.state);
             firebase.firestore()
-                .collection("users")
-                .doc(user.uid)
-                .onSnapshot((documentSnapshot) => {
-                    var data = documentSnapshot.data();
-                    if (data !== undefined) {
-                        this.setState({
-                            name: data.name,
-                            email: data.email,
-                            photoURL: data.photoURL,
-                            platform: data.platform,
-                            following: data.following ?? [],
-                        });
-                    }
-                }).bind(this);
+            .collection("users")
+            .doc(user)
+            .onSnapshot((documentSnapshot) => {
+                var data = documentSnapshot.data();
+                if (data !== undefined) {
+                    this.setState({
+                        name: data.name,
+                        email: data.email,
+                        photoURL: data.photoURL,
+                        platform: data.platform,
+                        following: data.following ?? [],
+                        followers: data.followers ?? [],
+                        pboardFollowing: data.pboardFollowing ?? [],
+                    });
+                }
+            }).bind(this);
+
+            firebase.firestore()
+            .collection("personalBoards")
+            .doc(user)
+            .collection("pboards")
+            .where("isPrivate", "==", false)
+            .onSnapshot((querySnapshot) => {
+                console.log(querySnapshot.docs.length);
+                this.setState({
+                    pboardCount: querySnapshot.docs.length,
+                });
+            });
         }
     }
 
@@ -113,7 +149,109 @@ class Profile extends React.Component {
         return initials;
     }
 
+    async followUser(uid) {
+        var user = firebase.auth().currentUser;
+        if (user.uid !== undefined) {
+            this.setState({
+                saving: true,
+            });
+            var path = firebase.firestore().collection("users").doc(user.uid);
+
+            var followPath = firebase.firestore().collection("users").doc(uid);
+            console.log(`Follow path ${user.uid}`);
+            console.log(`Other path ${uid}`);
+            var updatedFollowers;
+
+            await firebase.firestore().runTransaction((transaction) => {
+                return transaction.get(path).then((doc) => {
+                    var fields = doc.data();
+                    var following = fields.following ?? [];
+                    following.push(uid);
+                    console.log(following);
+
+                    transaction.update(path, {following: following});
+                })
+            });
+
+            await firebase.firestore().runTransaction((followTransaction) => {
+                return followTransaction.get(followPath).then((doc) => {
+                    var fields = doc.data();
+                    var followers = fields.followers ?? [];
+                    followers.push(user.uid);
+                    console.log(followers);
+                    updatedFollowers = followers;
+
+                    followTransaction.update(followPath, {followers: followers});
+                })
+            });
+
+            this.setState({
+                followers: updatedFollowers,
+                saving: false,
+            });
+
+            console.log("success")
+        } else {
+            console.log("User is not signed in!");
+        }
+    }
+
+    async unfollowUser(uid) {
+        var user = firebase.auth().currentUser;
+        if (user.uid !== undefined) {
+            this.setState({
+                saving: true,
+            });
+            var path = firebase.firestore().collection("users").doc(user.uid);
+
+            var followPath = firebase.firestore().collection("users").doc(uid);
+            var updatedFollowers;
+            await firebase.firestore().runTransaction((transaction) => {
+                return transaction.get(path).then((doc) => {
+                    var fields = doc.data();
+                    var following = fields.following ?? [];
+                    var index = following.indexOf(uid);
+                    if (index > -1) {
+                        following.splice(index, 1);
+                    } else {
+                        console.log("user is not following!");
+                    }
+                    console.log(following);
+
+                    transaction.update(path, {following: following});
+                })
+            });
+
+            await firebase.firestore().runTransaction((followTransaction) => {
+                return followTransaction.get(followPath).then((doc) => {
+                    var fields = doc.data();
+                    var followers = fields.followers ?? [];
+                    var index = followers.indexOf(user.uid);
+                    if (index > -1) {
+                        followers.splice(index, 1);
+                    } else {
+                        console.log("user is not a follower!");
+                    }
+                    console.log(followers);
+                    updatedFollowers = followers;
+
+                    followTransaction.update(followPath, {followers: followers});
+                })
+            });
+
+            this.setState({
+                followers: updatedFollowers,
+                saving: false,
+            });
+
+            console.log("success")
+        } else {
+            console.log("User is not signed in!");
+        }
+    }
+
     render() {
+        var loggedInID = firebase.auth().currentUser.uid;
         return (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <body style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -130,8 +268,12 @@ class Profile extends React.Component {
                             <ValidatorForm
                                 onSubmit={this.submitHandler}
                                 instantValidate={false}
-                                style={{ paddingLeft: 50, flexDirection: 'column', display: 'flex', paddingRight: 50, justifyContent: 'space-around', height: 350 }}
+                                style={{ paddingLeft: 50, flexDirection: 'column', display: 'flex', paddingRight: 50, justifyContent: 'space-around', height: 400 }}
                             >
+                                {this.state.editMode 
+                                ? null
+                                : <Typography>{`Name: ${this.state.name}`}</Typography>
+                                }
                                 <Typography gutterBottom variant="body1">
                                     {`Email: ${this.state.email}`}
                                 </Typography>
@@ -140,24 +282,53 @@ class Profile extends React.Component {
                                         {`Platform: ${this.state.platform}`}
                                     </Typography>
                                     : null}
-                                <Typography gutterBottom variant="body1">
-                                    {`Following: ${(this.state.following ?? []).length.toString()} users`}
-                                </Typography>
-                                <TextValidator id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} validators={['required']} errorMessages={['This field is required']} />
-                                <TextValidator id="standard-basic" label="Photo URL" value={this.state.photoURL} onChange={this.changePhotoURLHandler} />
+                                <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                    <Link to={{pathname: `/following/${this.state.uid}`, state: {header: "Following", users: (this.state.following ?? [])}}}>
+                                        {`Following: ${(this.state.following ?? []).length.toString()} users`}
+                                    </Link>
+                                    <Link to={{pathname: `/followers/${this.state.uid}`, state: {header: "Followers", users: (this.state.followers ?? [])}}}>
+                                        {`Followers: ${(this.state.followers ?? []).length.toString()} users`}
+                                    </Link>
+                                </div>
+                                <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                    <Link to={`/pboards/followlist/${this.state.uid}`}>
+                                        {`Personal Boards Followed: ${this.state.pboardFollowing.length}`}
+                                    </Link>
+                                    <Link to={`/pboards/list/${this.state.uid}`}>
+                                        {`Personal Boards: ${this.state.pboardCount}`}
+                                    </Link>
+                                </div>
+                                {this.state.editMode
+                                ? <TextValidator id="standard-basic" label="Name" value={this.state.name} onChange={this.changeNameHandler} validators={['required']} errorMessages={['This field is required']} />
+                                : null
+                                }
+                                {this.state.editMode
+                                ? <TextValidator id="standard-basic" label="Photo URL" value={this.state.photoURL} onChange={this.changePhotoURLHandler} />
+                                : null}
+                                
                                 <CardActions style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>
                                     <div style={{ position: 'relative' }}>
-                                        <Button color="primary" variant="contained" disabled={this.state.saving} type="submit">
-                                            Save
-                                        </Button>
-                                        {this.state.saving && <CircularProgress size={24} style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -12, marginLeft: -12 }} />}
+                                        {this.state.editMode
+                                            ? <Button color="primary" variant="contained" disabled={this.state.saving} type="submit">
+                                                Save
+                                            </Button>
+                                            : (this.state.followers ?? []).includes(loggedInID) 
+                                                ? <Button onClick={() => this.unfollowUser(this.state.uid)} color="secondary" variant="outlined" style={{width: 100}} disabled={this.state.saving}>
+                                                    Unfollow
+                                                </Button>
+                                                : <Button onClick={() => this.followUser(this.state.uid)} color="primary" variant="outlined" style={{width: 100}} disabled={this.state.saving}>
+                                                    Follow
+                                                </Button>}
+                                            {this.state.saving && <CircularProgress size={24} style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -12, marginLeft: -12 }} />}
                                     </div>
                                 </CardActions>
+                                
                             </ValidatorForm>
                         </CardContent>
                     </Card>
                 </body>
-                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', paddingLeft: 150, paddingRight: 150 }}>
+                {this.state.editMode
+                ? <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', paddingLeft: 150, paddingRight: 150 }}>
                     <Button color="primary" variant="contained" onClick={this.signOut}>
                         Sign Out
                     </Button>
@@ -165,6 +336,7 @@ class Profile extends React.Component {
                         Delete Account
                     </Button>
                 </div>
+                : null}
                 <Dialog open={this.state.open} onClose={this.handleClickClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
                     <DialogTitle id="alert-dialog-title">{"Delete Account?"}</DialogTitle>
                     <DialogContent>

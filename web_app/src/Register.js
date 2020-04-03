@@ -40,6 +40,7 @@ class Register extends React.Component {
                 email: user.email,
                 photoURL: user.photoURL,
                 platform: "Email",
+                articles_raised_eyebrow: [],
             });
 
             await firebase.firestore()

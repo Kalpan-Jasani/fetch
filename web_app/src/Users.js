@@ -1,8 +1,8 @@
 import React from 'react';
 import firebase from "firebase/app";
 import SearchBar from 'material-ui-search-bar';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress, Card, CardContent, CardActions, Typography, Avatar } from "@material-ui/core";
-import { withRouter } from 'react-router-dom';
+import { Button, Card, CardContent, Typography, Avatar } from "@material-ui/core";
+import { withRouter, Link } from 'react-router-dom';
 
 class Users extends React.Component {
     
@@ -12,8 +12,6 @@ class Users extends React.Component {
         this.filterSearch = this.filterSearch.bind(this);
         this.getUserCards = this.getUserCards.bind(this);
         this.getInitials = this.getInitials.bind(this);
-        this.followUser = this.followUser.bind(this);
-        this.unfollowUser = this.unfollowUser.bind(this);
     }
 
     componentDidMount() {
@@ -66,59 +64,6 @@ class Users extends React.Component {
         };
     }
 
-    async followUser(uid) {
-        var user = firebase.auth().currentUser;
-        if (user.uid !== undefined) {
-            var path = firebase.firestore()
-            .collection("users")
-            .doc(user.uid);
-
-            await firebase.firestore().runTransaction((transaction) => {
-                return transaction.get(path).then((doc) => {
-                    var fields = doc.data();
-                    var following = fields.following ?? [];
-                    following.push(uid);
-                    console.log(following);
-
-                    transaction.update(path, {following: following});
-                })
-            });
-
-            console.log("success")
-        } else {
-            console.log("User is not signed in!");
-        }
-    }
-
-    async unfollowUser(uid) {
-        var user = firebase.auth().currentUser;
-        if (user.uid !== undefined) {
-            var path = firebase.firestore()
-            .collection("users")
-            .doc(user.uid);
-
-            await firebase.firestore().runTransaction((transaction) => {
-                return transaction.get(path).then((doc) => {
-                    var fields = doc.data();
-                    var following = fields.following ?? [];
-                    var index = following.indexOf(uid);
-                    if (index > -1) {
-                        following.splice(index, 1);
-                    } else {
-                        console.log("user is not following!");
-                    }
-                    console.log(following);
-
-                    transaction.update(path, {following: following});
-                })
-            });
-
-            console.log("success")
-        } else {
-            console.log("User is not signed in!");
-        }
-    }
-
     getInitials = (string) => {
         var names = string.split(' '),
             initials = names[0].substring(0, 1).toUpperCase();
@@ -143,13 +88,11 @@ class Users extends React.Component {
                     <div style={{height: 10}} />
                     <Typography style={{fontSize: 20}}>{user.name}</Typography>
                     <div style={{height: 10}} />
-                    {(this.state.currentUser.following ?? []).includes(user.id) 
-                    ? <Button onClick={() => this.unfollowUser(user.id)} color="secondary" variant="outlined">
-                        Unfollow
-                    </Button>
-                    : <Button onClick={() => this.followUser(user.id)} color="primary" variant="outlined">
-                        Follow
-                    </Button>}
+                    <Link to={`/profile/${user.id}`} style={{textDecoration: 'none'}}>
+                        <Button color="primary" variant="outlined">
+                            View Profile
+                        </Button>
+                    </Link>
                     <div style={{height: 10}} />
                 </div>
             })

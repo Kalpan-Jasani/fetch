@@ -136,7 +136,7 @@ class CommunityArticleForm extends React.Component {
             user: user_ref,
             time: new Date(),
             comments: [],
-            eyebrow: 0,
+            users_eyebrows: [],
             user_reports: []
         });
 

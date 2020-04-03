@@ -1,9 +1,8 @@
 import React from 'react';
-import { Drawer, Divider, Button, Avatar, Grid } from "@material-ui/core";
+import { Drawer, Divider, Button, Avatar } from "@material-ui/core";
 import HomeIcon from '@material-ui/icons/Home';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { Link } from 'react-router-dom';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ToggleMode from './ToggleMode';
 
 import firebase from 'firebase';
@@ -42,7 +41,7 @@ function Sidebar(props) {
                 <HomeIcon/>
                 <span>Home</span>
             </Link>
-            <Link to="/profile" className="sidebar-item link">
+            <Link to={`/profile/${user.uid}`} className="sidebar-item link">
                 Profile
             </Link>
             <Link to="/users" className="sidebar-item link">
@@ -57,6 +56,9 @@ function Sidebar(props) {
             </Link>
             <Link to="/community-boards" className="sidebar-item community-boards link">
                 Community Boards
+            </Link>
+            <Link to="/articles-raised-eyebrow" className="sidebar-item raised-eyebrow link">
+                Raised Eyebrow Articles
             </Link>
             <Divider/>
             <ToggleMode/>
