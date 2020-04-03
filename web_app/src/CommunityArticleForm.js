@@ -61,6 +61,7 @@ class CommunityArticleForm extends React.Component {
                 open={this.props.open}
                 onClose={this.props.onClose}
                 id="dialog"
+                fullWidth={true}
             >
                 <h3>Create a community article</h3>
                 <form>

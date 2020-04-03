@@ -66,6 +66,7 @@ class ArticleForm extends React.Component {
                 open={this.props.open}
                 onClose={this.props.onClose}
                 id="dialog"
+                fullWidth={true}
             >
                 <h3>Create an article</h3>
                 <form>

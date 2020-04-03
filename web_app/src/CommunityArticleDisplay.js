@@ -16,8 +16,12 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
-import { Avatar, DialogContentText } from '@material-ui/core';
+import { Avatar, DialogContentText, Typography } from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
 class CommunityArticleDisplay extends React.Component {
     _isMounted = false;
@@ -27,7 +31,10 @@ class CommunityArticleDisplay extends React.Component {
            isDialogOpen: false,
            article: null, 
            user: null,
-           articlesRaisedEyebrow: []
+           articlesRaisedEyebrow: [],
+           SaveDialogOpen: false,
+           personalBoards: [],
+           selectedBoards: [],
 
         }
         this.unsubscribe = null;
@@ -53,9 +60,30 @@ class CommunityArticleDisplay extends React.Component {
                 .doc(user.uid)
                 .onSnapshot(function(udoc) {
                     var data = udoc.data();
-                    var articlesRE= data.articles_raised_eyebrow;
+                    var articlesRE= data.articles_raised_eyebrow || [];
                     this.setState({
                         articlesRaisedEyebrow: articlesRE || []
+                    });
+                }.bind(this));
+
+                firebase.firestore()
+                .collection("personalBoards")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("pboards")
+                .onSnapshot(function (querySnapshot) {
+                    var personalBoards = [];
+                    querySnapshot.forEach(function (doc) {
+                        let newPersonalBoard = {
+                            boardName: doc.data().boardName,
+                            isPrivate: doc.data().isPrivate,
+                            boardID: doc.id,
+                        }
+                        personalBoards.push(newPersonalBoard);
+                    });
+                    console.log("Current Personal Boards: ", personalBoards.join(", "));
+    
+                    this.setState({
+                        personalBoards: personalBoards,
                     });
                 }.bind(this));
         }
@@ -160,11 +188,47 @@ class CommunityArticleDisplay extends React.Component {
         }
     }
 
+    handleSaveDialogOpen = () => {
+        this.setState({
+            SaveDialogOpen: true,
+        })
+    }
+
+    handleSaveDialogClose = () => {
+        this.setState({
+            SaveDialogOpen: false,
+        });
+    }
+
+    handleSave = () => {
+        const selectedBoards = [...this.state.selectedBoards];
+        const userid = firebase.auth().currentUser.uid;
+        const currArticle = this.props.articleRef;
+
+        console.log(this.props.articleRef);
+
+        selectedBoards.forEach((boardId) => {
+        firebase.firestore().collection("personalBoards")
+        .doc(userid)
+        .collection("pboards")
+        .doc(boardId).update({
+                        articles: firebase.firestore.FieldValue.arrayUnion(currArticle)
+                    })
+        });
+            
+        this.setState({
+            selectedBoards: [],
+            SaveDialogOpen: false,
+        });
+       
+    }
+
+
     render() {
         return (
             this.state.article !== null ?
-                <div>
-                    <span>{this.state.article.name}</span>
+                <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center'}}>
+                    <Typography variant='h6'>{this.state.article.name}</Typography>
                     <br></br>
                     <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{marginTop:"15px"}}>
                             Preview
@@ -196,11 +260,58 @@ class CommunityArticleDisplay extends React.Component {
                             {this.state.user ? 
                                 <DialogContentText style={{left:"60px", position:"absolute"}}>{this.state.user.name} </DialogContentText> : <p> ... </p>
                             }
-                            {/* </div> */}
-                            <VisibilityIcon />
                                 <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
-                                Go to Website
+                                Visit Website
                                 </Button>
+                                
+
+                                <Button variant="contained" color="primary" onClick={this.handleSaveDialogOpen}>
+                                    Save 
+                                </Button>
+                        <Dialog 
+                        open={this.state.SaveDialogOpen} 
+                        onClose={this.handleSaveDialogClose} 
+                        aria-labelledby="form-dialog-title" 
+                        style={{
+                            padding: '10px'
+                        }}
+                        >
+                           
+                            <DialogContent>
+                            <FormControl style={{width: '200px'}}>
+                                <InputLabel id="dropdown"> Select Board </InputLabel>
+                                <Select
+                                    labelId="dropdown"
+                                    label = "Select Board"
+                                    style={{
+                                        margin: '10px'
+                                    }}
+                                    id="multiple-select"
+                                    multiple
+                                    value={this.state.selectedBoards}
+                                    onChange={(e) => this.setState({ selectedBoards: e.target.value })
+                                    }
+                                >
+                                    {this.state.personalBoards.map(board => (
+                                        <MenuItem key={board.boardID} value={board.boardID}>
+                                            {board.boardName}
+                                        </MenuItem>
+                                    ))}
+                             </Select>
+                             </FormControl>
+                            </DialogContent>
+                            <DialogActions>
+                            <Button onClick={this.handleSave} color="secondary">
+                                Save
+                            </Button>
+                            <Button onClick={this.handleSaveDialogClose} color="secondary">
+                                Cancel
+                            </Button>
+                            </DialogActions>
+                        </Dialog>
+
+
+
                                 <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
                                 Close
                                 </Button>
