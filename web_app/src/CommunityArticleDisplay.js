@@ -16,8 +16,10 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
-import { Avatar, DialogContentText } from '@material-ui/core';
+import { Avatar, DialogContentText, Link } from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 class CommunityArticleDisplay extends React.Component {
     _isMounted = false;
@@ -31,19 +33,20 @@ class CommunityArticleDisplay extends React.Component {
 
         }
         this.unsubscribe = null;
+        this.db = firebase.firestore();
     }
     componentDidMount() {
         // subscribe to article updates
         if(!this.unsubscribe) {
             this.unsubscribe = this.props.articleRef.onSnapshot( async (doc) => {
-                let userDoc = await doc.data().user.get();
+                let userDoc = await (doc.data().user.get && doc.data().user.get());
                 this.setState({
                     article: {
                         ...doc.data(),
                         users_eyebrows: doc.data().users_eyebrows || [],
                         id: doc.id,
                     },
-                    user: userDoc.data()
+                    user: userDoc && userDoc.data && userDoc.data()
                 })
             });
                 // sets the state of list of articles raised eyebrow for user
@@ -160,6 +163,24 @@ class CommunityArticleDisplay extends React.Component {
         }
     }
 
+    handleReport = () => {
+        const user = firebase.auth().currentUser;
+        const userRef = this.db.doc(`users/${user.uid}`);
+        const report = window.prompt("Enter report");
+
+        if(!report) {
+            window.alert("nothing reported");
+            return;
+        }
+        const user_report = {
+            user: userRef,
+            report
+        }
+        this.props.articleRef.update({
+            user_reports: firebase.firestore.FieldValue.arrayUnion(user_report),
+        });
+
+    }
     render() {
         return (
             this.state.article !== null ?
@@ -173,38 +194,40 @@ class CommunityArticleDisplay extends React.Component {
                     <Dialog
                         open={this.state.isDialogOpen}
                         fullWidth={true}
+                        onClose={() => this.handleDialogClose()}
                     >
                         <DialogTitle>
                             {this.state.article.name}
-                        </DialogTitle>
-                        <DialogContent>
-                            <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
-                            <DialogActions style={{ paddingLeft: 20 }}>
-                            {this.state.article.users_eyebrows.length.toString()}
-
-                            {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid) 
-                            ? <IconButton onClick={() => this.handleLowerEyebrow()}>
-                                <VisibilityIcon color="secondary"/>
-                            </IconButton>
-                            : <IconButton onClick={() => this.handleRaiseEyebrow()}>
-                                <VisibilityIcon color="disabled"/>
-                            </IconButton>}
-
                             {this.state.user ? 
                                 <Avatar alt=" " src={this.state.user.photoURL} style={{left:"20px", position:"absolute"}} /> : <p> ... </p>
                             }
                             {this.state.user ? 
                                 <DialogContentText style={{left:"60px", position:"absolute"}}>{this.state.user.name} </DialogContentText> : <p> ... </p>
                             }
-                            {/* </div> */}
-                            <VisibilityIcon />
+                        </DialogTitle>
+                        <DialogContent>
+                            <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
+                            <DialogActions style={{ paddingLeft: 20 }}>
+                                {this.state.article.users_eyebrows.length.toString()}
+
+                                {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid) 
+                                ? <IconButton onClick={() => this.handleLowerEyebrow()}>
+                                    <VisibilityIcon color="secondary"/>
+                                </IconButton>
+                                : <IconButton onClick={() => this.handleRaiseEyebrow()}>
+                                    <VisibilityIcon color="disabled"/>
+                                </IconButton>}
+
+                                {/* </div> */}
                                 <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
-                                Go to Website
+                                    <OpenInNewIcon />
                                 </Button>
-                                <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
-                                Close
+                                <Button color="secondary" onClick={this.handleReport} >
+                                    Report
                                 </Button>
-                                <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">Delete</Button>
+                                <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">
+                                    <DeleteIcon />
+                                </Button>
                             </ DialogActions>
                         </ DialogContent>
                     </Dialog>
