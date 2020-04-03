@@ -29,6 +29,7 @@ import ToggleMode from './ToggleMode';
 import Profile from './Profile';
 import PersonalBoard from './personalBoard';
 import Users from './Users';
+import ArticlesRaisedEyebrowDisplay from './ArticlesRaisedEyebrowDisplay'
 
 const drawerWidth = 240;  // width of the sidebar (can change to adjust)
 
@@ -87,6 +88,9 @@ function App() {
                             </Route>
                             <Route path="/community-boards">
                                 <CommunityBoards />
+                            </Route>
+                            <Route path="/articles-raised-eyebrow">
+                                <ArticlesRaisedEyebrowDisplay />
                             </Route>
                             <Route>
                                 <Home />

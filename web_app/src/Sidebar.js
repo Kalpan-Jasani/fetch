@@ -58,6 +58,9 @@ function Sidebar(props) {
             <Link to="/community-boards" className="sidebar-item community-boards link">
                 Community Boards
             </Link>
+            <Link to="/articles-raised-eyebrow" className="sidebar-item raised-eyebrow link">
+                Raised Eyebrow Articles
+            </Link>
             <Divider/>
             <ToggleMode/>
             <Button id="add-article-sidebar" onClick={()=>props.openForm1(true)}>
