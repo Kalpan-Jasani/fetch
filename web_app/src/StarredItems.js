@@ -1,6 +1,6 @@
 import React from 'react';
 import firebase from "firebase";
-import ArticleDisplay from './ArticleDisplay';
+import StarredArticleDisplay from './StarredArticleDisplay';
 
 class StarredItems extends React.Component {
     
@@ -9,12 +9,14 @@ class StarredItems extends React.Component {
         this.state = {
             articles: []
         }
+
+        this.unsubscribe = undefined;
     }
 
     componentDidMount() {
-        const userid = firebase.auth().currentUser.uid
+        const userid = firebase.auth().currentUser.uid;
 
-        firebase.firestore()
+        this.unsubscribe = firebase.firestore()
         .collection("localArticles")
         .doc("users")
         .collection(userid)
@@ -23,42 +25,49 @@ class StarredItems extends React.Component {
             var articles = [];
             console.log(querySnapshot);
             querySnapshot.forEach(function(doc) {
-                articles.push(doc.data());
-                console.log(doc.data());
+                var article = {
+                    url: doc.data().url,
+                    name: doc.data().name,
+                    read: doc.data().read,
+                    starred: doc.data().starred,
+                    id: doc.id
+                }
+                articles.push(article);
+                console.log(article);
             });
             this.setState({
                 articles: articles,
             });
        }.bind(this));
-}
+    }
 
-    render () {
+    componentWillUnmount() {
+        this.unsubscribe();
+    }
+
+    render() {
 
         return (
-                
-                this.state.articles.map((article) => {
+            <div style={{display: 'inline-block', margin: '20px'}}>
+                <h3> Starred Articles ({this.state.articles.length})</h3>
+               { this.state.articles.map((article) => {
                   return (
-                <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
-                    <ul>
-                      <li>{article.name}</li>
-                    </ul>
-                        
-                          {/* <ArticleDisplay 
-                            // isDialogOpen={state.isDialogOpen} 
-                            // handleDialogClose={handleDialogClose} 
+                <div className={article.read ? "article-read": "article-unread"} style={{ margin: '20px'}} >
+                      <p1>{article.name}</p1>
+                        <br></br>
+                          <StarredArticleDisplay 
                             url={article.url} 
                             ArticleName={article.name}
+                            articleStarred={article.starred}
                             articleId={article.id}
-                            articleRef={article.ref}
-                            boardId= {null}
-                            //  addToQueue={addToQueue}
-                            //  refreshBoard={handleRefreshBoard}
                             readStatus={article.read}
-                        /> */}
+                        />
                   </div> 
                   );
                 }
-        ));
+        )}
+        </div>
+        );
         
     }
 
