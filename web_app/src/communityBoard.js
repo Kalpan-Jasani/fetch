@@ -66,11 +66,11 @@ function CommunityBoard(props) {
         }
     });
 
-    const sortArticles = () => {
+    const sortArticles = (menuItemVal) => {
         const articles_ = articles;
 
         // sort community articles in descending order
-        if(commboardsort === "20"){
+        if(menuItemVal === "20"){
             articles_.sort((a, b) => (a.users_eyebrows.length < b.users_eyebrows.length) ? 1 : -1)
         }
         setArticles(articles_);     // update stored state of articles 
@@ -79,7 +79,7 @@ function CommunityBoard(props) {
 
     const handleChange = (event) => {
         setSort(event.target.value);
-        sortArticles();
+        sortArticles(event.target.value);
     };
       
     const handleClose = () => {
@@ -112,6 +112,7 @@ function CommunityBoard(props) {
                     </Select>
                 </h3>
                 <Divider></Divider>
+            <p>MENU VALUE: {commboardsort}</p>
                 <div style={{display: 'flex', flexWrap: 'wrap'}}>
                     {
                         articles.map(article => <ArticleDisplay 
