@@ -20,7 +20,7 @@ class ArticlesRaisedEyebrowDisplay extends React.Component {
             .onSnapshot((userDoc) => {
                 
                 const userInfo = userDoc.data();
-                const articleIds = userInfo.articles_raised_eyebrow;
+                const articleIds = userInfo.articles_raised_eyebrow || [];
                 //console.log("articleids ", articleIds);
 
                 const artP = articleIds.map(artID =>

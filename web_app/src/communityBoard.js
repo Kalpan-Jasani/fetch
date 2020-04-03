@@ -16,7 +16,7 @@ function CommunityBoard(props) {
     const [articles, setArticles] = React.useState([]);       // for articles
     const [commboardsort, setSort] = React.useState('10');
     const [open, setOpen] = React.useState(false);
-      
+    const [unsortedArticles, setUnsortedArticles] = React.useState([]); // will hold the fixed state of unsorted articles
     let subscribedRef = useRef();   // to use instance variables in function
                                     // components.
     // similar to componentDidMount / update but for a function components
@@ -57,6 +57,8 @@ function CommunityBoard(props) {
                     console.log('error');
                     return;
                 }
+                let unsortedArts_ = articles_.concat();
+                setUnsortedArticles(unsortedArts_);
 
                 setArticles(articles_);
                 updateBoard({ref: boardRef, ...boardDoc.data()});
@@ -66,20 +68,23 @@ function CommunityBoard(props) {
         }
     });
 
-    const sortArticles = () => {
-        const articles_ = articles;
-
+    const sortArticles = (menuItemVal) => {
         // sort community articles in descending order
-        if(commboardsort === "20"){
+        if(menuItemVal === "20"){
+            const articles_ = articles.concat();
             articles_.sort((a, b) => (a.users_eyebrows.length < b.users_eyebrows.length) ? 1 : -1)
-        }
-        setArticles(articles_);     // update stored state of articles 
+            setArticles(articles_);     // update stored state of articles 
                                 // (no refetching)
+        }
+        else{
+            const articles_ = unsortedArticles.concat();
+            setArticles(articles_)
+        }
     } 
 
     const handleChange = (event) => {
         setSort(event.target.value);
-        sortArticles();
+        sortArticles(event.target.value);
     };
       
     const handleClose = () => {

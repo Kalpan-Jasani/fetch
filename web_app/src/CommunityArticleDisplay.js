@@ -53,7 +53,7 @@ class CommunityArticleDisplay extends React.Component {
                 .doc(user.uid)
                 .onSnapshot(function(udoc) {
                     var data = udoc.data();
-                    var articlesRE= data.articles_raised_eyebrow;
+                    var articlesRE= data.articles_raised_eyebrow || [];
                     this.setState({
                         articlesRaisedEyebrow: articlesRE || []
                     });
@@ -196,8 +196,6 @@ class CommunityArticleDisplay extends React.Component {
                             {this.state.user ? 
                                 <DialogContentText style={{left:"60px", position:"absolute"}}>{this.state.user.name} </DialogContentText> : <p> ... </p>
                             }
-                            {/* </div> */}
-                            <VisibilityIcon />
                                 <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                                 Go to Website
                                 </Button>
