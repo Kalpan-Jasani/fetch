@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Link } from '@material-ui/core';
+import { Link, Card } from '@material-ui/core';
 import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
 import ArticleDisplay from './CommunityArticleDisplay';
@@ -112,12 +112,15 @@ function CommunityBoard(props) {
                     </Select>
                 </h3>
                 <Divider></Divider>
-                <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                <div style={{display: 'flex', margin: 25, flexWrap: 'wrap', marginRight: 25, flex: 2, justifyContent: 'space-around'}}>
                     {
-                        articles.map(article => <ArticleDisplay 
-                            articleRef={article.ref}
-                            key={article.ref.id}
-                            inRaisedEyebrowPage={false} />)
+                        articles.map(article => 
+                        <Card style={{minHeight: 125, minWidth: 150, padding: 25, display: 'flex', justifyContent: 'center'}}>
+                            <ArticleDisplay 
+                                articleRef={article.ref}
+                                key={article.ref.id}
+                                inRaisedEyebrowPage={false} />
+                        </Card>)
                     }
                 </div>
             </div>
