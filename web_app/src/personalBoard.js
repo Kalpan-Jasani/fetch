@@ -94,25 +94,24 @@ function PersonalBoard(props) {
 
             <h3>Articles ({state.articles.length})</h3>
             <div style={{display: 'flex', flexWrap: 'wrap'}}>
-                {
-                    
+                {   
                     state.articles.map((article) => {
                         return (
-                            <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
-                                <p>{article.name}</p>
-                                
+                            <div 
+                              key={article.id} 
+                              className={article.read ? "article-read": "article-unread"} 
+                              style={{display: 'inline', float: 'left'}}>
+                                <span style={{width: '100px'}}>{article.name}</span>
                                 <ArticleDisplay 
-                                // isDialogOpen={state.isDialogOpen} 
-                                // handleDialogClose={handleDialogClose} 
-                                url={article.url} 
-                                ArticleName={article.name}
-                                articleId={article.id}
-                                articleRef={article.ref}
-                                boardId={id}
-                                articleStarred={article.starred}
-                                addToQueue={addToQueue}
-                                refreshBoard={handleRefreshBoard}
-                                readStatus={article.read}
+                                    url={article.url} 
+                                    ArticleName={article.name}
+                                    articleId={article.id}
+                                    articleRef={article.ref}
+                                    boardId={id}
+                                    articleStarred={article.starred}
+                                    addToQueue={addToQueue}
+                                    refreshBoard={handleRefreshBoard}
+                                    readStatus={article.read}
                                 />
                             </div>
                         );
@@ -126,7 +125,7 @@ function PersonalBoard(props) {
                 {
                     state.queue.map((article) => {
                         return (
-                            <div className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
+                            <div key={article.id} className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
                                 <p>{article.name}</p>
                                 
                                 <ArticleDisplay 

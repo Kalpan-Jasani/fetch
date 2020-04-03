@@ -20,43 +20,11 @@ import CardContent from '@material-ui/core/CardContent';
 class ArticleDisplay extends React.Component {
     
     constructor(props) {
-        
         super(props);
         this.state = {
-          // url: '',
-          // isStarred: false,
            isDialogOpen: false,
-           queue: [],
-          // handleDialogClose: ()=> {},
-           Article: {},
-           board: null,
         }
     }
-
-//     componentDidMount = () => {
-//         const userid = firebase.auth().currentUser.uid;
-      
-//         firebase.firestore()
-//         .collection("localArticles")
-//         .doc("users")
-//         .collection(userid)
-//         .doc(this.props.articleId).get()
-//         .then((doc)=> {  //DocSnapshot
-//             if (doc.exists) {
-//                 const data = doc.data();
-//                 this.setState({
-//                     isStarred: data.starred
-//             });
-    
-//             } else {
-//                 // snapshot.data() will be undefined in this case
-//                 console.log("No such document!");
-               
-//             }       
-        
-//         });
-// }
-    
 
     handleDeleteDialogOpen = (doc) => {
         console.log("DOC ID: ", doc)
@@ -65,7 +33,6 @@ class ArticleDisplay extends React.Component {
             selectedArticleDelete: doc,
         });
     }
-
 
     markRead = () => {
         this.props.articleRef.update({read: true});
@@ -79,18 +46,10 @@ class ArticleDisplay extends React.Component {
         });
     }
 
-    handleStar = (event) => {
-
-        const userid = firebase.auth().currentUser.uid;
-        const target = event.target;
-        //console.log(target);
-        const isStarred = !this.props.articleStarred;
-
-       await this.props.articleRef.update({starred: isStarred});
-
+    handleStar = async (event) => {
+        await this.props.articleRef.update({starred: !this.props.articleStarred});
+        this.props.refreshBoard();
     }
-
-
 
     handleOpenNewTab = (event) => {
         window.open(this.props.url);
@@ -99,37 +58,26 @@ class ArticleDisplay extends React.Component {
     }
 
     handleDeleteArticle = async () => {
-      const props = this.props;
-      const userid = firebase.auth().currentUser.uid;
-     firebase.firestore().doc(`personalBoards/${userid}/pboards/${this.props.boardId}`)
-      .update({
-          articles: firebase.firestore.FieldValue.arrayRemove(this.props.articleRef)
-      })
-      .then(function() {
-          console.log("Article successfully deleted!");
-          props.refreshBoard();
-      })
-      .catch(function(error) {
-          console.error("Error deleting article: ", error);
-      });
-
-    this.handleDialogClose();
-    }
-
-
-    handleDialogOpen = () => {
-
-        this.setState({
-            isDialogOpen: true,
+        const props = this.props;
+        const userid = firebase.auth().currentUser.uid;
+        firebase.firestore().doc(`personalBoards/${userid}/pboards/${this.props.boardId}`)
+        .update({
+            articles: firebase.firestore.FieldValue.arrayRemove(this.props.articleRef)
         })
+        .then(function() {
+            console.log("Article successfully deleted!");
+            props.refreshBoard();
+        })
+        .catch(function(error) {
+            console.error("Error deleting article: ", error);
+        });
+
+        this.handleDialogClose();
     }
 
-    handleDialogClose = () => {
-        
-        this.setState({
-            isDialogOpen: false,
-        });
-    }
+    handleDialogOpen = () => this.setState({isDialogOpen: true});
+
+    handleDialogClose = () => this.setState({isDialogOpen: false});
 
     handlemarkUnread = () => {
         this.props.articleRef.update({read: false});
@@ -149,12 +97,8 @@ class ArticleDisplay extends React.Component {
     }
 
     render() {
-
         return (
-
             <div>
-
-
             <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
                     Preview
             </Button>
@@ -195,10 +139,8 @@ class ArticleDisplay extends React.Component {
                 </ DialogContent>
             </Dialog>
             </div>
-
         );
   }
-
 }
 
 export default ArticleDisplay;
