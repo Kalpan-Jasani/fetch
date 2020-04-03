@@ -64,7 +64,7 @@ class ArticleForm extends React.Component {
             <Dialog
                 open={this.props.open}
                 onClose={this.props.onClose}
-
+                fullWidth={true}
             >
                 <TextField
                     id="outlined-basic"

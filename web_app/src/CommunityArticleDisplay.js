@@ -16,7 +16,7 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
-import { Avatar, DialogContentText } from '@material-ui/core';
+import { Avatar, DialogContentText, Typography } from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
 class CommunityArticleDisplay extends React.Component {
@@ -163,8 +163,8 @@ class CommunityArticleDisplay extends React.Component {
     render() {
         return (
             this.state.article !== null ?
-                <div>
-                    <span>{this.state.article.name}</span>
+                <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center'}}>
+                    <Typography variant='h6'>{this.state.article.name}</Typography>
                     <br></br>
                     <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{marginTop:"15px"}}>
                             Preview
