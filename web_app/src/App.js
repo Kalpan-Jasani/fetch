@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import { FirebaseAuthProvider, FirebaseAuthConsumer } from '@react-firebase/auth';
 
 import firebase from "firebase/app";
@@ -23,10 +23,13 @@ import About from './About';
 import PersonalBoards from './PersonalBoards';
 import CommunityBoards from './CommunityBoards';
 import CommunityBoard from './communityBoard';
+import FollowDisplay from './FollowDisplay';
 import Sidebar from './Sidebar';
 import useTheme from './useTheme';
-import ToggleMode from './ToggleMode';
 import Profile from './Profile';
+import PersonalBoardList from './PersonalBoardList';
+import PersonalBoardFollowers from './PersonalBoardFollowers';
+import PersonalBoardFollowList from './PersonalBoardFollowList';
 import PersonalBoard from './personalBoard';
 import StarredItems from './StarredItems';
 import Users from './Users';
@@ -68,6 +71,9 @@ function App() {
                             <Route path="/home">
                                 <Home />
                             </Route>
+                            <Route path="/boards/:ownerid/:id">
+                                <PersonalBoard />
+                            </Route>
                             <Route path="/boards/:id">
                                 <PersonalBoard />
                             </Route>
@@ -77,11 +83,26 @@ function App() {
                             <Route path="/login">
                                 <Redirect to="/home"/>
                             </Route>
-                            <Route path="/profile">
+                            <Route path="/profile/:id">
                                 <Profile />
+                            </Route>
+                            <Route path="/pboards/list/:id">
+                                <PersonalBoardList />
+                            </Route>
+                            <Route path="/pboards/followlist/:id">
+                                <PersonalBoardFollowList />
+                            </Route>
+                            <Route path="/pboards/followers/:ownerid/:id">
+                                <PersonalBoardFollowers />
                             </Route>
                             <Route path="/users">
                                 <Users />
+                            </Route>
+                            <Route path="/followers/:id">
+                                <FollowDisplay />
+                            </Route>
+                            <Route path="/following/:id">
+                                <FollowDisplay />
                             </Route>
                             <Route path="/community-boards/:id">
                                 <CommunityBoard />

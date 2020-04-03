@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { Link } from '@material-ui/core';
+import { useParams, Link } from 'react-router-dom';
+import { CircularProgress } from '@material-ui/core';
 import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
 import ArticleDisplay from './ArticleDisplay';
@@ -10,12 +10,20 @@ import { Divider } from '@material-ui/core';
 
 function PersonalBoard(props) {
 
-    const { id } = useParams();
-    const [board, updateBoard] = React.useState(null);
+    const { ownerid, id } = useParams();
+    const [state, setState] = React.useState({
+        board: null,
+        followers: [],
+        saving: false,
+    });
+
     const db = firebase.firestore();
-    const userid = firebase.auth().currentUser.uid;
+    const userid = ownerid ?? firebase.auth().currentUser.uid;
+    const currID = firebase.auth().currentUser.uid;
+
     let subscribedRef = useRef();   // to use instance variables in function
                                     // components.
+
 
     // similar to componentDidMount / update but for a function components
     // using functional component cause of useParams above (and React liked
@@ -33,7 +41,12 @@ function PersonalBoard(props) {
                     alert("The board does not exist");
                     return;
                 }
-                updateBoard({ref: boardRef, ...boardDoc.data()});
+                setState(prevState => { return {
+                        ...prevState,
+                        board: {ref: boardRef, ...boardDoc.data()},
+                        followers: boardDoc.data().followers,
+                    }    
+                });
             },
             (err) => alert(`error: ${String(err)}`)
             );
@@ -43,7 +56,7 @@ function PersonalBoard(props) {
     const addToQueue = function(articleRef, front) {
 
         // get copy of queue refs in board
-        const queueRefs = [...board.queue];
+        const queueRefs = [...state.board.queue];
 
         if(front) {
             queueRefs.unshift(articleRef);
@@ -52,31 +65,140 @@ function PersonalBoard(props) {
             queueRefs.push(articleRef);
         }
 
-        board.ref.update({queue: queueRefs});
+        state.board.ref.update({queue: queueRefs});
+    }
+
+    const followBoard = async () => {
+        if (ownerid !== undefined) {
+            setState(prevState => {return {...prevState, saving: true}});
+            var path = firebase.firestore()
+            .collection("personalBoards")
+            .doc(ownerid)
+            .collection("pboards")
+            .doc(id);
+
+            var userPath = firebase.firestore().collection("users").doc(currID);
+
+            var updatedFollowers;
+            await firebase.firestore().runTransaction((transaction) => {
+                return transaction.get(path).then((doc) => {
+                    var fields = doc.data();
+                    var followers = fields.followers ?? [];
+                    followers.push(currID);
+
+                    updatedFollowers = followers;
+
+                    transaction.update(path, {followers: followers});
+                })
+            });
+
+            await firebase.firestore().runTransaction((followTransaction) => {
+                return followTransaction.get(userPath).then((doc) => {
+                    var fields = doc.data();
+                    var pboardFollowing = fields.pboardFollowing ?? [];
+                    pboardFollowing.push(id);
+                    console.log(pboardFollowing);
+
+                    followTransaction.update(userPath, {pboardFollowing: pboardFollowing});
+                })
+            });
+
+            setState(prevState => {return {...prevState, followers: updatedFollowers, saving: false}});
+        }
+    }
+
+    const unfollowBoard = async () => {
+        if (ownerid !== undefined) {
+            setState(prevState => {return {...prevState, saving: true}});
+            var path = firebase.firestore()
+            .collection("personalBoards")
+            .doc(ownerid)
+            .collection("pboards")
+            .doc(id);
+            
+            var userPath = firebase.firestore().collection("users").doc(currID);
+
+            var updatedFollowers;
+            await firebase.firestore().runTransaction((transaction) => {
+                return transaction.get(path).then((doc) => {
+                    var fields = doc.data();
+                    var followers = fields.followers ?? [];
+                    var index = followers.indexOf(currID);
+                    if (index > -1) {
+                        followers.splice(index, 1);
+                    } else {
+                        console.log("user is not a follower!");
+                    }
+
+                    updatedFollowers = followers;
+
+                    transaction.update(path, {followers: followers});
+                });
+            });
+
+            await firebase.firestore().runTransaction((followTransaction) => {
+                return followTransaction.get(userPath).then((doc) => {
+                    var fields = doc.data();
+                    var pboardFollowing = fields.pboardFollowing ?? [];
+                    var index = pboardFollowing.indexOf(id);
+                    if (index > -1) {
+                        pboardFollowing.splice(index, 1);
+                    } else {
+                        console.log("user is not a follower!");
+                    }
+
+                    followTransaction.update(userPath, {pboardFollowing: pboardFollowing});
+                })
+            });
+
+            setState(prevState => {return {...prevState, followers: updatedFollowers, saving: false}});
+        }
     }
 
     return (
-        board !== null ? 
+        state.board !== null ? 
             <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
                 {
-                    <h2>{board.boardName}</h2>
+                    <h2>{state.board.boardName}</h2>
                 }
 
-                <h3>Articles ({board.articles.length})</h3>
+                {/* follow related */}
+                <Link to={`/pboards/followers/${userid}/${id}`}>
+                    <h3>{`Followers: ${state.followers.length}`}</h3>
+                </Link>
+                <div style={{height: 15}}/>
+                <div style={{ position: 'relative', width: 100 }}>
+                {ownerid && ownerid !== currID ?
+                    (state.followers ?? []).includes(currID) 
+                        ? <Button onClick={() => unfollowBoard()} color="secondary" variant="outlined" style={{width: 100}} disabled={state.saving}>
+                            Unfollow
+                        </Button>
+                        : <Button onClick={() => followBoard()} color="primary" variant="outlined" style={{width: 100}} disabled={state.saving}>
+                            Follow
+                        </Button>
+                : null}
+                {state.saving && <CircularProgress size={24} style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -12, marginLeft: -12 }} />}
+                </div>
+                <div style={{height: 25}} />
+
+                {/* main dispaly of articles */}
+                <h3>Articles ({state.board.articles.length})</h3>
                 <div style={{display: 'flex', flexWrap: 'wrap'}}>
                     {   
-                        board.articles.map(articleRef => <ArticleDisplay 
+                        state.board.articles.map(articleRef => <ArticleDisplay 
                             articleRef={articleRef}
                             addToQueue={addToQueue}
-                            boardRef={board.ref} />)
+                            boardRef={state.board.ref} />)
                     }
                 </div>
                 <Divider />
-                <h3>Queue ({board.queue.length})</h3>
+
+                {/* display of queue */}
+                <h3>Queue ({state.board.queue.length})</h3>
 
                 <div style={{display: 'flex', flexWrap: 'wrap'}}>
                     {
-                        board.queue.map(articleRef => <ArticleDisplay 
+                        state.board.queue.map(articleRef => <ArticleDisplay 
                             key={articleRef.id}
                             articleRef={articleRef} />)
                     }
