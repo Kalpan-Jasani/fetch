@@ -25,13 +25,13 @@ class CommunityArticleDisplay extends React.Component {
            Article: {},
            board: null,
            eyebrowArray: this.props.eyebrowArr,
+           articlesRaisedEyebrow: []
         }
     }
 
     componentDidMount() {
         this._isMounted = true;
-        // gets the personal boards of the user
-        // updates automatically when new p board is added
+        // updates automatically when eyebrow is raised
         firebase.firestore()
         .collection("communityArticles")
         .doc(this.props.articleId)
@@ -46,6 +46,23 @@ class CommunityArticleDisplay extends React.Component {
             }
             
         }.bind(this));
+
+        // sets the state of list of articles raised eyebrow for user
+        var user = firebase.auth().currentUser;
+        firebase.firestore()
+        .collection('users')
+        .doc(user.uid)
+        .onSnapshot(function(udoc) {
+            var data = udoc.data();
+            var articlesRE= data.articles_raised_eyebrow;
+            if(this._isMounted){
+                this.setState({
+                    articlesRaisedEyebrow: articlesRE
+                });
+            }
+        }.bind(this));
+
+
     }
 
     componentWillUnmount(){
@@ -108,11 +125,21 @@ class CommunityArticleDisplay extends React.Component {
         var user = firebase.auth().currentUser;
         var ebarr = this.state.eyebrowArray;
         ebarr.push(user.uid);
+
+        var tempArticlesRE = this.state.articlesRaisedEyebrow;
+        tempArticlesRE.push(this.props.articleId);
+
         try{
             await this.props.articleRef.update({
                 users_eyebrows: ebarr,
             });
             console.log("Raised Eyebrow!")
+
+            // add to array of currentUser
+            await firebase.firestore().collection('users').doc(user.uid).update({
+                articles_raised_eyebrow: tempArticlesRE,
+            });
+            console.log("added to list of articles raised eyebrow")
         }
         catch(err){
             console.log(err);
@@ -129,11 +156,28 @@ class CommunityArticleDisplay extends React.Component {
             console.log("user did not raise an eyebrow");
         }
         //console.log(ebarr);
+
+        var tempArticlesRE = this.state.articlesRaisedEyebrow;
+        var index2 = tempArticlesRE.indexOf(this.props.articleId);
+        
+        if (index2 > -1) {
+            tempArticlesRE.splice(index2, 1);
+        } else {
+            console.log("user did not raise an eyebrow");
+        }
+
         try {
             await this.props.articleRef.update({
                 users_eyebrows: ebarr,
             });
-            console.log("Lowered Eyebrow!")
+            console.log("Lowered Eyebrow!");
+
+            // remove from array of currentUser
+            await firebase.firestore().collection('users').doc(user.uid).update({
+                articles_raised_eyebrow: tempArticlesRE,
+            });
+            console.log("removed to list of articles raised eyebrow")
+
         }
         catch(err) {
             console.log(err);
