@@ -53,7 +53,7 @@ class CommunityArticleDisplay extends React.Component {
                 .doc(user.uid)
                 .onSnapshot(function(udoc) {
                     var data = udoc.data();
-                    var articlesRE= data.articles_raised_eyebrow;
+                    var articlesRE= data.articles_raised_eyebrow || [];
                     this.setState({
                         articlesRaisedEyebrow: articlesRE || []
                     });
