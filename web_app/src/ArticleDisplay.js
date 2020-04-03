@@ -23,14 +23,35 @@ class ArticleDisplay extends React.Component {
         super(props);
         this.state = {
            isDialogOpen: false,
+           article: null
         }
+
+        this.unsubscribe = null;
+    }
+
+    componentDidMount() {
+        if(!this.unsubscribe) {     // not having a previous subscription
+            // subscribe to article updates
+            this.unsubscribe = this.props.articleRef.onSnapshot((doc) => {
+                this.setState({
+                    article: {
+                        ...doc.data(),
+                        id: doc.id,
+                    }
+                })
+            });
+        }
+    }
+
+    componentWillUnmount() {
+        // unsubscribe to article updates
+        this.unsubscribe();
     }
 
     handleDeleteDialogOpen = (doc) => {
         console.log("DOC ID: ", doc)
         this.setState({
             isDeleteDialogOpen: true,
-            selectedArticleDelete: doc,
         });
     }
 
@@ -42,34 +63,28 @@ class ArticleDisplay extends React.Component {
         // closes the dialog for delete
         this.setState({
             isDeleteDialogOpen: false,
-            selectedArticleDelete: "",
         });
     }
 
     handleStar = async (event) => {
-        await this.props.articleRef.update({starred: !this.props.articleStarred});
-        this.props.refreshBoard();
+        await this.props.articleRef.update({starred: !this.state.article.starred});
     }
 
     handleOpenNewTab = (event) => {
-        window.open(this.props.url);
+        window.open(this.state.article.url);
         this.markRead();
-        this.props.refreshBoard();
     }
 
     handleDeleteArticle = async () => {
-        const props = this.props;
-        const userid = firebase.auth().currentUser.uid;
-        firebase.firestore().doc(`personalBoards/${userid}/pboards/${this.props.boardId}`)
-        .update({
+        this.props.boardRef.update({
             articles: firebase.firestore.FieldValue.arrayRemove(this.props.articleRef)
         })
         .then(function() {
             console.log("Article successfully deleted!");
-            props.refreshBoard();
         })
         .catch(function(error) {
             console.error("Error deleting article: ", error);
+            alert("could not delete article");
         });
 
         this.handleDialogClose();
@@ -81,64 +96,67 @@ class ArticleDisplay extends React.Component {
 
     handlemarkUnread = () => {
         this.props.articleRef.update({read: false});
-        this.props.refreshBoard();
     }
 
     handlemarkRead = () => {
         this.props.articleRef.update({read: true});
-        this.props.refreshBoard();
     }
 
     handleAddToQueue = () => {
         this.props.addToQueue(this.props.articleRef, false);
-        this.setState({
-            isDialogOpen: false,
-        });
     }
 
     render() {
         return (
-            <div>
-            <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
-                    Preview
-            </Button>
-            <br/>
-            {this.props.readStatus ?
-            <Button variant="outlined" onClick={this.handlemarkUnread}> Mark Unread </Button>
-            :
-            <Button variant="outlined" onClick={this.handlemarkRead}> Mark Read </Button>
-            }
+            this.state.article !== null ?
+                <div class={this.state.article.read ? "article-read":""}>
+                    <div style={{width: '200px', height: '200px'}}>{this.state.article.name}</div>
+                    <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
+                            Preview
+                    </Button>
+                    <br/>
+                    {this.state.article.read ?
+                    <Button variant="outlined" onClick={this.handlemarkUnread}> Mark Unread </Button>
+                    :
+                    <Button variant="outlined" onClick={this.handlemarkRead}> Mark Read </Button>
+                    }
 
-            <Dialog
-            open={this.state.isDialogOpen}
-            fullWidth={true}
-            >
-                <DialogTitle>
-                    {this.props.ArticleName}
-                </DialogTitle>
-                <DialogContent>
-                    <iframe src={this.props.url}  width="100%" height="500px" ></iframe>
+                    <Dialog
+                    open={this.state.isDialogOpen}
+                    fullWidth={true}
+                    >
+                        <DialogTitle>
+                            {this.state.article.name}
+                        </DialogTitle>
+                        <DialogContent>
+                            <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
 
-                    <DialogActions style={{ paddingLeft: 20 }}>
-                        <FormControlLabel
-                            control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.props.articleStarred} onClick={this.handleStar} />}
-                            label="Star"
-                    />
+                            <DialogActions style={{ paddingLeft: 20 }}>
+                                <FormControlLabel
+                                    control={<Checkbox 
+                                        icon={<StarBorder />} 
+                                        checkedIcon={<Star />} 
+                                        checked={this.state.article.starred} 
+                                        onClick={this.handleStar} />}
+                                    label="Star"
+                            />
 
-                        <Button variant="contained" color="primary" onClick={this.handleAddToQueue}>
-                            Add to queue
-                        </Button>
-                        <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
-                        Go to Website
-                        </Button>
-                        <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
-                        Close
-                        </Button>
-                        <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">Delete</Button>
-                    </ DialogActions>
-                </ DialogContent>
-            </Dialog>
-            </div>
+                                <Button variant="contained" color="primary" onClick={this.handleAddToQueue}>
+                                    Add to queue
+                                </Button>
+                                <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
+                                Go to Website
+                                </Button>
+                                <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
+                                Close
+                                </Button>
+                                <Button onClick={() => this.handleDeleteArticle()} color="secondary">Delete</Button>
+                            </ DialogActions>
+                        </ DialogContent>
+                    </Dialog>
+                </div>
+                :
+                <p>Loading</p>
         );
   }
 }

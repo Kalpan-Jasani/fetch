@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from '@material-ui/core';
 import firebase from 'firebase';
@@ -11,143 +11,79 @@ import { Divider } from '@material-ui/core';
 function PersonalBoard(props) {
 
     const { id } = useParams();
-    const [state, setState] = React.useState({
-        board: null,
-        articles: [],
-        queue: [],
-        isDialogOpen: false,
-    });
+    const [board, updateBoard] = React.useState(null);
     const db = firebase.firestore();
     const userid = firebase.auth().currentUser.uid;
+    let subscribedRef = useRef();   // to use instance variables in function
+                                    // components.
 
     // similar to componentDidMount / update but for a function components
     // using functional component cause of useParams above (and React liked
     // functional components more)
     useEffect(() => {
-        if(state.board === null) {
-            const boardRef = db.doc(`personalBoards/${userid}/pboards/${id}`);
-            boardRef.get().then((boardDoc) => {
+        const boardRef = db.doc(`personalBoards/${userid}/pboards/${id}`);
+        // return value is called during componentWillUnmount, which will
+        // cause unsubscription from updates
+
+        if(!subscribedRef.current)
+        {
+            subscribedRef.current = true;       // subscribed to firebase
+            return boardRef.onSnapshot((boardDoc) => {
                 if(!boardDoc.exists) {
-                    console.log("The board does not exist");
+                    alert("The board does not exist");
                     return;
                 }
-
-                const board = boardDoc.data();
-                const articleReferences = board.articles;
-                const queueIds = board.queue.map(articleRef => articleRef.id);
-                const articlePromises = articleReferences.map(articleRef =>
-                    articleRef.get().then((articleDoc) => {return {
-                      ref: articleRef,
-                      id: articleDoc.id,
-                      ...articleDoc.data()
-                    }}
-                ));
-                
-                Promise.all(articlePromises).then((articles) => {
-                    const queue = [];
-                    queueIds.forEach((articleId) => {
-                        const article = articles.find(article => article.id == articleId);
-                        queue.push(article);
-                    })
-
-                    setState(prevState => {
-                        return {...prevState, articles: articles, queue: queue}
-                    })
-                });
-
-                setState(prevState => {return {...prevState, board: board}});
-            }).
-            catch((err) =>console.log(err));
+                updateBoard({ref: boardRef, ...boardDoc.data()});
+            },
+            (err) => alert(`error: ${String(err)}`)
+            );
         }
     });
 
-    const handleRefreshBoard = () => {
-        setState(prevState => {return {...prevState, board: null, articles: []}});
-    }
-
     const addToQueue = function(articleRef, front) {
 
-        const article = state.articles.find((article) => article.id == articleRef.id);
-        const userid = firebase.auth().currentUser.uid;
+        // get copy of queue refs in board
+        const queueRefs = [...board.queue];
 
-        // get copies of queue and references in queue
-        const queueRefs = [...state.board.queue];
-        const queue = [...state.queue];
-    
-        const boardRef = firebase.firestore()
-            .collection("personalBoards")
-            .doc(userid)
-            .collection("pboards").doc(id);
+        if(front) {
+            queueRefs.unshift(articleRef);
+        }
+        else {
+            queueRefs.push(articleRef);
+        }
 
-        // update things
-        queueRefs.push(articleRef);
-        queue.push(article);
-        boardRef.update({queue: queueRefs}).then(setState(prevState => {return {...prevState, board: null}}));
+        board.ref.update({queue: queueRefs});
     }
 
     return (
-        <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
-            {
-                state.board &&
-                <h2>{state.board.boardName}</h2>
-            }
-
-            <h3>Articles ({state.articles.length})</h3>
-            <div style={{display: 'flex', flexWrap: 'wrap'}}>
-                {   
-                    state.articles.map((article) => {
-                        return (
-                            <div 
-                              key={article.id} 
-                              className={article.read ? "article-read": "article-unread"} 
-                              style={{display: 'inline', float: 'left'}}>
-                                <span style={{width: '100px'}}>{article.name}</span>
-                                <ArticleDisplay 
-                                    url={article.url} 
-                                    ArticleName={article.name}
-                                    articleId={article.id}
-                                    articleRef={article.ref}
-                                    boardId={id}
-                                    articleStarred={article.starred}
-                                    addToQueue={addToQueue}
-                                    refreshBoard={handleRefreshBoard}
-                                    readStatus={article.read}
-                                />
-                            </div>
-                        );
-                    })
-                }
-            </div>
-            <Divider />
-            <h3>Queue ({state.queue.length})</h3>
-
-            <div style={{display: 'flex', flexWrap: 'wrap'}}>
+        board !== null ? 
+            <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
                 {
-                    state.queue.map((article) => {
-                        return (
-                            <div key={article.id} className={article.read ? "article-read": "article-unread"} style={{display: 'inline', float: 'left'}}>
-                                <p>{article.name}</p>
-                                
-                                <ArticleDisplay 
-                                // isDialogOpen={state.isDialogOpen} 
-                                // handleDialogClose={handleDialogClose} 
-                                url={article.url} 
-                                ArticleName={article.name}
-                                articleStarred={article.starred}
-                                articleId={article.id}
-                                articleRef={article.ref}
-                                boardId={id}
-                                addToQueue={addToQueue}
-                                refreshBoard={handleRefreshBoard}
-                                readStatus={article.read}
-                                />
-                            </div>
-                        );
-                    })
+                    <h2>{board.boardName}</h2>
                 }
-            </div>
-        </div>
 
+                <h3>Articles ({board.articles.length})</h3>
+                <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                    {   
+                        board.articles.map(articleRef => <ArticleDisplay 
+                            articleRef={articleRef}
+                            addToQueue={addToQueue}
+                            boardRef={board.ref} />)
+                    }
+                </div>
+                <Divider />
+                <h3>Queue ({board.queue.length})</h3>
+
+                <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                    {
+                        board.queue.map(articleRef => <ArticleDisplay 
+                            key={articleRef.id}
+                            articleRef={articleRef} />)
+                    }
+                </div>
+            </div>
+            :
+            <p>Loading</p>
     )
 }
 
