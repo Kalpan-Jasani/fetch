@@ -44,7 +44,6 @@ class CommunityArticleForm extends React.Component {
                     }
                     communityBoards.push(newCommunityBoard);
                 });
-                console.log("Current Personal Boards: ", communityBoards.join(", "));
 
                 this.setState({
                     communityBoards: communityBoards,

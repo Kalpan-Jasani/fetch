@@ -64,7 +64,6 @@ class ArticleForm extends React.Component {
                     }
                     personalBoards.push(newPersonalBoard);
                 });
-                console.log("Current Personal Boards: ", personalBoards.join(", "));
 
                 this.setState({
                     personalBoards: personalBoards,

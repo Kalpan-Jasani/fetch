@@ -4,6 +4,8 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { Link, withRouter } from 'react-router-dom';
 
+import {idInRefs} from './util';
+
 class Profile extends React.Component {
     constructor(props) {
         super(props);
@@ -12,6 +14,8 @@ class Profile extends React.Component {
         var currUID = uid ?? firebase.auth().currentUser.uid;
         var editMode = firebase.auth().currentUser.uid === currUID;
         this.state = { open: false, loadDelete: false, saving: false, name: "", email: "", photoURL: "", platform: "", following: undefined, followers: undefined, uid: currUID, editMode: editMode, pboardCount: 0, pboardFollowing: [] }
+        this.db = firebase.firestore();
+
         this.signOut = this.signOut.bind(this);
         this.handleClickClose = this.handleClickClose.bind(this);
         this.handleClickOpen = this.handleClickOpen.bind(this);
@@ -34,14 +38,17 @@ class Profile extends React.Component {
             this.setState({
                 uid: nextUID,
                 editMode: nextUID === firebase.auth().currentUser.uid
-            }, this.getUserData(nextUID));
+            }, () => this.getUserData(nextUID));
         }
     }
 
-    getUserData(nextUID) {
-        var user = nextUID ?? this.state.uid;
+    async getUserData(nextUID) {
+        var user = nextUID ?? this.state.uid;        
         if (user !== undefined) {
-            console.log(this.state);
+            const loggedInUserRef = this.db.doc(`users/${firebase.auth().currentUser.uid}`);
+            const userDoc = await loggedInUserRef.get();
+            const isBlocked = idInRefs(userDoc.data().blocked_users, user);
+
             firebase.firestore()
             .collection("users")
             .doc(user)
@@ -56,6 +63,7 @@ class Profile extends React.Component {
                         following: data.following ?? [],
                         followers: data.followers ?? [],
                         pboardFollowing: data.pboardFollowing ?? [],
+                        isBlocked
                     });
                 }
             }).bind(this);
@@ -66,7 +74,6 @@ class Profile extends React.Component {
             .collection("pboards")
             .where("isPrivate", "==", false)
             .onSnapshot((querySnapshot) => {
-                console.log(querySnapshot.docs.length);
                 this.setState({
                     pboardCount: querySnapshot.docs.length,
                 });
@@ -250,11 +257,32 @@ class Profile extends React.Component {
         }
     }
 
+    /* whether to block or unblock a user */
+    async blockUser(block) {
+        const userRef = this.db.doc(`users/${this.state.uid}`);
+        const loggedInID = firebase.auth().currentUser.uid;
+        const loggedInRef = this.db.doc(`users/${loggedInID}`);
+
+        try {
+            await loggedInRef.update({
+                blocked_users: block ? 
+                    firebase.firestore.FieldValue.arrayUnion(userRef) 
+                    : 
+                    firebase.firestore.FieldValue.arrayRemove(userRef)
+            });
+        }
+        catch {
+            return;
+        }
+
+        this.setState({isBlocked: block});
+    }
+
     render() {
         var loggedInID = firebase.auth().currentUser.uid;
         return (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <body style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                     <Card style={{ minWidth: 550, minHeight: 400, marginBottom: 25 }}>
                         <CardContent>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -320,13 +348,27 @@ class Profile extends React.Component {
                                                     Follow
                                                 </Button>}
                                             {this.state.saving && <CircularProgress size={24} style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -12, marginLeft: -12 }} />}
+                                        {!this.state.editMode ?
+                                            (this.state.isBlocked ?
+                                                <Button variant="outlined" color="primary"
+                                                  onClick={() => this.blockUser(false)} >
+                                                    Unblock
+                                                </Button>
+                                                :
+                                                <Button variant="outlined" color="secondary"
+                                                  onClick={() => this.blockUser(true)}>
+                                                    Block
+                                                </Button>
+                                            ):
+                                            null
+                                        }
                                     </div>
                                 </CardActions>
                                 
                             </ValidatorForm>
                         </CardContent>
                     </Card>
-                </body>
+                </div>
                 {this.state.editMode
                 ? <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', paddingLeft: 150, paddingRight: 150 }}>
                     <Button color="primary" variant="contained" onClick={this.signOut}>

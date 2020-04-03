@@ -21,15 +21,17 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import DeleteIcon from '@material-ui/icons/Delete';
 
+import {blockedUser} from './util';
+
 class CommunityArticleDisplay extends React.Component {
-    _isMounted = false;
     constructor(props) {
         super(props);
         this.state = {
            isDialogOpen: false,
            article: null, 
            user: null,
-           articlesRaisedEyebrow: []
+           articlesRaisedEyebrow: [],
+           vitalityCheck: false,       // does the article need to be hidden
 
         }
         this.unsubscribe = null;
@@ -46,21 +48,28 @@ class CommunityArticleDisplay extends React.Component {
                         users_eyebrows: doc.data().users_eyebrows || [],
                         id: doc.id,
                     },
-                    user: userDoc && userDoc.data && userDoc.data()
+                    user: {
+                        ...userDoc && userDoc.data && userDoc.data(),
+                        uid: doc.data().user && doc.data().user.id
+                    }
+                }, async () => {
+                    const vitalityCheck = await this.displayableArticle();
+                    this.setState({vitalityCheck});
                 })
             });
-                // sets the state of list of articles raised eyebrow for user
-                var user = firebase.auth().currentUser;
-                firebase.firestore()
-                .collection('users')
-                .doc(user.uid)
-                .onSnapshot(function(udoc) {
-                    var data = udoc.data();
-                    var articlesRE= data.articles_raised_eyebrow;
-                    this.setState({
-                        articlesRaisedEyebrow: articlesRE || []
-                    });
-                }.bind(this));
+
+            // sets the state of list of articles raised eyebrow for user
+            var user = firebase.auth().currentUser;
+            firebase.firestore()
+            .collection('users')
+            .doc(user.uid)
+            .onSnapshot(function(udoc) {
+                var data = udoc.data();
+                var articlesRE= data.articles_raised_eyebrow;
+                this.setState({
+                    articlesRaisedEyebrow: articlesRE || []
+                });
+            }.bind(this));
         }
     }
     componentWillUnmount() {
@@ -181,10 +190,26 @@ class CommunityArticleDisplay extends React.Component {
         });
 
     }
+
+    displayableArticle = async () => {
+        if(this.state.user) {
+            if(await blockedUser(this.state.user.uid)) {
+                return false;
+            }
+        }
+
+        if(this.state.article) {
+            if(this.state.article.user_reports.length > 2) {
+                return false;
+            }
+        }
+
+        return true;
+    }
     render() {
         return (
             this.state.article !== null ?
-                this.state.article.user_reports.length <= 2 ?
+                this.state.vitalityCheck ?
                     <div>
                         <span>{this.state.article.name}</span>
                         <br></br>

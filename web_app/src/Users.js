@@ -12,12 +12,13 @@ class Users extends React.Component {
         this.filterSearch = this.filterSearch.bind(this);
         this.getUserCards = this.getUserCards.bind(this);
         this.getInitials = this.getInitials.bind(this);
+        this.unsubscribe = null;
     }
 
     componentDidMount() {
         var user = firebase.auth().currentUser;
-        if (user !== undefined) {
-            firebase.firestore()
+        if (user !== undefined && !this.unsubscribe) {
+            this.unsubscribe = firebase.firestore()
                 .collection("users")
                 .onSnapshot((querySnapshot) => {
                     var data = querySnapshot.docs;
@@ -51,6 +52,9 @@ class Users extends React.Component {
         }
     }
 
+    componentWillUnmount() {
+        this.unsubscribe && this.unsubscribe(); 
+    }
     filterSearch(query) {
         if (this.state.users !== undefined) {
           var names = this.state.users.filter((x) => {
