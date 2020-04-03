@@ -16,29 +16,44 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 
+
 class ArticleDisplay extends React.Component {
+    
     constructor(props) {
         super(props);
         this.state = {
-          // url: '',
-           isStarred: false,
            isDialogOpen: false,
-           queue: [],
-          // handleDialogClose: ()=> {},
-           Article: {},
-           board: null,
+           article: null
+        }
+
+        this.unsubscribe = null;
+    }
+
+    componentDidMount() {
+        if(!this.unsubscribe) {     // not having a previous subscription
+            // subscribe to article updates
+            this.unsubscribe = this.props.articleRef.onSnapshot((doc) => {
+                this.setState({
+                    article: {
+                        ...doc.data(),
+                        id: doc.id,
+                    }
+                })
+            });
         }
     }
 
+    componentWillUnmount() {
+        // unsubscribe to article updates
+        this.unsubscribe();
+    }
 
     handleDeleteDialogOpen = (doc) => {
         console.log("DOC ID: ", doc)
         this.setState({
             isDeleteDialogOpen: true,
-            selectedArticleDelete: doc,
         });
     }
-
 
     markRead = () => {
         this.props.articleRef.update({read: true});
@@ -48,138 +63,102 @@ class ArticleDisplay extends React.Component {
         // closes the dialog for delete
         this.setState({
             isDeleteDialogOpen: false,
-            selectedArticleDelete: "",
         });
     }
 
     handleStar = async (event) => {
-
-
-        const target = event.target;
-        console.log("Star Value: " + target.checked);
-        const isStarred = !this.state.isStarred;
-
-        this.setState({
-                isStarred: isStarred
-        });
-
-       await firebase.firestore().collection("localArticles")
-        .doc("users")
-        .collection("ZoiGTzwfFugLUTUP9s6JbcpHH3C2") // hardcoded userid
-        .doc("2nhPDNTTDFoYGgmFO4aD")
-        .update({
-            starred: target.checked
-        });
-
+        await this.props.articleRef.update({starred: !this.state.article.starred});
     }
 
     handleOpenNewTab = (event) => {
-        window.open(this.props.url);
+        window.open(this.state.article.url);
         this.markRead();
-        this.props.refreshBoard();
     }
 
     handleDeleteArticle = async () => {
-      const props = this.props;
-      const userid = firebase.auth().currentUser.uid;
-     firebase.firestore().doc(`personalBoards/${userid}/pboards/${this.props.boardId}`)
-      .update({
-          articles: firebase.firestore.FieldValue.arrayRemove(this.props.articleRef)
-      })
-      .then(function() {
-          console.log("Article successfully deleted!");
-          props.refreshBoard();
-      })
-      .catch(function(error) {
-          console.error("Error deleting article: ", error);
-      });
-
-    this.handleDialogClose();
-    }
-
-
-    handleDialogOpen = () => {
-
-        this.setState({
-            isDialogOpen: true,
+        this.props.boardRef.update({
+            articles: firebase.firestore.FieldValue.arrayRemove(this.props.articleRef)
         })
+        .then(function() {
+            console.log("Article successfully deleted!");
+        })
+        .catch(function(error) {
+            console.error("Error deleting article: ", error);
+            alert("could not delete article");
+        });
+
+        this.handleDialogClose();
     }
 
-    handleDialogClose = () => {
-        
-        this.setState({
-            isDialogOpen: false,
-        });
-    }
+    handleDialogOpen = () => this.setState({isDialogOpen: true});
+
+    handleDialogClose = () => this.setState({isDialogOpen: false});
 
     handlemarkUnread = () => {
         this.props.articleRef.update({read: false});
-        this.props.refreshBoard();
     }
 
     handlemarkRead = () => {
         this.props.articleRef.update({read: true});
-        this.props.refreshBoard();
     }
 
     handleAddToQueue = () => {
         this.props.addToQueue(this.props.articleRef, false);
-        this.setState({
-            isDialogOpen: false,
-        });
     }
 
     render() {
-
         return (
+            this.state.article !== null ?
+                <div class={this.state.article.read ? "article-read":""}>
+                    <div style={{width: '200px', height: '200px'}}>{this.state.article.name}</div>
+                    <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
+                            Preview
+                    </Button>
+                    <br/>
+                    {this.state.article.read ?
+                    <Button variant="outlined" onClick={this.handlemarkUnread}> Mark Unread </Button>
+                    :
+                    <Button variant="outlined" onClick={this.handlemarkRead}> Mark Read </Button>
+                    }
 
-            <div>
+                    <Dialog
+                    open={this.state.isDialogOpen}
+                    fullWidth={true}
+                    >
+                        <DialogTitle>
+                            {this.state.article.name}
+                        </DialogTitle>
+                        <DialogContent>
+                            <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
 
+                            <DialogActions style={{ paddingLeft: 20 }}>
+                                <FormControlLabel
+                                    control={<Checkbox 
+                                        icon={<StarBorder />} 
+                                        checkedIcon={<Star />} 
+                                        checked={this.state.article.starred} 
+                                        onClick={this.handleStar} />}
+                                    label="Star"
+                            />
 
-            <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
-                    Preview
-            </Button>
-            <br/>
-            {this.props.readStatus ?
-            <Button variant="outlined" onClick={this.handlemarkUnread}> Mark Unread </Button>
-            :
-            <Button variant="outlined" onClick={this.handlemarkRead}> Mark Read </Button>
-            }
-
-            <Dialog
-            open={this.state.isDialogOpen}
-            fullWidth={true}
-            >
-                <DialogTitle>
-                    {this.props.ArticleName}
-                </DialogTitle>
-                <DialogContent>
-                    <iframe src={this.props.url}  width="100%" height="500px" ></iframe>
-
-                    <DialogActions style={{ paddingLeft: 20 }}>
-                        <FormControlLabel
-                            control={<Checkbox icon={<StarBorder />} checkedIcon={<Star />} checked={this.state.isStarred} onClick={this.handleStar} />}
-                            label="Star"
-                    />
-
-                        <Button variant="contained" color="primary" onClick={this.handleAddToQueue}>
-                            Add to queue
-                        </Button>
-                        <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
-                        Go to Website
-                        </Button>
-                        <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
-                        Close
-                        </Button>
-                        <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">Delete</Button>
-                    </ DialogActions>
-                </ DialogContent>
-            </Dialog>
-            </div>
-
+                                <Button variant="contained" color="primary" onClick={this.handleAddToQueue}>
+                                    Add to queue
+                                </Button>
+                                <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
+                                Go to Website
+                                </Button>
+                                <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
+                                Close
+                                </Button>
+                                <Button onClick={() => this.handleDeleteArticle()} color="secondary">Delete</Button>
+                            </ DialogActions>
+                        </ DialogContent>
+                    </Dialog>
+                </div>
+                :
+                <p>Loading</p>
         );
   }
-
 }
 
 export default ArticleDisplay;

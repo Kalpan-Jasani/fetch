@@ -69,7 +69,6 @@ class ArticlesRaisedEyebrowDisplay extends React.Component {
                     this.state.articlesRaisedEyebrow.map((article) => {
                         return (
                             <div key={article.id} style={{display: 'inline', float: 'left', marginLeft: '1rem'}}>
-                                <p>{article.name}</p>
                                 <CommunityArticleDisplay
                                 url={article.url}
                                 ArticleName={article.name}

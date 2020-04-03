@@ -269,7 +269,6 @@ displayBoards() {
                   margin: '40px',
                   maxWidth: 800,
                 }}
-                icon
             />
           <Button
               variant="contained"
