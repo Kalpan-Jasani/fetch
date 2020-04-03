@@ -184,54 +184,57 @@ class CommunityArticleDisplay extends React.Component {
     render() {
         return (
             this.state.article !== null ?
-                <div>
-                    <span>{this.state.article.name}</span>
-                    <br></br>
-                    <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{marginTop:"15px"}}>
-                            Preview
-                    </Button>
-                    <br/>
-                    <Dialog
-                        open={this.state.isDialogOpen}
-                        fullWidth={true}
-                        onClose={() => this.handleDialogClose()}
-                    >
-                        <DialogTitle>
-                            {this.state.article.name}
-                            {this.state.user ? 
-                                <Avatar alt=" " src={this.state.user.photoURL} style={{left:"20px", position:"absolute"}} /> : <p> ... </p>
-                            }
-                            {this.state.user ? 
-                                <DialogContentText style={{left:"60px", position:"absolute"}}>{this.state.user.name} </DialogContentText> : <p> ... </p>
-                            }
-                        </DialogTitle>
-                        <DialogContent>
-                            <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
-                            <DialogActions style={{ paddingLeft: 20 }}>
-                                {this.state.article.users_eyebrows.length.toString()}
+                this.state.article.user_reports.length <= 2 ?
+                    <div>
+                        <span>{this.state.article.name}</span>
+                        <br></br>
+                        <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{marginTop:"15px"}}>
+                                Preview
+                        </Button>
+                        <br/>
+                        <Dialog
+                            open={this.state.isDialogOpen}
+                            fullWidth={true}
+                            onClose={() => this.handleDialogClose()}
+                        >
+                            <DialogTitle>
+                                {this.state.article.name}
+                                {this.state.user ? 
+                                    <Avatar alt=" " src={this.state.user.photoURL} style={{left:"20px", position:"absolute"}} /> : <p> ... </p>
+                                }
+                                {this.state.user ? 
+                                    <DialogContentText style={{left:"60px", position:"absolute"}}>{this.state.user.name} </DialogContentText> : <p> ... </p>
+                                }
+                            </DialogTitle>
+                            <DialogContent>
+                                <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
+                                <DialogActions style={{ paddingLeft: 20 }}>
+                                    {this.state.article.users_eyebrows.length.toString()}
 
-                                {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid) 
-                                ? <IconButton onClick={() => this.handleLowerEyebrow()}>
-                                    <VisibilityIcon color="secondary"/>
-                                </IconButton>
-                                : <IconButton onClick={() => this.handleRaiseEyebrow()}>
-                                    <VisibilityIcon color="disabled"/>
-                                </IconButton>}
+                                    {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid) 
+                                    ? <IconButton onClick={() => this.handleLowerEyebrow()}>
+                                        <VisibilityIcon color="secondary"/>
+                                    </IconButton>
+                                    : <IconButton onClick={() => this.handleRaiseEyebrow()}>
+                                        <VisibilityIcon color="disabled"/>
+                                    </IconButton>}
 
-                                {/* </div> */}
-                                <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
-                                    <OpenInNewIcon />
-                                </Button>
-                                <Button color="secondary" onClick={this.handleReport} >
-                                    Report
-                                </Button>
-                                <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">
-                                    <DeleteIcon />
-                                </Button>
-                            </ DialogActions>
-                        </ DialogContent>
-                    </Dialog>
-                </div>
+                                    {/* </div> */}
+                                    <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
+                                        <OpenInNewIcon />
+                                    </Button>
+                                    <Button color="secondary" onClick={this.handleReport} >
+                                        Report
+                                    </Button>
+                                    <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">
+                                        <DeleteIcon />
+                                    </Button>
+                                </ DialogActions>
+                            </ DialogContent>
+                        </Dialog>
+                    </div>
+                    :
+                    <div style={{display: 'gone'}} />
                 :
                 <p>Loading</p>
         );
