@@ -117,7 +117,6 @@ function CommunityBoard(props) {
                     </Select>
                 </h3>
                 <Divider></Divider>
-            <p>MENU VALUE: {commboardsort}</p>
                 <div style={{display: 'flex', flexWrap: 'wrap'}}>
                     {
                         articles.map(article => <ArticleDisplay 
