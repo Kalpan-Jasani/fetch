@@ -33,6 +33,7 @@ import PersonalBoardFollowList from './PersonalBoardFollowList';
 import PersonalBoard from './personalBoard';
 import StarredItems from './StarredItems';
 import Users from './Users';
+import ArticlesRaisedEyebrowDisplay from './ArticlesRaisedEyebrowDisplay'
 
 const drawerWidth = 240;  // width of the sidebar (can change to adjust)
 
@@ -110,8 +111,14 @@ function App() {
                             <Route path="/community-boards">
                                 <CommunityBoards />
                             </Route>
+                            <Route path="/articles-raised-eyebrow">
+                                <ArticlesRaisedEyebrowDisplay />
+                            </Route>
                             <Route path="/starred">
                                 <StarredItems/>
+                            </Route>
+                            <Route>
+                                <Home />
                             </Route>
                         </Switch>
                     </BasePage>
