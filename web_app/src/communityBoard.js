@@ -115,6 +115,7 @@ function CommunityBoard(props) {
                                 ArticleName={article.name}
                                 articleId={article.id}
                                 articleRef={article.ref}
+                                inRaisedEyebrowPage={false} // used for 'delete' in raised eyebrow page
                                 boardId={id}
                                 eyebrowArr={article.users_eyebrows}
                                 refreshBoard={handleRefreshBoard}

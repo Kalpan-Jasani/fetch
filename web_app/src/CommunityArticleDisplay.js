@@ -61,8 +61,6 @@ class CommunityArticleDisplay extends React.Component {
                 });
             }
         }.bind(this));
-
-
     }
 
     componentWillUnmount(){
@@ -93,19 +91,26 @@ class CommunityArticleDisplay extends React.Component {
     handleDeleteArticle = async () => {
       const props = this.props;
       const userid = firebase.auth().currentUser.uid;
-     firebase.firestore().doc(`communityBoards/${this.props.boardId}`)
-      .update({
-          articles: firebase.firestore.FieldValue.arrayRemove(this.props.articleRef)
-      })
-      .then(function() {
-          console.log("Article successfully deleted!");
-          props.refreshBoard();
-      })
-      .catch(function(error) {
-          console.error("Error deleting article: ", error);
-      });
+      
+      if(this.props.inRaisedEyebrowPage){
+        // delete in RaisedEyebrow Page will be the same as lowering eyebrow
+        this.handleLowerEyebrow();
+      }
+      else{
+        firebase.firestore().doc(`communityBoards/${this.props.boardId}`)
+        .update({
+            articles: firebase.firestore.FieldValue.arrayRemove(this.props.articleRef)
+        })
+        .then(function() {
+            console.log("Article successfully deleted!");
+            props.refreshBoard();
+        })
+        .catch(function(error) {
+            console.error("Error deleting article: ", error);
+        });
 
-    this.handleDialogClose();
+        this.handleDialogClose();
+      }
     }
 
 
