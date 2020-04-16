@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TextField, FormControlLabel, IconButton } from '@material-ui/core';
+import { Button, TextField, FormControlLabel, IconButton, Grid } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
 import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
@@ -17,8 +17,11 @@ import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import {Link} from 'react-router-dom';
+import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 
-import logo from './Assets/fetch.png'
+
+import logo from './Assets/fetch.png';
+import './communityBoards.css';
 
 class CommunityBoards extends React.Component{
   constructor(props){
@@ -268,11 +271,13 @@ displayBoards() {
               variant="contained"
               color="primary"
               onClick={this.handleDialogOpen}
+              id="add-community"
               style={{
                   margin: '20px'
               }}
           >
-              New Community Board
+              <AddCircleOutlinedIcon/>
+              Create a community
           </Button>
           <Dialog
               open={this.state.isDialogOpen}
