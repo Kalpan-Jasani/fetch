@@ -1,0 +1,7 @@
+button#add-community {
+    margin-bottom: 1.5rem;
+}
+
+button#add-community .MuiSvgIcon-root {
+    margin-right: 0.2rem;
+}

@@ -16,6 +16,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import logo from './Assets/fetch.png'
 
+import './localArticleForm.css';
 
 class ArticleForm extends React.Component {
     constructor(props) {
@@ -64,63 +65,64 @@ class ArticleForm extends React.Component {
             <Dialog
                 open={this.props.open}
                 onClose={this.props.onClose}
+                id="dialog"
                 fullWidth={true}
             >
-                <TextField
-                    id="outlined-basic"
-                    label="Enter Title"
-                    placeholder="Enter name of the article"
-                    value={this.state.name}
-                    name="name"
-                    type="text"
-                    required
-                    color="secondary"
-                    onChange={(e) => (this.setState({ name: e.target.value }))}
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="URL"
-                    placeholder="Enter web address (http:// or https://)"
-                    value={this.state.url}
-                    name="url"
-                    type="text"
-                    required
-                    color="secondary"
-                    onChange={(e) => (this.setState({ url: e.target.value }))}
-                />
-
-                <TextField
-                    id="outlined-basic"
-                    label="Notes"
-                    placeholder="Enter any comments"
-                    value={this.state.notes}
-                    name="notes"
-                    type="text"
-                    color="secondary"
-                    onChange={(e) => (this.setState({ notes: e.target.value }))}
-                />
-
-                <FormControl>
-                    <InputLabel id="dropdown">Select Board</InputLabel>
-                    <Select
-                        labelId="dropdown"
-                        id="multiple-boards"
-                        multiple
-                        value={this.state.selectedBoards}
-                        onChange={(e) => this.setState({ selectedBoards: e.target.value })
-                        }
-                    >
-                        {personalBoards.map(board => (
-                            <MenuItem key={board.boardID} value={board.boardID}>
-                                {board.boardName}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                <h3>Create an article</h3>
+                <form>
+                    <TextField
+                        label="Name"
+                        value={this.state.name}
+                        name="name"
+                        type="text"
+                        required
+                        color="secondary"
+                        onChange={(e) => (this.setState({ name: e.target.value }))}
+                    />
+                    <TextField
+                        label="Url"
+                        placeholder="(http:// or https://)"
+                        value={this.state.url}
+                        name="url"
+                        type="text"
+                        required
+                        color="secondary"
+                        onChange={(e) => (this.setState({ url: e.target.value }))}
+                    />
+    
+                    <TextField
+                        label="Notes"
+                        value={this.state.notes}
+                        name="notes"
+                        type="text"
+                        color="secondary"
+                        multiline
+                        rows="3"
+                        onChange={(e) => (this.setState({ notes: e.target.value }))}
+                    />
+    
+                    <FormControl>
+                        <InputLabel id="dropdown">Boards</InputLabel>
+                        <Select
+                            labelId="dropdown"
+                            id="multiple-boards"
+                            multiple
+                            value={this.state.selectedBoards}
+                            onChange={(e) => this.setState({ selectedBoards: e.target.value })
+                            }
+                        >
+                            {personalBoards.map(board => (
+                                <MenuItem key={board.boardID} value={board.boardID}>
+                                    {board.boardName}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </form>
 
                 <DialogActions>
                     <Button onClick={this.props.onClose}>Cancel</Button>
-                    <Button color="primary" onClick={this.handleAdd}>Add</Button>
+                    <Button color="primary" onClick={this.handleAdd}>Create</Button>
                     {this.props.board &&
                         <Button>Add to queue</Button>
                     }

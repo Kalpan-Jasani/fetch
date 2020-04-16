@@ -12,10 +12,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import ListItemText from '@material-ui/core/ListItemText';
 import Select from '@material-ui/core/Select';
-import Checkbox from '@material-ui/core/Checkbox';
-import Chip from '@material-ui/core/Chip';
-import logo from './Assets/fetch.png'
 
+import './communityArticleForm.css';
 
 class CommunityArticleForm extends React.Component {
     constructor(props) {
@@ -62,59 +60,58 @@ class CommunityArticleForm extends React.Component {
             <Dialog
                 open={this.props.open}
                 onClose={this.props.onClose}
+                id="dialog"
                 fullWidth={true}
             >
-                <TextField
-                    id="outlined-basic"
-                    label="Enter Title"
-                    placeholder="Enter name of the article"
-                    value={this.state.name}
-                    name="name"
-                    type="text"
-                    required
-                    color="secondary"
-                    onChange={(e) => (this.setState({ name: e.target.value }))}
-                />
-                <TextField
-                    id="outlined-basic"
-                    label="URL"
-                    placeholder="Enter web address (http:// or https://)"
-                    value={this.state.url}
-                    name="url"
-                    type="text"
-                    required
-                    color="secondary"
-                    onChange={(e) => (this.setState({ url: e.target.value }))}
-                />
-
-                <TextField
-                    id="outlined-basic"
-                    label="Notes"
-                    placeholder="Enter any comments"
-                    value={this.state.notes}
-                    name="notes"
-                    type="text"
-                    color="secondary"
-                    onChange={(e) => (this.setState({ notes: e.target.value }))}
-                />
-
-                <FormControl>
-                    <InputLabel id="dropdown">Select Community Board</InputLabel>
-                    <Select
-                        labelId="dropdown"
-                        id="multiple-boards"
-                        multiple
-                        value={this.state.selectedBoards}
-                        onChange={(e) => this.setState({ selectedBoards: e.target.value })
-                        }
-                    >
-                        {communityBoards.map(board => (
-                            <MenuItem key={board.boardID} value={board.boardID}>
-                                {board.name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                <h3>Create a community article</h3>
+                <form>
+                    <TextField
+                        label="Name"
+                        value={this.state.name}
+                        name="name"
+                        type="text"
+                        required
+                        color="secondary"
+                        onChange={(e) => (this.setState({ name: e.target.value }))}
+                    />
+                    <TextField
+                        label="URL"
+                        placeholder="Enter web address (http:// or https://)"
+                        value={this.state.url}
+                        name="url"
+                        type="text"
+                        required
+                        color="secondary"
+                        onChange={(e) => (this.setState({ url: e.target.value }))}
+                    />
+    
+                    <TextField
+                        label="Notes"
+                        value={this.state.notes}
+                        name="notes"
+                        type="text"
+                        color="secondary"
+                        onChange={(e) => (this.setState({ notes: e.target.value }))}
+                    />
+    
+                    <FormControl>
+                        <InputLabel id="dropdown">Communities</InputLabel>
+                        <Select
+                            labelId="dropdown"
+                            id="multiple-boards"
+                            multiple
+                            value={this.state.selectedBoards}
+                            onChange={(e) => this.setState({ selectedBoards: e.target.value })
+                            }
+                        >
+                            {communityBoards.map(board => (
+                                <MenuItem key={board.boardID} value={board.boardID}>
+                                    {board.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </form>
 
                 <DialogActions>
                     <Button onClick={this.props.onClose}>Cancel</Button>

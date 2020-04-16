@@ -15,9 +15,11 @@ import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import {Link} from 'react-router-dom';
+import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 
-import logo from './Assets/fetch.png'
+import logo from './Assets/fetch.png';
 
+import './personalBoards.css';
 
 class PersonalBoards extends React.Component {
     constructor(props) {
@@ -200,8 +202,10 @@ class PersonalBoards extends React.Component {
                 variant="contained"
                 color="primary"
                 onClick={this.handleDialogOpen}
+                id="add-personal-board"
             >
-                New Personal Board
+                <AddCircleOutlinedIcon/>
+                New board
             </Button>
             <Dialog
                 open={this.state.isDialogOpen}
@@ -271,13 +275,14 @@ class PersonalBoards extends React.Component {
               direction="row"
               justify="flex-start"
               alignItems="center"
+              id="boards-grid"
             >
             {personalBoards.map(board => (
                 <Grid 
                 key={board.boardID} 
                 item
                 >
-                  <Card style={{minWidth: 250, minHeight: 100, margin: 7}} >
+                  <Card style={{width: 250, height: 300, margin: '0.5rem'}} >
                       <CardHeader
                       title={board.boardName}
                       subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
