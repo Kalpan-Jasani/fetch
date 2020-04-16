@@ -108,7 +108,6 @@ class CommunityArticleDisplay extends React.Component {
    
     handleOpenNewTab = (event) => {
         window.open(this.state.article.url);
-        this.markRead();
     }
    
     handleDialogOpen = () => this.setState({isDialogOpen: true});
