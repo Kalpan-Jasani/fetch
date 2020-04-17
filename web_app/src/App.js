@@ -35,10 +35,12 @@ import StarredItems from './StarredItems';
 import Users from './Users';
 import ArticlesRaisedEyebrowDisplay from './ArticlesRaisedEyebrowDisplay'
 
+import './App.css';
+
 const drawerWidth = 240;  // width of the sidebar (can change to adjust)
 
 const getBackground = style('mode', {
-  light: '#EEE',
+  light: 'transparent',
   dark: '#111'
 });
 
