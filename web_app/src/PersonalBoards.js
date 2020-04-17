@@ -31,7 +31,11 @@ class PersonalBoards extends React.Component {
             isAddOpen: false,
             personalBoards: [],
             isDeleteDialogOpen: false,
-            selectedBoardDelete: "",
+            selectedBoardDelete: " ",
+            isPrivateDialogOpen: false,
+            selectedBoardPrivate: " ",
+            isSelectedBoardPrivate: false,
+            selectedBoardName: "",
         }
     }
 
@@ -151,11 +155,12 @@ class PersonalBoards extends React.Component {
         });
     }
 
-    handleDeleteDialogOpen = (doc) => {
+    handleDeleteDialogOpen = (doc, docName) => {
         console.log("DOC ID: ", doc)
         this.setState({
             isDeleteDialogOpen: true,
             selectedBoardDelete: doc,
+            selectedBoardName: docName
         });
     }
 
@@ -163,7 +168,7 @@ class PersonalBoards extends React.Component {
         // closes the dialog for delete
         this.setState({
             isDeleteDialogOpen: false,
-            selectedBoardDelete: "",
+            selectedBoardDelete: " ",
         });
     }
 
@@ -186,9 +191,27 @@ class PersonalBoards extends React.Component {
         // will close the dialog after submission
         this.setState({
             isDeleteDialogOpen: false,
-            selectedBoardDelete: "",
+            selectedBoardDelete: " ",
         });
 
+    }
+
+    handlePrivateDialogOpen = (doc, docName, isPrivate) => {
+        console.log("DOC ID: ", doc)
+        this.setState({
+            isPrivateDialogOpen: true,
+            selectedBoardPrivate: doc,
+            isSelectedBoardPrivate: isPrivate,
+            selectedBoardName: docName,
+        });
+    }
+
+    handlePrivateDialogClose = () => {
+        // closes the dialog for delete
+        this.setState({
+            isPrivateDialogOpen: false,
+            selectedBoardPrivate: " ",
+        });
     }
 
     handleChangePrivate = async (doc, isPrivate) => {
@@ -200,6 +223,8 @@ class PersonalBoards extends React.Component {
         .update({
             isPrivate: !isPrivate,
         });
+        this.handlePrivateDialogClose();
+
     }
 
     render() {
@@ -272,7 +297,7 @@ class PersonalBoards extends React.Component {
                 onClose={this.handleDeleteDialogClose}
             >
                 <DialogTitle>
-                    Are you sure you want to delete this Personal Board?
+                    Are you sure you want to DELETE the "{this.state.selectedBoardName}" Personal Board?
                 </DialogTitle>
                 <DialogActions>
                     <Button onClick={this.handleDeleteDialogClose}>No</Button>
@@ -280,6 +305,24 @@ class PersonalBoards extends React.Component {
                 </DialogActions>
 
             </Dialog>
+            <Dialog
+                open={this.state.isPrivateDialogOpen}
+                onClose={this.handlePrivateDialogClose}
+            >
+                <DialogTitle>
+                    {this.state.isSelectedBoardPrivate ? 
+                    "Are you sure you want to make the \"" + this.state.selectedBoardName + "\" Personal Board NOT private?" 
+                    : 
+                    "Are you sure you want to make the \"" + this.state.selectedBoardName + "\" Personal Board private?"
+                    }
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={this.handlePrivateDialogClose}>No</Button>
+                    <Button onClick={() => this.handleChangePrivate(this.state.selectedBoardPrivate, this.state.isSelectedBoardPrivate)} color="secondary">Yes</Button>
+                </DialogActions>
+
+            </Dialog>
+
 
             <Grid
               container
@@ -297,16 +340,16 @@ class PersonalBoards extends React.Component {
                       <CardHeader
                       title={board.boardName}
                       subheader={board.isPrivate ? 
-                        <IconButton onClick={() => this.handleChangePrivate(board.boardID, true)}>
+                        <IconButton onClick={() => this.handlePrivateDialogOpen(board.boardID, board.boardName, true)}>
                             <Lock/>
                         </IconButton> 
                         : 
-                        <IconButton onClick={() => this.handleChangePrivate(board.boardID, false)}>
+                        <IconButton onClick={() => this.handlePrivateDialogOpen(board.boardID, board.boardName, false)}>
                             <LockOpen/>
                         </IconButton> 
                       }
                       action={
-                        <IconButton onClick={() => this.handleDeleteDialogOpen(board.boardID)}>
+                        <IconButton onClick={() => this.handleDeleteDialogOpen(board.boardID, board.boardName)}>
                             <Delete />
                         </IconButton>
                         }
