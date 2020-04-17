@@ -366,7 +366,7 @@ class CommunityArticleDisplay extends React.Component {
                         </Dialog>
                     </div>
                     :
-                    <div style={{display: 'gone'}} />
+                    <div style={{color: 'grey'}}>! article is reported</div>
                 :
                 <p>Loading</p>
         );
