@@ -191,6 +191,17 @@ class PersonalBoards extends React.Component {
 
     }
 
+    handleChangePrivate = async (doc, isPrivate) => {
+        await firebase.firestore()
+        .collection('personalBoards')
+        .doc(firebase.auth().currentUser.uid)
+        .collection("pboards")
+        .doc(doc)
+        .update({
+            isPrivate: !isPrivate,
+        });
+    }
+
     render() {
         const personalBoards = this.state.personalBoards;
 
@@ -285,7 +296,15 @@ class PersonalBoards extends React.Component {
                   <Card style={{width: 250, height: 300, margin: '0.5rem'}} >
                       <CardHeader
                       title={board.boardName}
-                      subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
+                      subheader={board.isPrivate ? 
+                        <IconButton onClick={() => this.handleChangePrivate(board.boardID, true)}>
+                            <Lock/>
+                        </IconButton> 
+                        : 
+                        <IconButton onClick={() => this.handleChangePrivate(board.boardID, false)}>
+                            <LockOpen/>
+                        </IconButton> 
+                      }
                       action={
                         <IconButton onClick={() => this.handleDeleteDialogOpen(board.boardID)}>
                             <Delete />
