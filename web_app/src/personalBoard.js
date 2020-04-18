@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useHistory } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
 import firebase from 'firebase';
 import Button from '@material-ui/core/Button';
@@ -11,34 +11,53 @@ import { Divider } from '@material-ui/core';
 function PersonalBoard(props) {
 
     const { ownerid, id } = useParams();
+    const history = useHistory();
     const [state, setState] = React.useState({
         board: null,
         followers: [],
         saving: false,
     });
+    
+    /* 
+     * this makes a non-state but kind of static variable that exists the next
+     * time this functional component is re-rendered
+     * 
+     * This is needed because firebase is only subscribed to the board
+     * once
+     * 
+     * Its initial value is false
+     */
+    const subscribedRef = useRef(false);
 
+    /**
+     * get current value, which can be different from false
+     */
+    let subscribed = subscribedRef.current;
+    
     const db = firebase.firestore();
+    
+    /**
+     * userid: the id of the owner of the board. If there is no ownerid present
+     *  in the url, then the current user is selected as the owner
+     * currId: the id of the logged in user
+     */
     const userid = ownerid ?? firebase.auth().currentUser.uid;
     const currID = firebase.auth().currentUser.uid;
 
-    let subscribedRef = useRef();   // to use instance variables in function
-                                    // components.
 
-
-    // similar to componentDidMount / update but for a function components
-    // using functional component cause of useParams above (and React liked
-    // functional components more)
+    /* similar to componentDidMount / update but for a function components
+    using functional component cause of useParams above (and React liked
+    functional components more) */
     useEffect(() => {
         const boardRef = db.doc(`personalBoards/${userid}/pboards/${id}`);
-        // return value is called during componentWillUnmount, which will
-        // cause unsubscription from updates
-
-        if(!subscribedRef.current)
+        
+        if(!subscribed)
         {
-            subscribedRef.current = true;       // subscribed to firebase
-            return boardRef.onSnapshot((boardDoc) => {
+            subscribedRef.current = true;       // mark subscribed to firebase
+            const unsubscribe = boardRef.onSnapshot((boardDoc) => {
                 if(!boardDoc.exists) {
                     alert("The board does not exist");
+                    history.goBack();
                     return;
                 }
                 setState(prevState => { return {
@@ -48,8 +67,13 @@ function PersonalBoard(props) {
                     }    
                 });
             },
-            (err) => alert(`error: ${String(err)}`)
+                (err) => alert(`error: ${String(err)}`)
             );
+
+            return () => {
+                unsubscribe();  // unsubscribe from Firebase
+                subscribedRef.current = false;  // unsubscribed is marked
+            }
         }
     });
 
