@@ -27,6 +27,7 @@ class PersonalBoards extends React.Component {
         this.state = {
             boardName: '',
             isPrivate: false,
+            boardImageURL: "",
             isDialogOpen: false,
             isAddOpen: false,
             personalBoards: [],
@@ -53,6 +54,7 @@ class PersonalBoards extends React.Component {
                 let newPersonalBoard = {
                     boardName: doc.data().boardName,
                     isPrivate: doc.data().isPrivate,
+                    imageURL: doc.data().imageURL || "",
                     boardID: doc.id,
                 }
                 personalBoards.push(newPersonalBoard);
@@ -89,12 +91,13 @@ class PersonalBoards extends React.Component {
         event.preventDefault();
 
         // get the form data out of state
-        const { boardName, isPrivate } = this.state;
+        const { boardName, isPrivate, boardImageURL } = this.state;
 
         // clear the form
         this.setState({
             boardName: '',
             isPrivate: false,
+            boardImageURL: "",
         });
 
         console.log("Board Name: " + boardName)
@@ -112,6 +115,7 @@ class PersonalBoards extends React.Component {
             followers: [],
             queue: [],
             timestamp: Date.now(),
+            imageURL: boardImageURL,
         }).then(function(docRef) {
             console.log("success! docID", docRef.id);
         })
@@ -177,7 +181,7 @@ class PersonalBoards extends React.Component {
 
         await firebase.firestore()
         .collection("personalBoards")
-        .doc(firebase.auth().currentUser.uid) // hardcoded userid
+        .doc(firebase.auth().currentUser.uid)
         .collection("pboards")
         .doc(doc)
         .delete()
@@ -271,6 +275,16 @@ class PersonalBoards extends React.Component {
                             required
                             color="secondary"
                         />
+                        <TextField
+                            id="outlined-basic"
+                            label="Image URL"
+                            placeholder="Example: https://reactjs.org/logo-og.png"
+                            value={this.state.boardImageURL}
+                            name="boardImageURL"
+                            onChange={this.handleInputChange}
+                            type="text"
+                            color="secondary"
+                        />
                         <FormControlLabel
                             label="Private"
                             control={
@@ -356,7 +370,11 @@ class PersonalBoards extends React.Component {
                       >
                       </CardHeader>
                       <CardMedia style={{height: 0, paddingTop: '50%'}}
-                        image={logo}
+                        image={(board.imageURL === "") ?
+                            logo
+                            :
+                            board.imageURL
+                        }
                         title="FETCH"
                       />
                     <CardActions>
