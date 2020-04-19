@@ -26,6 +26,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import CommentSection from './CommentSection';
 
 class CommunityArticleDisplay extends React.Component {
     constructor(props) {
@@ -284,6 +285,7 @@ class CommunityArticleDisplay extends React.Component {
                             open={this.state.isDialogOpen}
                             fullWidth={true}
                             onClose={() => this.handleDialogClose()}
+                            maxWidth={'md'}
                         >
                             <DialogTitle>
                                 {this.state.article.name}
@@ -294,74 +296,79 @@ class CommunityArticleDisplay extends React.Component {
                                     <DialogContentText style={{left:"60px", position:"absolute"}}>{this.state.user.name} </DialogContentText> : <p> ... </p>
                                 }
                             </DialogTitle>
-                            <DialogContent>
-                                <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
-                                <DialogActions style={{ paddingLeft: 20 }}>
-                                    {this.state.article.users_eyebrows.length.toString()}
+                            <DialogContent style={{display: 'flex', flexDirection: 'row', paddingTop: 25}}>
+                                <div style={{width: '60%', paddingRight: 15}}>
+                                    <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
+                                    <DialogActions style={{ paddingLeft: 20 }}>
+                                        {this.state.article.users_eyebrows.length.toString()}
 
-                                    {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid) 
-                                    ? <IconButton onClick={() => this.handleLowerEyebrow()}>
-                                        <VisibilityIcon color="secondary"/>
-                                    </IconButton>
-                                    : <IconButton onClick={() => this.handleRaiseEyebrow()}>
-                                        <VisibilityIcon color="disabled"/>
-                                    </IconButton>}
+                                        {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid) 
+                                        ? <IconButton onClick={() => this.handleLowerEyebrow()}>
+                                            <VisibilityIcon color="secondary"/>
+                                        </IconButton>
+                                        : <IconButton onClick={() => this.handleRaiseEyebrow()}>
+                                            <VisibilityIcon color="disabled"/>
+                                        </IconButton>}
 
-                                    <Button variant="contained" color="primary" onClick={this.handleSaveDialogOpen}>
-                                        Save 
-                                    </Button>
-                                    {/* dialog to save article to personal boards */}
-                                    <Dialog 
-                                    open={this.state.SaveDialogOpen} 
-                                    onClose={this.handleSaveDialogClose} 
-                                    aria-labelledby="form-dialog-title" 
-                                    style={{
-                                        padding: '10px'
-                                    }}
-                                    >
-                                    
-                                        <DialogContent>
-                                        <FormControl style={{width: '200px'}}>
-                                            <InputLabel id="dropdown"> Select Board </InputLabel>
-                                            <Select
-                                                labelId="dropdown"
-                                                label = "Select Board"
-                                                style={{
-                                                    margin: '10px'
-                                                }}
-                                                id="multiple-select"
-                                                multiple
-                                                value={this.state.selectedBoards}
-                                                onChange={(e) => this.setState({ selectedBoards: e.target.value })
-                                                }
-                                            >
-                                                {this.state.personalBoards.map(board => (
-                                                    <MenuItem key={board.boardID} value={board.boardID}>
-                                                        {board.boardName}
-                                                    </MenuItem>
-                                                ))}
-                                        </Select>
-                                        </FormControl>
-                                        </DialogContent>
-                                        <DialogActions>
-                                        <Button onClick={this.handleSave} color="secondary">
-                                            Save
+                                        <Button variant="contained" color="primary" onClick={this.handleSaveDialogOpen}>
+                                            Save 
                                         </Button>
-                                        <Button onClick={this.handleSaveDialogClose} color="secondary">
-                                            Cancel
+                                        {/* dialog to save article to personal boards */}
+                                        <Dialog 
+                                        open={this.state.SaveDialogOpen} 
+                                        onClose={this.handleSaveDialogClose} 
+                                        aria-labelledby="form-dialog-title" 
+                                        style={{
+                                            padding: '10px'
+                                        }}
+                                        >
+
+                                            <DialogContent>
+                                            <FormControl style={{width: '200px'}}>
+                                                <InputLabel id="dropdown"> Select Board </InputLabel>
+                                                <Select
+                                                    labelId="dropdown"
+                                                    label = "Select Board"
+                                                    style={{
+                                                        margin: '10px'
+                                                    }}
+                                                    id="multiple-select"
+                                                    multiple
+                                                    value={this.state.selectedBoards}
+                                                    onChange={(e) => this.setState({ selectedBoards: e.target.value })
+                                                    }
+                                                >
+                                                    {this.state.personalBoards.map(board => (
+                                                        <MenuItem key={board.boardID} value={board.boardID}>
+                                                            {board.boardName}
+                                                        </MenuItem>
+                                                    ))}
+                                            </Select>
+                                            </FormControl>
+                                            </DialogContent>
+                                            <DialogActions>
+                                            <Button onClick={this.handleSave} color="secondary">
+                                                Save
+                                            </Button>
+                                            <Button onClick={this.handleSaveDialogClose} color="secondary">
+                                                Cancel
+                                            </Button>
+                                            </DialogActions>
+                                        </Dialog>   {/* dialog to save article to personal boards */}
+                                        <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
+                                            <OpenInNewIcon />
                                         </Button>
-                                        </DialogActions>
-                                    </Dialog>   {/* dialog to save article to personal boards */}
-                                    <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
-                                        <OpenInNewIcon />
-                                    </Button>
-                                    <Button color="secondary" onClick={this.handleReport} >
-                                        Report
-                                    </Button>
-                                    <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">
-                                        <DeleteIcon />
-                                    </Button>
-                                </ DialogActions>
+                                        <Button color="secondary" onClick={this.handleReport} >
+                                            Report
+                                        </Button>
+                                        <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">
+                                            <DeleteIcon />
+                                        </Button>
+                                    </ DialogActions>
+                                </div>
+                                <CommentSection
+                                    articleID={this.state.article.id}
+                                />
                             </ DialogContent>
                         </Dialog>
                     </div>
