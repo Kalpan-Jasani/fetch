@@ -7,11 +7,17 @@ import ArticleDisplay from './ArticleDisplay';
 import './personalBoard.css';
 import { Divider } from '@material-ui/core';
 
-
+/**
+ * 
+ * @param {*} props: none used
+ * 
+ * This component must be rendered at a url (hash based url) that 
+ * is domain.com/#/boards/<id>/ or domain.com/#/boards/<ownerid>/<id>
+ */
 function PersonalBoard(props) {
 
-    const { ownerid, id } = useParams();
-    const history = useHistory();
+    const { ownerid, id } = useParams();    // get params based on url
+    const history = useHistory();   // history of browsing (already maintained)
     const [state, setState] = React.useState({
         board: null,
         followers: [],
@@ -43,14 +49,12 @@ function PersonalBoard(props) {
      */
     const userid = ownerid ?? firebase.auth().currentUser.uid;
     const currID = firebase.auth().currentUser.uid;
-
+    const boardRef = db.doc(`personalBoards/${userid}/pboards/${id}`);
 
     /* similar to componentDidMount / update but for a function components
     using functional component cause of useParams above (and React liked
     functional components more) */
     useEffect(() => {
-        const boardRef = db.doc(`personalBoards/${userid}/pboards/${id}`);
-        
         if(!subscribed)
         {
             subscribedRef.current = true;       // mark subscribed to firebase
@@ -76,6 +80,17 @@ function PersonalBoard(props) {
             }
         }
     });
+
+    /**
+     * set this board as updated by updating its time stamp on firebase,
+     * when it renders. This update on the database will be called everytime
+     * this component is mounted and everytime it updates (because of state 
+     * change etc)
+     */
+    
+    useEffect(() => {
+        boardRef.update({lastSeenTime: new Date()});
+    })
 
     const addToQueue = function(articleRef, front) {
 
