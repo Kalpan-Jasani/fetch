@@ -161,16 +161,20 @@ class ArticleDisplay extends React.Component {
                                     label="Star"
                             />
 
-                                <Button variant="contained" color="primary" onClick={this.handleAddToQueue}>
-                                    Add to queue
-                                </Button>
+                                { this.props.addToQueue &&
+                                    <Button variant="contained" color="primary" onClick={this.handleAddToQueue}>
+                                        Add to queue
+                                    </Button>
+                                }
                                 <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                                 Go to Website
                                 </Button>
                                 <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
                                 Close
                                 </Button>
-                                <Button onClick={() => this.handleDeleteArticle()} color="secondary">Delete</Button>
+                                { this.props.boardRef &&    // delete option only if a board is provided
+                                    <Button onClick={() => this.handleDeleteArticle()} color="secondary">Delete</Button>
+                                }
                             </ DialogActions>
                         </ DialogContent>
                     </Dialog>

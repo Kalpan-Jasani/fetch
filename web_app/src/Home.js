@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import firebase from "firebase/app";
-import { Button, Divider } from "@material-ui/core";
-import { withRouter } from 'react-router-dom';
+import { Button, Divider, Card, CardMedia, CardContent, Typography } from "@material-ui/core";
+import { withRouter, Link } from 'react-router-dom';
 
+import ArticleDisplay from './ArticleDisplay';
 import './homepage.css';
+import logo from './Assets/fetch.png';
 
 // TODO: allow loading symbol when stuff from firebase is still being fetched
 
@@ -98,28 +100,52 @@ function Home(props) {
     }
 
     return (
-        <div id="homepage-content">
+        <div className="homepage-container">
             <h2>
                 Home
             </h2>
             <h3>Recent articles</h3>
             <Divider></Divider>
-            { 
-                articles.map((article) => (
-                    <p>{article.name}</p>
-                ))
-            }
+                <div className="recent-articles-container">
+                {
+                    articles.map((article) => (
+                        <Card className="recent-articles-container__article-card">
+                            <ArticleDisplay 
+                                articleRef={article.ref}
+                                key={article.ref.id}
+                            />
+                        </Card>
+                    ))
+                }
+                </div>
             {
                 articles.length == 0 &&
                     <p>No recent articles</p>
             }
             <h3>Recent personal boards</h3>
             <Divider></Divider>
-            { 
-                boards.map((board) => (
-                    <p>{board.boardName}</p>
-                ))
-            }
+            <div className="recent-boards-container">
+                {
+                    boards.map((board) => (
+                        <Card className="recent-boards-container__recent-board-card">
+                            <CardMedia
+                                style={{height: 0, paddingTop: '50%'}}
+                                image={logo}
+                            />
+                            <CardContent>
+                                <Typography variant="h6" component="p">
+                                    {board.boardName}
+                                </Typography>
+                                <Link to={`/boards/${board.ref.id}`}>
+                                    <Button variant="contained" color="default" disableElevation>
+                                        View
+                                    </Button>
+                                </Link>
+                            </CardContent>
+                        </Card>
+                    ))
+                }
+            </div>
             {
                 boards.length == 0 &&
                     <p>No recent boards</p>
