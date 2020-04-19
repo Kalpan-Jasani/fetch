@@ -26,8 +26,8 @@ class StarredArticleDisplay extends React.Component {
     }
 
     /**
-     * mark an article as being updated by setting current time as
-     * the lastUpdateTime field in the article in firebase
+     * mark an article as being updated (or as seen) by setting current time as
+     * the lastSeenTime field in the article in firebase
      * 
      * If error, console error is logged
      */

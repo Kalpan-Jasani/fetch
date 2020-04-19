@@ -27,6 +27,8 @@ class ArticleDisplay extends React.Component {
         }
 
         this.unsubscribe = null;
+        this.db = firebase.firestore();
+        this.userid = firebase.auth().currentUser.uid;
     }
 
     componentDidMount() {
@@ -90,7 +92,10 @@ class ArticleDisplay extends React.Component {
         this.handleDialogClose();
     }
 
-    handleDialogOpen = () => this.setState({isDialogOpen: true});
+    handleDialogOpen = () => {
+        this.setState({isDialogOpen: true});
+        this.markUpdated();   
+    }
 
     handleDialogClose = () => this.setState({isDialogOpen: false});
 
@@ -104,6 +109,21 @@ class ArticleDisplay extends React.Component {
 
     handleAddToQueue = () => {
         this.props.addToQueue(this.props.articleRef, false);
+    }
+
+    /**
+     * mark an article as being updated (or as seen) by setting current time as
+     * the lastSeenTime field in the article in firebase
+     * 
+     * If error, console error is logged
+     */
+    markUpdated = async () => {
+        await this.props.articleRef.update({lastSeenTime: new Date()}).catch(
+            (reason) => {
+                console.error(`unable to update article with id: ${this.props.articleRef.id}`);
+                console.error(reason);
+            }
+        );
     }
 
     render() {
