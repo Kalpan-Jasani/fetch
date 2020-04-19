@@ -5,6 +5,41 @@ import { withRouter } from 'react-router-dom';
 
 import './homepage.css';
 
+const subscribeToBoards = (updateBoards) => {
+    const db = firebase.firestore();
+    const userid = firebase.auth().currentUser.uid;
+
+    /**
+     * firebase query: get all boards with lastUpdatedTime,
+     * sorted in descending order, and limit the results to 5
+     */
+    const boardsRef = db.collection(`personalBoards/${userid}/pboards/`);
+    const query = boardsRef.orderBy("lastSeenTime", "desc").limit(5);
+
+    const unsubscribe = query.onSnapshot((querySnapshot) => {
+        const boards = querySnapshot.docs.map(docSnapshot => ({
+            ...docSnapshot.data(),
+            ref: docSnapshot.ref
+        }));
+        updateBoards(boards);
+    }, (err) =>  {
+        console.error("could not read boards");
+        console.error(err);
+        alert("could not read boards");
+    });
+
+    return unsubscribe;
+}
+
+const subscribeToArticles = (updateArticles) => {
+    return () => {};
+};
+
+const subscribeToCommunities = (updateCommunities) => {
+    return () => {};
+};
+
+
 function Home(props) {
     const db = firebase.firestore();
     const userid = firebase.auth().currentUser.uid;
@@ -17,34 +52,29 @@ function Home(props) {
     const [boards, updateBoards] = useState([]);
     const [articles, updateArticles] = useState([]);
     const [communities, updateCommunities] = useState([]);
-
+    
     useEffect(() => {
-        if(! firebaseSubscriptions.current.recentBoards) {
-            firebaseSubscriptions.current.recentBoards = true;
+        /* mark as subscribed */
+        firebaseSubscriptions.current.recentBoards = true;
+        firebaseSubscriptions.current.recentArticles = true;
+        firebaseSubscriptions.current.recentCommunities = true;
 
-            /**
-             * firebase query: get all boards with lastUpdatedTime,
-             * sorted in descending order, and limit the results to 5
-             */
-            const boardsRef = db.collection(`personalBoards/${userid}/pboards/`);
-            const query = boardsRef.orderBy("lastSeenTime", "desc").limit(5);
+        /* subscribe to changes */
+        const unsubscribeBoards = subscribeToBoards(updateBoards);
+        const unsubscribeArticles = subscribeToArticles(updateArticles);
+        const unsubscribeCommunities = subscribeToCommunities(updateCommunities);
 
-            const unsubscribe = query.onSnapshot((querySnapshot) => {
-                const boards = querySnapshot.docs.map(docSnapshot => ({
-                    ...docSnapshot.data(),
-                    ref: docSnapshot.ref
-                }));
-
-                updateBoards(boards);
-            });
-
-            return () => {
-                /* unsubscribe and mark it as such */
-                unsubscribe();
-                firebaseSubscriptions.current.recentBoards = false;
-            }
+        return () => {
+            /* unsubscribe and mark it as such */
+            unsubscribeBoards && unsubscribeBoards();
+            firebaseSubscriptions.current.recentBoards = false;
+            unsubscribeArticles && unsubscribeArticles();
+            firebaseSubscriptions.current.recentArticles = false;
+            unsubscribeCommunities && unsubscribeCommunities();
+            firebaseSubscriptions.current.recentCommunities = false;
         }
-    }, []);
+    }, [firebaseSubscriptions.current.recentBoards, firebaseSubscriptions.current.recentArticles, 
+        firebaseSubscriptions.current.recentCommunities]);
 
 
     const signOut = async (event) => {
