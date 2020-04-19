@@ -3,7 +3,7 @@ import { Button, TextField, FormControlLabel, IconButton, Grid } from '@material
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { Menu, ListItemIcon } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
-import { Lock, LockOpen, Delete, PlayArrow, MoreVert, Image } from '@material-ui/icons';
+import { Lock, LockOpen, Delete, PlayArrow, MoreVert, Image, RemoveCircle } from '@material-ui/icons';
 import firebase from "firebase";
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -42,6 +42,7 @@ class PersonalBoards extends React.Component {
             anchorEl: null,
             selectedBoardID: " ",
             isImageChangeDialogOpen: false,
+            isDeleteImageDialogOpen: false,
         }
     }
 
@@ -287,6 +288,31 @@ class PersonalBoards extends React.Component {
         this.handleImageChangeDialogClose();
     }
 
+    handleDeleteImageDialogOpen = () => {
+        this.setState({
+            isDeleteImageDialogOpen: true,
+        });
+        this.handleMenuClose(); // will close the menu when Remove Image selected
+    }
+
+    handleDeleteImageDialogClose = () => {
+        this.setState({
+            isDeleteImageDialogOpen: false,
+        });
+    }
+
+    handleDeleteImage = async (doc) => {
+        await firebase.firestore()
+        .collection('personalBoards')
+        .doc(firebase.auth().currentUser.uid)
+        .collection("pboards")
+        .doc(doc)
+        .update({
+            imageURL: ""
+        });
+        this.handleDeleteImageDialogClose();
+    }
+
     render() {
         const personalBoards = this.state.personalBoards;
 
@@ -411,6 +437,12 @@ class PersonalBoards extends React.Component {
                     </ListItemIcon>
                     <ListItemText primary="Change Image"/>
                 </MenuItem>
+                <MenuItem onClick={() => this.handleDeleteImageDialogOpen()} >
+                    <ListItemIcon>
+                        <RemoveCircle />
+                    </ListItemIcon>
+                    <ListItemText primary="Remove Image"/>
+                </MenuItem>
             </Menu>
 
             <Dialog
@@ -451,6 +483,24 @@ class PersonalBoards extends React.Component {
                     </Button>
                 </DialogActions>
             </Dialog>        
+            
+            <Dialog
+                open={this.state.isDeleteImageDialogOpen}
+                onClose={this.handleDeleteImageDialogClose}
+            >
+                <DialogTitle>
+                    Are you sure you want to remove the image for the "{this.state.selectedBoardName}" Personal Board?
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Removing the image will set the image to the FETCH logo.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={this.handleDeleteImageDialogClose}>No</Button>
+                    <Button onClick={() => this.handleDeleteImage(this.state.selectedBoardID)} color="secondary">Yes</Button>
+                </DialogActions>
+            </Dialog>
 
             <Grid
               container
