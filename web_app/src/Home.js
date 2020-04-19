@@ -5,15 +5,15 @@ import { withRouter } from 'react-router-dom';
 
 import './homepage.css';
 
-const subscribeToBoards = (updateBoards) => {
-    const db = firebase.firestore();
-    const userid = firebase.auth().currentUser.uid;
+// TODO: allow loading symbol when stuff from firebase is still being fetched
+
+const subscribeToBoards = (updateBoards, context) => {
 
     /**
      * firebase query: get all boards with lastUpdatedTime,
      * sorted in descending order, and limit the results to 5
      */
-    const boardsRef = db.collection(`personalBoards/${userid}/pboards/`);
+    const boardsRef = context.db.collection(`personalBoards/${context.userid}/pboards/`);
     const query = boardsRef.orderBy("lastSeenTime", "desc").limit(5);
 
     const unsubscribe = query.onSnapshot((querySnapshot) => {
@@ -31,11 +31,26 @@ const subscribeToBoards = (updateBoards) => {
     return unsubscribe;
 }
 
-const subscribeToArticles = (updateArticles) => {
-    return () => {};
+const subscribeToArticles = (updateArticles, context) => {
+    const articlesRef = context.db.collection(`localArticles/users/${context.userid}/`);
+    const query = articlesRef.orderBy("lastSeenTime", "desc").limit(5);
+
+    const unsubscribe = query.onSnapshot((querySnapshot) => {
+        const articles = querySnapshot.docs.map(doc => ({
+            ...doc.data(),
+            ref: doc.ref
+        }));
+
+        updateArticles(articles);
+    }, (err) => {
+        console.error("could not read articles");
+        console.error(err);
+        alert("could not read articles");
+    })
+    return unsubscribe;
 };
 
-const subscribeToCommunities = (updateCommunities) => {
+const subscribeToCommunities = (updateCommunities, context) => {
     return () => {};
 };
 
@@ -60,9 +75,9 @@ function Home(props) {
         firebaseSubscriptions.current.recentCommunities = true;
 
         /* subscribe to changes */
-        const unsubscribeBoards = subscribeToBoards(updateBoards);
-        const unsubscribeArticles = subscribeToArticles(updateArticles);
-        const unsubscribeCommunities = subscribeToCommunities(updateCommunities);
+        const unsubscribeBoards = subscribeToBoards(updateBoards, {db, userid});
+        const unsubscribeArticles = subscribeToArticles(updateArticles, {db, userid});
+        const unsubscribeCommunities = subscribeToCommunities(updateCommunities, {db, userid});
 
         return () => {
             /* unsubscribe and mark it as such */
@@ -89,14 +104,25 @@ function Home(props) {
             </h2>
             <h3>Recent articles</h3>
             <Divider></Divider>
-            <p>article 1</p>
-            <p>article 2</p>
+            { 
+                articles.map((article) => (
+                    <p>{article.name}</p>
+                ))
+            }
+            {
+                articles.length == 0 &&
+                    <p>No recent articles</p>
+            }
             <h3>Recent personal boards</h3>
             <Divider></Divider>
             { 
                 boards.map((board) => (
                     <p>{board.boardName}</p>
                 ))
+            }
+            {
+                boards.length == 0 &&
+                    <p>No recent boards</p>
             }
             <h3>Recent communities</h3>
             <Divider></Divider>
