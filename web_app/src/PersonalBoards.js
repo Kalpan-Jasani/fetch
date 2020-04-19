@@ -1,8 +1,9 @@
 import React from 'react';
 import { Button, TextField, FormControlLabel, IconButton, Grid } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
+import { Menu, ListItemIcon } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
-import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
+import { Lock, LockOpen, Delete, PlayArrow, MoreVert } from '@material-ui/icons';
 import firebase from "firebase";
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -37,6 +38,9 @@ class PersonalBoards extends React.Component {
             selectedBoardPrivate: " ",
             isSelectedBoardPrivate: false,
             selectedBoardName: "",
+
+            anchorEl: null,
+            selectedBoardID: " ",
         }
     }
 
@@ -166,6 +170,7 @@ class PersonalBoards extends React.Component {
             selectedBoardDelete: doc,
             selectedBoardName: docName
         });
+        this.handleMenuClose(); // will close the menu when delete selected
     }
 
     handleDeleteDialogClose = () => {
@@ -229,6 +234,20 @@ class PersonalBoards extends React.Component {
         });
         this.handlePrivateDialogClose();
 
+    }
+
+    handleMenuOpen = (event, doc, docName) => {
+        this.setState({
+            anchorEl: event.currentTarget,
+            selectedBoardID: doc,
+            selectedBoardName: docName,
+        });
+    }
+    
+    handleMenuClose = () => {
+        this.setState({
+            anchorEl: null,
+        });
     }
 
     render() {
@@ -336,7 +355,20 @@ class PersonalBoards extends React.Component {
                 </DialogActions>
 
             </Dialog>
-
+            <Menu
+              id="customized-menu"
+              anchorEl={this.state.anchorEl}
+              keepMounted
+              open={Boolean(this.state.anchorEl)}
+              onClose={this.handleMenuClose}
+            >
+                <MenuItem onClick={() => this.handleDeleteDialogOpen(this.state.selectedBoardID, this.state.selectedBoardName)} >
+                    <ListItemIcon>
+                        <Delete />
+                    </ListItemIcon>
+                    <ListItemText primary="Delete"/>
+                </MenuItem>
+            </Menu>
 
             <Grid
               container
@@ -363,8 +395,8 @@ class PersonalBoards extends React.Component {
                         </IconButton> 
                       }
                       action={
-                        <IconButton onClick={() => this.handleDeleteDialogOpen(board.boardID, board.boardName)}>
-                            <Delete />
+                        <IconButton onClick={(e) => this.handleMenuOpen(e, board.boardID, board.boardName)}>
+                            <MoreVert />
                         </IconButton>
                         }
                       >
