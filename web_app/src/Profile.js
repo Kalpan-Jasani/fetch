@@ -47,7 +47,7 @@ class Profile extends React.Component {
         if (user !== undefined) {
             const loggedInUserRef = this.db.doc(`users/${firebase.auth().currentUser.uid}`);
             const userDoc = await loggedInUserRef.get();
-            const isBlocked = idInRefs(userDoc.data().blocked_users, user);
+            const isBlocked = idInRefs(userDoc.data().blocked_users ?? [], user);
 
             firebase.firestore()
             .collection("users")
@@ -348,21 +348,21 @@ class Profile extends React.Component {
                                                     Follow
                                                 </Button>}
                                             {this.state.saving && <CircularProgress size={24} style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -12, marginLeft: -12 }} />}
-                                        {!this.state.editMode ?
-                                            (this.state.isBlocked ?
-                                                <Button variant="outlined" color="primary"
-                                                  onClick={() => this.blockUser(false)} >
-                                                    Unblock
-                                                </Button>
-                                                :
-                                                <Button variant="outlined" color="secondary"
-                                                  onClick={() => this.blockUser(true)}>
-                                                    Block
-                                                </Button>
-                                            ):
-                                            null
-                                        }
                                     </div>
+                                    {!this.state.editMode ?
+                                        (this.state.isBlocked ?
+                                            <Button variant="outlined" color="primary"
+                                              onClick={() => this.blockUser(false)} >
+                                                Unblock
+                                            </Button>
+                                            :
+                                            <Button variant="outlined" color="secondary"
+                                              onClick={() => this.blockUser(true)}>
+                                                Block
+                                            </Button>
+                                        ):
+                                        null
+                                    }
                                 </CardActions>
                                 
                             </ValidatorForm>
