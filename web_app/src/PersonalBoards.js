@@ -3,7 +3,7 @@ import { Button, TextField, FormControlLabel, IconButton, Grid } from '@material
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { Menu, ListItemIcon } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
-import { Lock, LockOpen, Delete, PlayArrow, MoreVert } from '@material-ui/icons';
+import { Lock, LockOpen, Delete, PlayArrow, MoreVert, Image } from '@material-ui/icons';
 import firebase from "firebase";
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -41,6 +41,7 @@ class PersonalBoards extends React.Component {
 
             anchorEl: null,
             selectedBoardID: " ",
+            isImageChangeDialogOpen: false,
         }
     }
 
@@ -152,7 +153,8 @@ class PersonalBoards extends React.Component {
         this.setState({
             isDialogOpen: false,
             boardName: '',
-            isPrivate: false
+            isPrivate: false,
+            boardImageURL: "",
         });
     }
 
@@ -248,6 +250,41 @@ class PersonalBoards extends React.Component {
         this.setState({
             anchorEl: null,
         });
+    }
+
+    handleImageChangeDialogOpen = () => {
+        this.setState({
+            isImageChangeDialogOpen: true,
+        });
+        this.handleMenuClose(); // will close the menu when Change Image selected
+    }
+
+    handleImageChangeDialogClose = () => {
+        this.setState({
+            isImageChangeDialogOpen: false,
+            boardImageURL: "",
+        });
+    }
+
+    handleImageChange = async (event, doc) => {
+        event.preventDefault();
+        // get the form data out of state
+        const {boardImageURL}  = this.state;
+
+        // clear the form
+        this.setState({
+            boardImageURL: "",
+        });
+
+        await firebase.firestore()
+        .collection('personalBoards')
+        .doc(firebase.auth().currentUser.uid)
+        .collection("pboards")
+        .doc(doc)
+        .update({
+            imageURL: boardImageURL
+        });
+        this.handleImageChangeDialogClose();
     }
 
     render() {
@@ -368,7 +405,52 @@ class PersonalBoards extends React.Component {
                     </ListItemIcon>
                     <ListItemText primary="Delete"/>
                 </MenuItem>
+                <MenuItem onClick={() => this.handleImageChangeDialogOpen()} >
+                    <ListItemIcon>
+                        <Image />
+                    </ListItemIcon>
+                    <ListItemText primary="Change Image"/>
+                </MenuItem>
             </Menu>
+
+            <Dialog
+                open={this.state.isImageChangeDialogOpen}
+                onClose={this.handleImageChangeDialogClose}
+            >
+                <DialogTitle>
+                Change the Image of the "{this.state.selectedBoardName}" Personal Board.
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Please enter the image URL.
+                    </DialogContentText>
+
+                    <form
+                        onSubmit={(e) => this.handleImageChange(e, this.state.selectedBoardID)}
+                        style={{ paddingLeft: 25, flexDirection: 'column', display: 'flex', paddingRight: 25, justifyContent: 'space-around', height: 250 }}
+                    >
+                        <TextField
+                            id="outlined-basic"
+                            label="Image URL"
+                            placeholder="Example: https://reactjs.org/logo-og.png"
+                            value={this.state.boardImageURL}
+                            name="boardImageURL"
+                            onChange={this.handleInputChange}
+                            type="text"
+                            color="secondary"
+                            required
+                        />
+                        <Button variant="contained" color="secondary" type="submit">
+                            Save Change
+                        </Button>
+                    </form>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={this.handleImageChangeDialogClose} color="secondary">
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>        
 
             <Grid
               container
