@@ -16,15 +16,18 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
-import { Avatar, DialogContentText, Typography } from '@material-ui/core';
+import { Avatar, DialogContentText, Link, Typography } from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import DeleteIcon from '@material-ui/icons/Delete';
+
+import {blockedUser} from './util';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 class CommunityArticleDisplay extends React.Component {
-    _isMounted = false;
     constructor(props) {
         super(props);
         this.state = {
@@ -32,60 +35,70 @@ class CommunityArticleDisplay extends React.Component {
            article: null, 
            user: null,
            articlesRaisedEyebrow: [],
+           vitalityCheck: false,       // does the article need to be hidden
            SaveDialogOpen: false,
            personalBoards: [],
            selectedBoards: [],
 
         }
         this.unsubscribe = null;
+        this.db = firebase.firestore();
     }
     componentDidMount() {
         // subscribe to article updates
         if(!this.unsubscribe) {
             this.unsubscribe = this.props.articleRef.onSnapshot( async (doc) => {
-                let userDoc = await doc.data().user.get();
+                let userDoc = await (doc.data().user.get && doc.data().user.get());
                 this.setState({
                     article: {
                         ...doc.data(),
                         users_eyebrows: doc.data().users_eyebrows || [],
                         id: doc.id,
                     },
-                    user: userDoc.data()
+                    user: {
+                        ...userDoc && userDoc.data && userDoc.data(),
+                        uid: doc.data().user && doc.data().user.id
+                    }
+                }, async () => {
+                    const vitalityCheck = await this.displayableArticle();
+                    this.setState({vitalityCheck});
                 })
             });
-                // sets the state of list of articles raised eyebrow for user
-                var user = firebase.auth().currentUser;
-                firebase.firestore()
-                .collection('users')
-                .doc(user.uid)
-                .onSnapshot(function(udoc) {
-                    var data = udoc.data();
-                    var articlesRE= data.articles_raised_eyebrow || [];
-                    this.setState({
-                        articlesRaisedEyebrow: articlesRE || []
-                    });
-                }.bind(this));
 
-                firebase.firestore()
-                .collection("personalBoards")
-                .doc(firebase.auth().currentUser.uid)
-                .collection("pboards")
-                .onSnapshot(function (querySnapshot) {
-                    var personalBoards = [];
-                    querySnapshot.forEach(function (doc) {
-                        let newPersonalBoard = {
-                            boardName: doc.data().boardName,
-                            isPrivate: doc.data().isPrivate,
-                            boardID: doc.id,
-                        }
-                        personalBoards.push(newPersonalBoard);
-                    });
-                    console.log("Current Personal Boards: ", personalBoards.join(", "));
-    
-                    this.setState({
-                        personalBoards: personalBoards,
-                    });
-                }.bind(this));
+            // sets the state of list of articles raised eyebrow for user
+            var user = firebase.auth().currentUser;
+            firebase.firestore()
+            .collection('users')
+            .doc(user.uid)
+            .onSnapshot(function(udoc) {
+                var data = udoc.data();
+                var articlesRE= data.articles_raised_eyebrow || [];
+                this.setState({
+                    articlesRaisedEyebrow: articlesRE || []
+                });
+            }.bind(this));
+
+            // set state of personal boards
+            firebase.firestore()
+            .collection("personalBoards")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("pboards")
+            .onSnapshot(function (querySnapshot) {
+                var personalBoards = [];
+                querySnapshot.forEach(function (doc) {
+                    let newPersonalBoard = {
+                        boardName: doc.data().boardName,
+                        isPrivate: doc.data().isPrivate,
+                        boardID: doc.id,
+                    }
+                    personalBoards.push(newPersonalBoard);
+                });
+                console.log("Current Personal Boards: ", personalBoards.join(", "));
+
+                this.setState({
+                    personalBoards: personalBoards,
+                });
+            }.bind(this));
         }
     }
     componentWillUnmount() {
@@ -95,7 +108,6 @@ class CommunityArticleDisplay extends React.Component {
    
     handleOpenNewTab = (event) => {
         window.open(this.state.article.url);
-        this.markRead();
     }
    
     handleDialogOpen = () => this.setState({isDialogOpen: true});
@@ -188,6 +200,41 @@ class CommunityArticleDisplay extends React.Component {
         }
     }
 
+    handleReport = () => {
+        const user = firebase.auth().currentUser;
+        const userRef = this.db.doc(`users/${user.uid}`);
+        const report = window.prompt("Enter report");
+
+        if(!report) {
+            window.alert("nothing reported");
+            return;
+        }
+        const user_report = {
+            user: userRef,
+            report
+        }
+        this.props.articleRef.update({
+            user_reports: firebase.firestore.FieldValue.arrayUnion(user_report),
+        });
+
+    }
+
+    displayableArticle = async () => {
+        if(this.state.user) {
+            if(await blockedUser(this.state.user.uid)) {
+                return false;
+            }
+        }
+
+        if(this.state.article) {
+            if(this.state.article.user_reports.length > 2) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     handleSaveDialogOpen = () => {
         this.setState({
             SaveDialogOpen: true,
@@ -220,106 +267,106 @@ class CommunityArticleDisplay extends React.Component {
             selectedBoards: [],
             SaveDialogOpen: false,
         });
-       
     }
-
-
+  
     render() {
         return (
             this.state.article !== null ?
-                <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center'}}>
-                    <Typography variant='h6'>{this.state.article.name}</Typography>
-                    <br></br>
-                    <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{marginTop:"15px"}}>
-                            Preview
-                    </Button>
-                    <br/>
-                    <Dialog
-                        open={this.state.isDialogOpen}
-                        fullWidth={true}
-                    >
-                        <DialogTitle>
-                            {this.state.article.name}
-                        </DialogTitle>
-                        <DialogContent>
-                            <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
-                            <DialogActions style={{ paddingLeft: 20 }}>
-                            {this.state.article.users_eyebrows.length.toString()}
-
-                            {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid) 
-                            ? <IconButton onClick={() => this.handleLowerEyebrow()}>
-                                <VisibilityIcon color="secondary"/>
-                            </IconButton>
-                            : <IconButton onClick={() => this.handleRaiseEyebrow()}>
-                                <VisibilityIcon color="disabled"/>
-                            </IconButton>}
-
-                            {this.state.user ? 
-                                <Avatar alt=" " src={this.state.user.photoURL} style={{left:"20px", position:"absolute"}} /> : <p> ... </p>
-                            }
-                            {this.state.user ? 
-                                <DialogContentText style={{left:"60px", position:"absolute"}}>{this.state.user.name} </DialogContentText> : <p> ... </p>
-                            }
-                                <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
-                                Visit Website
-                                </Button>
-                                
-
-                                <Button variant="contained" color="primary" onClick={this.handleSaveDialogOpen}>
-                                    Save 
-                                </Button>
-                        <Dialog 
-                        open={this.state.SaveDialogOpen} 
-                        onClose={this.handleSaveDialogClose} 
-                        aria-labelledby="form-dialog-title" 
-                        style={{
-                            padding: '10px'
-                        }}
+                this.state.vitalityCheck ?
+                    <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center'}}>
+                        <Typography variant='h6'>{this.state.article.name}</Typography>
+                        <br></br>
+                        <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{marginTop:"15px"}}>
+                                Preview
+                        </Button>
+                        <br/>
+                        <Dialog
+                            open={this.state.isDialogOpen}
+                            fullWidth={true}
+                            onClose={() => this.handleDialogClose()}
                         >
-                           
+                            <DialogTitle>
+                                {this.state.article.name}
+                                {this.state.user ? 
+                                    <Avatar alt=" " src={this.state.user.photoURL} style={{left:"20px", position:"absolute"}} /> : <p> ... </p>
+                                }
+                                {this.state.user ? 
+                                    <DialogContentText style={{left:"60px", position:"absolute"}}>{this.state.user.name} </DialogContentText> : <p> ... </p>
+                                }
+                            </DialogTitle>
                             <DialogContent>
-                            <FormControl style={{width: '200px'}}>
-                                <InputLabel id="dropdown"> Select Board </InputLabel>
-                                <Select
-                                    labelId="dropdown"
-                                    label = "Select Board"
+                                <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
+                                <DialogActions style={{ paddingLeft: 20 }}>
+                                    {this.state.article.users_eyebrows.length.toString()}
+
+                                    {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid) 
+                                    ? <IconButton onClick={() => this.handleLowerEyebrow()}>
+                                        <VisibilityIcon color="secondary"/>
+                                    </IconButton>
+                                    : <IconButton onClick={() => this.handleRaiseEyebrow()}>
+                                        <VisibilityIcon color="disabled"/>
+                                    </IconButton>}
+
+                                    <Button variant="contained" color="primary" onClick={this.handleSaveDialogOpen}>
+                                        Save 
+                                    </Button>
+                                    {/* dialog to save article to personal boards */}
+                                    <Dialog 
+                                    open={this.state.SaveDialogOpen} 
+                                    onClose={this.handleSaveDialogClose} 
+                                    aria-labelledby="form-dialog-title" 
                                     style={{
-                                        margin: '10px'
+                                        padding: '10px'
                                     }}
-                                    id="multiple-select"
-                                    multiple
-                                    value={this.state.selectedBoards}
-                                    onChange={(e) => this.setState({ selectedBoards: e.target.value })
-                                    }
-                                >
-                                    {this.state.personalBoards.map(board => (
-                                        <MenuItem key={board.boardID} value={board.boardID}>
-                                            {board.boardName}
-                                        </MenuItem>
-                                    ))}
-                             </Select>
-                             </FormControl>
-                            </DialogContent>
-                            <DialogActions>
-                            <Button onClick={this.handleSave} color="secondary">
-                                Save
-                            </Button>
-                            <Button onClick={this.handleSaveDialogClose} color="secondary">
-                                Cancel
-                            </Button>
-                            </DialogActions>
+                                    >
+                                    
+                                        <DialogContent>
+                                        <FormControl style={{width: '200px'}}>
+                                            <InputLabel id="dropdown"> Select Board </InputLabel>
+                                            <Select
+                                                labelId="dropdown"
+                                                label = "Select Board"
+                                                style={{
+                                                    margin: '10px'
+                                                }}
+                                                id="multiple-select"
+                                                multiple
+                                                value={this.state.selectedBoards}
+                                                onChange={(e) => this.setState({ selectedBoards: e.target.value })
+                                                }
+                                            >
+                                                {this.state.personalBoards.map(board => (
+                                                    <MenuItem key={board.boardID} value={board.boardID}>
+                                                        {board.boardName}
+                                                    </MenuItem>
+                                                ))}
+                                        </Select>
+                                        </FormControl>
+                                        </DialogContent>
+                                        <DialogActions>
+                                        <Button onClick={this.handleSave} color="secondary">
+                                            Save
+                                        </Button>
+                                        <Button onClick={this.handleSaveDialogClose} color="secondary">
+                                            Cancel
+                                        </Button>
+                                        </DialogActions>
+                                    </Dialog>   {/* dialog to save article to personal boards */}
+                                    <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
+                                        <OpenInNewIcon />
+                                    </Button>
+                                    <Button color="secondary" onClick={this.handleReport} >
+                                        Report
+                                    </Button>
+                                    <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">
+                                        <DeleteIcon />
+                                    </Button>
+                                </ DialogActions>
+                            </ DialogContent>
                         </Dialog>
-
-
-
-                                <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
-                                Close
-                                </Button>
-                                <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">Delete</Button>
-                            </ DialogActions>
-                        </ DialogContent>
-                    </Dialog>
-                </div>
+                    </div>
+                    :
+                    <div style={{color: 'grey'}}>! article is reported</div>
                 :
                 <p>Loading</p>
         );

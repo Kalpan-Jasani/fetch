@@ -117,7 +117,7 @@ class Login extends React.Component {
                 <header style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 50 }}>
                     <img src={logo} alt="logo" />
                 </header>
-                <body style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                     <Card style={{ minWidth: 550, minHeight: 300, marginBottom: 25 }}>
                         <CardContent>
                             <Typography gutterBottom variant="h5" component="h2">
@@ -160,7 +160,7 @@ class Login extends React.Component {
                     <Link to="/register">
                         Create New Account with Email?
                     </Link>
-                </body>
+                </div>
             </div>
         )
     }

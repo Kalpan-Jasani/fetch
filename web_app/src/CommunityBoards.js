@@ -54,7 +54,6 @@ class CommunityBoards extends React.Component{
               }
               communityBoards.push(newCommunityBoard);
           });
-          console.log("Current Personal Boards: ", communityBoards.join(", "));
 
           this.setState({
               communityBoards: communityBoards,
@@ -95,9 +94,6 @@ handleInputChange = (event) => {
           name: '',
           isPrivate: false,
       });
-
-      console.log("Board Name: " + name)
-      console.log("Private: " + isPrivate)
 
       // make the new personal board here
       await firebase.firestore()
@@ -150,13 +146,11 @@ handleInputChange = (event) => {
   }
 
   GetBoard(e) {
-    console.log(e);
     if (this.state.communityBoards != undefined) {
         const searchedboard = []
         
         this.state.communityBoards.filter((board) => {
             if (board.name.toUpperCase().includes(e.toUpperCase())) {
-                console.log(board);
                 searchedboard.push(board);
             }
         })
