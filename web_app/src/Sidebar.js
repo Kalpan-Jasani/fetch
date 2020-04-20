@@ -2,11 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Drawer, Divider, Button, Avatar, IconButton } from "@material-ui/core";
 import HomeIcon from '@material-ui/icons/Home';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
-import { Link } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import ToggleMode from './ToggleMode';
 import { ExpandMore, ExpandLess} from '@material-ui/icons';
 import firebase from 'firebase';
-
 import './sidebar.css';
 
 const getInitials = (string) => {
@@ -55,6 +54,11 @@ function Sidebar(props) {
 
     var user = firebase.auth().currentUser;
     const userid = user.uid;
+
+    const signOut = async (event) => {
+        await firebase.auth().signOut();
+        props.history.push("/login");
+    }
 
     useEffect(() => {
         /* mark as subscribed */
@@ -133,8 +137,12 @@ function Sidebar(props) {
                 <AddCircleOutlinedIcon/>
                 Community Article
             </Button>
+            <Divider/>
+            <Button color="primary" variant="contained" onClick={signOut}>
+                Sign Out
+            </Button>
         </Drawer>
     )
 }
 
-export default Sidebar;
+export default withRouter(Sidebar);
