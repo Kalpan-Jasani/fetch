@@ -25,6 +25,11 @@
     color: #111;
 }
 
+.sidebar-item.img {
+    height: 100px;
+    padding: -0rem;
+}
+
 .personal-boards-div.link{
     text-decoration: none;
     color: #111;

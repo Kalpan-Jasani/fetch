@@ -7,6 +7,7 @@ import ToggleMode from './ToggleMode';
 import { ExpandMore, ExpandLess} from '@material-ui/icons';
 import firebase from 'firebase';
 import './sidebar.css';
+import logo from './Assets/fetch.png';
 
 const getInitials = (string) => {
     var names = string.split(' '),
@@ -84,6 +85,8 @@ function Sidebar(props) {
                 paper: props.classes.drawerPaper,
             }}
         >
+            <img src={logo} className="sidebar-item img"/>
+            <Divider/>
             <div className="sidebar-item">
                 {user.photoURL === "" && user.displayName !== ""
                     ? <Avatar>{getInitials(user.displayName)}</Avatar>
