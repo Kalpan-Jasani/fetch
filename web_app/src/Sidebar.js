@@ -1,10 +1,10 @@
-import React from 'react';
-import { Drawer, Divider, Button, Avatar } from "@material-ui/core";
+import React, { useEffect, useRef, useState } from 'react';
+import { Drawer, Divider, Button, Avatar, IconButton } from "@material-ui/core";
 import HomeIcon from '@material-ui/icons/Home';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { Link } from 'react-router-dom';
 import ToggleMode from './ToggleMode';
-
+import { ExpandMore, ExpandLess} from '@material-ui/icons';
 import firebase from 'firebase';
 
 import './sidebar.css';
@@ -19,8 +19,57 @@ const getInitials = (string) => {
     return initials;
 }
 
+const subscribeToBoards = (updateBoards, context) => {
+
+    // firebase query: get all personalboards sorted by timestamp
+    const boardsRef = context.db.collection(`personalBoards/${context.userid}/pboards/`);
+    const query = boardsRef.orderBy("timestamp");
+
+    const unsubscribe = query.onSnapshot((querySnapshot) => {
+        const boards = querySnapshot.docs.map(docSnapshot => ({
+            ...docSnapshot.data(),
+            ref: docSnapshot.ref
+        }));
+        updateBoards(boards);
+    }, (err) =>  {
+        console.error("could not read boards");
+        console.error(err);
+        alert("could not read boards");
+    });
+
+    return unsubscribe;
+}
+
+const handleToggleShowBoards = (updateShowBoards, isShowing) => {
+    updateShowBoards(!isShowing);
+}
+
+
 function Sidebar(props) {
+    const db = firebase.firestore();
+    const [boards, updateBoards] = useState([]);
+    const [showBoards, updateShowBoards] = useState(false); // don't show personal boards in sidebar intially
+    const firebaseSubscriptions = useRef({
+        personalBoards: false, 
+    });
+
     var user = firebase.auth().currentUser;
+    const userid = user.uid;
+
+    useEffect(() => {
+        /* mark as subscribed */
+        firebaseSubscriptions.current.personalBoards = true;
+
+        /* subscribe to changes */
+        const unsubscribeBoards = subscribeToBoards(updateBoards, {db, userid});
+
+        return () => {
+            /* unsubscribe and mark it as such */
+            unsubscribeBoards && unsubscribeBoards();
+            firebaseSubscriptions.current.recentBoards = false;
+        }
+    }, [firebaseSubscriptions.current.recentBoards]);
+
     return (
         <Drawer
             variant="permanent"
@@ -51,9 +100,23 @@ function Sidebar(props) {
             <Link to="/starred" className="sidebar-item starred link">
                 Starred articles
             </Link>
-            <Link to="/boards" className="sidebar-item personal-boards link">
-                Personal Boards
-            </Link>
+            <div className="sidebar-item personal-boards-div">
+                <Link to="/boards" className="personal-boards-div link">
+                    Personal Boards
+                </Link>
+                <IconButton className="personal-boards-div iconbutton" onClick={() => handleToggleShowBoards(updateShowBoards, showBoards)}>
+                    {showBoards ? <ExpandLess/> : <ExpandMore/>}
+                </IconButton>
+            </div>
+            { showBoards ? 
+                boards.map((board) => (
+                    <Link key={board.ref.id} to={`/boards/${board.ref.id}`} className="sidebar-item pboards link">
+                        {board.boardName}
+                    </Link>
+                ))
+                :
+                null
+            }
             <Link to="/community-boards" className="sidebar-item community-boards link">
                 Community Boards
             </Link>

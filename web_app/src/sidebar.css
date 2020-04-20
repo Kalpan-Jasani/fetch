@@ -24,3 +24,33 @@
     text-decoration: none;
     color: #111;
 }
+
+.personal-boards-div.link{
+    text-decoration: none;
+    color: #111;
+    padding: 1rem;
+    padding-right: 2.6rem;
+    margin-left: -1rem;
+}
+
+.personal-boards-div.link:hover{
+    background-color: rgb(230, 230, 230);
+}
+
+.personal-boards-div:hover {
+    background-color: #eee;
+}
+
+.personal-boards-div.iconbutton{
+    
+    margin-top: -1.3rem;
+    margin-bottom: -1rem;
+    margin-right: -1rem;
+    padding: 0.9rem;
+    
+    
+}
+
+.sidebar-item.pboards{
+    padding-left: 3rem;
+}
