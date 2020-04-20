@@ -16,6 +16,8 @@ class StarredArticleDisplay extends React.Component {
         this.state = {
            isDialogOpen: false,
         }
+        this.db = firebase.firestore();
+        this.userid = firebase.auth().currentUser.uid;
     }
 
 
@@ -23,11 +25,27 @@ class StarredArticleDisplay extends React.Component {
         window.open(this.props.url);
     }
 
+    /**
+     * mark an article as being updated (or as seen) by setting current time as
+     * the lastSeenTime field in the article in firebase
+     * 
+     * If error, console error is logged
+     */
+    markUpdated = async () => {
+        const articleRef = this.db.doc(`localArticles/users/${this.userid}/${this.props.articleId}`);
+        await articleRef.update({lastSeenTime: new Date()}).catch(
+            (reason) => {
+                console.error(`unable to update article with id: ${articleRef.id}`);
+                console.error(reason);
+            }
+        );
+    }
 
     handleDialogOpen = () => {
         this.setState({
             isDialogOpen: true,
         })
+        this.markUpdated();
     }
 
     handleDialogClose = () => {

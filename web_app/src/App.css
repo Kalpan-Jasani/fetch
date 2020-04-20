@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+html {
+  background: url(./Assets/homepage_background2.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  opacity: 0.8;
+}
