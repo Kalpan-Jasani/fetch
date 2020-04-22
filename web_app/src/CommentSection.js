@@ -1,11 +1,23 @@
 import React from 'react';
-import { Typography, Button, CircularProgress, Avatar } from '@material-ui/core';
+import { Typography, Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, CircularProgress, Avatar } from '@material-ui/core';
 import firebase from "firebase";
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 class CommentSection extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {'articleID': props.articleID, 'newComment': "", saving: false, documents: [], docChanges: [], editIndex: undefined, editedComment: "", editMode: false, user: firebase.auth().currentUser}
+        this.state = {
+            'articleID': props.articleID, 
+            'newComment': "", 
+            saving: false, 
+            documents: [], 
+            docChanges: [], 
+            editIndex: undefined, 
+            editedComment: "", 
+            editMode: false, 
+            user: firebase.auth().currentUser,
+            confirmDeleteOpen: false,
+            loadDelete: false,
+        }
 
         this.changeCommentHandler = this.changeCommentHandler.bind(this);
         this.changeEditCommentHandler = this.changeEditCommentHandler.bind(this);
@@ -14,6 +26,8 @@ class CommentSection extends React.Component {
         this.submitEditHandler = this.submitEditHandler.bind(this);
         this.getFirstName = this.getFirstName.bind(this);
         this.getInitials = this.getInitials.bind(this);
+        this.handleClickClose = this.handleClickClose.bind(this);
+        this.handleClickOpen = this.handleClickOpen.bind(this);
     }
 
     componentDidMount() {
@@ -95,7 +109,8 @@ class CommentSection extends React.Component {
     deleteCommentHandler = async (commentID) => {
         if (!this.state.saving) {
             this.setState({
-                saving: true
+                saving: true,
+                loadDelete: true,
             });
             
             await firebase.firestore()
@@ -107,6 +122,7 @@ class CommentSection extends React.Component {
             
             this.setState({
                 saving: false,
+                loadDelete: false,
             });
         }
     }
@@ -129,6 +145,18 @@ class CommentSection extends React.Component {
         
         return string;
     }
+
+    handleClickOpen = (event) => {
+        this.setState({
+            confirmDeleteOpen: true
+        });
+    }
+
+    handleClickClose = (event) => {
+        this.setState({
+            confirmDeleteOpen: false
+        });
+    }
    
   
     render() {
@@ -141,7 +169,11 @@ class CommentSection extends React.Component {
                 </Typography>
                 <div style={{height: 10}}/>
                 <div style={{flexGrow: 1}}>
-                {this.state.documents.map((comment, index) => {
+                {this.state.documents.length < 1
+                ? <div style={{flexGrow: 1, justifyContent: 'center', alignContent: 'center', textAlign: 'center'}}>
+                    <Typography>No Comments</Typography>
+                </div>
+                : this.state.documents.map((comment, index) => {
                     var data = comment.data();
                     return (
                         <div style={{display: 'flex', flexDirection: 'column'}}>
@@ -199,7 +231,7 @@ class CommentSection extends React.Component {
                                         </Button>}
                                     {this.state.editMode
                                     ? null
-                                    : <Button color="secondary" onClick={() => this.deleteCommentHandler(comment.id)}>
+                                    : <Button color="secondary" onClick={() => this.handleClickOpen()}>
                                         Delete
                                     </Button>}
                                 </div>
@@ -210,10 +242,28 @@ class CommentSection extends React.Component {
                                 </div>
                                 : null}
                             </div>
+                            <Dialog open={this.state.confirmDeleteOpen} onClose={this.handleClickClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+                                <DialogTitle id="alert-dialog-title">{"Delete Comment?"}</DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText id="alert-dialog-description">
+                                        This will delete your comment permanently.
+                                    </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={this.handleClickClose} color="primary" disabled={this.state.loadDelete}>
+                                        Cancel
+                                    </Button>
+                                    <div style={{ position: 'relative' }}>
+                                        <Button onClick={() => this.deleteCommentHandler(comment.id)} color="secondary" variant="contained" disabled={this.state.loadDelete}>
+                                            Delete
+                                        </Button>
+                                        {this.state.loadDelete && <CircularProgress size={24} style={{ position: 'absolute', top: '50%', left: '50%', marginTop: -12, marginLeft: -12 }} />}
+                                    </div>
+                                </DialogActions>
+                            </Dialog>
                         </div>
                     )
                 })}
-                    
                 </div>
                 <ValidatorForm
                     onSubmit={this.submitHandler}
@@ -232,6 +282,7 @@ class CommentSection extends React.Component {
                     />
                     <Button type="submit" color="primary">Post Comment</Button>
                 </ValidatorForm>
+                
             </div>
         );
   }
