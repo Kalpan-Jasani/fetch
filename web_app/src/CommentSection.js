@@ -15,7 +15,7 @@ class CommentSection extends React.Component {
             editedComment: "", 
             editMode: false, 
             user: firebase.auth().currentUser,
-            confirmDeleteOpen: false,
+            confirmDeleteIndex: undefined,
             loadDelete: false,
         }
 
@@ -146,15 +146,15 @@ class CommentSection extends React.Component {
         return string;
     }
 
-    handleClickOpen = (event) => {
+    handleClickOpen = (index) => {
         this.setState({
-            confirmDeleteOpen: true
+            confirmDeleteIndex: index,
         });
     }
 
     handleClickClose = (event) => {
         this.setState({
-            confirmDeleteOpen: false
+            confirmDeleteIndex: undefined
         });
     }
    
@@ -168,7 +168,7 @@ class CommentSection extends React.Component {
                     Comments
                 </Typography>
                 <div style={{height: 10}}/>
-                <div style={{flexGrow: 1}}>
+                <div style={{flexGrow: 1, overflow: 'scroll'}}>
                 {this.state.documents.length < 1
                 ? <div style={{flexGrow: 1, justifyContent: 'center', alignContent: 'center', textAlign: 'center'}}>
                     <Typography>No Comments</Typography>
@@ -231,7 +231,7 @@ class CommentSection extends React.Component {
                                         </Button>}
                                     {this.state.editMode
                                     ? null
-                                    : <Button color="secondary" onClick={() => this.handleClickOpen()}>
+                                    : <Button color="secondary" onClick={() => this.handleClickOpen(index)}>
                                         Delete
                                     </Button>}
                                 </div>
@@ -242,7 +242,7 @@ class CommentSection extends React.Component {
                                 </div>
                                 : null}
                             </div>
-                            <Dialog open={this.state.confirmDeleteOpen} onClose={this.handleClickClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+                            <Dialog open={this.state.confirmDeleteIndex === index} onClose={this.handleClickClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
                                 <DialogTitle id="alert-dialog-title">{"Delete Comment?"}</DialogTitle>
                                 <DialogContent>
                                     <DialogContentText id="alert-dialog-description">
