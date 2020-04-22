@@ -2,14 +2,15 @@ import React from 'react';
 import { Typography, Button, CircularProgress, Avatar } from '@material-ui/core';
 import firebase from "firebase";
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
-
 class CommentSection extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {'articleID': props.articleID, 'newComment': "", saving: false, documents: [], docChanges: []}
+        this.state = {'articleID': props.articleID, 'newComment': "", saving: false, documents: [], docChanges: [], editIndex: undefined, editedComment: "", editMode: false, user: firebase.auth().currentUser}
 
         this.changeCommentHandler = this.changeCommentHandler.bind(this);
+        this.changeEditCommentHandler = this.changeEditCommentHandler.bind(this);
         this.submitHandler = this.submitHandler.bind(this);
+        this.submitEditHandler = this.submitEditHandler.bind(this);
         this.getFirstName = this.getFirstName.bind(this);
         this.getInitials = this.getInitials.bind(this);
     }
@@ -34,6 +35,13 @@ class CommentSection extends React.Component {
         }
     }
 
+    changeEditCommentHandler = (event) => {
+        if (!this.state.saving) {
+            this.setState({ editedComment: event.target.value });
+        }
+    }
+
+
     submitHandler = async (event) => {
         if (!this.state.saving) {
             this.setState({
@@ -55,6 +63,30 @@ class CommentSection extends React.Component {
             this.setState({
                 saving: false,
                 newComment: "",
+            });
+        }
+    }
+
+    submitEditHandler = async (commentID) => { 
+        if (!this.state.saving) {
+            this.setState({
+                saving: true
+            });
+            
+            await firebase.firestore()
+                .collection('communityArticles')
+                .doc(this.state.articleID)
+                .collection('comments')
+                .doc(commentID)
+                .update({
+                    comment: this.state.editedComment,
+                    edited: true
+                });
+            this.setState({
+                saving: false,
+                editedComment: "",
+                editMode: false,
+                editIndex: undefined
             });
         }
     }
@@ -89,22 +121,62 @@ class CommentSection extends React.Component {
                 </Typography>
                 <div style={{height: 10}}/>
                 <div style={{flexGrow: 1}}>
-                {this.state.documents.map((comment) => {
+                {this.state.documents.map((comment, index) => {
                     var data = comment.data();
                     return (
-                        <div style={{display: 'flex', flexDirection: 'row', textAlign: 'center', alignItems: 'center', paddingBottom: 10}}>
-                            <div style={{display: 'flex', flexDirection: 'row', textAlign: 'center', alignItems: 'center', paddingRight: 5}}>
-                                {data.photoURL === "" && data.name !== ""
-                                    ? <Avatar>{this.getInitials(data.name)}</Avatar>
-                                    : <Avatar src={data.photoURL} alt=""/>}
-                                <div style={{width: 5}} />
-                                <Typography
-                                    style={{fontWeight: 500}}
-                                >
-                                    {`${this.getFirstName(data.name)}: `}
-                                </Typography>
+                        <div style={{display: 'flex', flexDirection: 'column'}}>
+                            <div style={{display: 'flex', flexDirection: 'row', textAlign: 'center', alignItems: 'center', paddingBottom: 10}}>
+                                <div style={{display: 'flex', flexDirection: 'row', textAlign: 'center', alignItems: 'center', paddingRight: 5}}>
+                                    {data.photoURL === "" && data.name !== ""
+                                        ? <Avatar>{this.getInitials(data.name)}</Avatar>
+                                        : <Avatar src={data.photoURL} alt=""/>}
+                                    <div style={{width: 5}} />
+                                    <Typography
+                                        style={{fontWeight: 500}}
+                                    >
+                                        {`${this.getFirstName(data.name)}: `}
+                                    </Typography>
+                                </div>
+                                {this.state.editIndex === index && this.state.editMode
+                                ?   <ValidatorForm
+                                        instantValidate={true}
+                                        onSubmit={this.changeEditCommentHandler}
+                                    >
+                                        <TextValidator 
+                                            fullWidth
+                                            variant="outlined"
+                                            value={this.state.editedComment} 
+                                            onChange={this.changeEditCommentHandler} 
+                                            validators={['required']} 
+                                            errorMessages={['Enter a valid comment']} 
+                                            multiline
+                                            rows={2}
+                                            onKeyDown={(e) => {
+                                                if (this.state.editedComment !== "" && e.keyCode === 13 && this.state.editedComment !== data.comment) {
+                                                    e.preventDefault();
+                                                    this.submitEditHandler(comment.id);
+                                                }
+                                            }}
+                                        />
+                                    </ValidatorForm>
+                                : <Typography>{data.comment}</Typography>}
                             </div>
-                            <Typography>{data.comment}</Typography>
+                            <div style={{display: 'flex', flexDirection: 'row-reverse'}}>
+                                {this.state.editMode && this.state.editIndex === index
+                                    ? <Button 
+                                        onClick={() => {this.setState({editMode: false})}}
+                                        color="secondary"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    : <Button
+                                        color="primary" 
+                                        onClick={() => {this.setState({editMode: true, editIndex: index, editedComment: data.comment})}}
+                                    >
+                                        Edit
+                                    </Button>}
+                                
+                            </div>
                         </div>
                     )
                 })}
@@ -125,7 +197,7 @@ class CommentSection extends React.Component {
                         multiline
                         rows={2}    
                     />
-                    <Button type="submit">Post Comment</Button>
+                    <Button type="submit" color="primary">Post Comment</Button>
                 </ValidatorForm>
             </div>
         );
