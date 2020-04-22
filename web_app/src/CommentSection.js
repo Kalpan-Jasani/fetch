@@ -10,6 +10,7 @@ class CommentSection extends React.Component {
         this.changeCommentHandler = this.changeCommentHandler.bind(this);
         this.changeEditCommentHandler = this.changeEditCommentHandler.bind(this);
         this.submitHandler = this.submitHandler.bind(this);
+        this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
         this.submitEditHandler = this.submitEditHandler.bind(this);
         this.getFirstName = this.getFirstName.bind(this);
         this.getInitials = this.getInitials.bind(this);
@@ -91,6 +92,25 @@ class CommentSection extends React.Component {
         }
     }
 
+    deleteCommentHandler = async (commentID) => {
+        if (!this.state.saving) {
+            this.setState({
+                saving: true
+            });
+            
+            await firebase.firestore()
+                .collection('communityArticles')
+                .doc(this.state.articleID)
+                .collection('comments')
+                .doc(commentID)
+                .delete();
+            
+            this.setState({
+                saving: false,
+            });
+        }
+    }
+
     getInitials = (string) => {
         var names = string.split(' '),
             initials = names[0].substring(0, 1).toUpperCase();
@@ -162,7 +182,8 @@ class CommentSection extends React.Component {
                                 : <Typography>{data.comment}</Typography>}
                             </div>
                             <div style={{display: 'flex', flexDirection: 'row-reverse'}}>
-                                <div>
+                                {data.userid === this.state.user.uid
+                                ? <div>
                                     {this.state.editMode && this.state.editIndex === index
                                         ? <Button 
                                             onClick={() => {this.setState({editMode: false})}}
@@ -178,10 +199,11 @@ class CommentSection extends React.Component {
                                         </Button>}
                                     {this.state.editMode
                                     ? null
-                                    : <Button color="secondary">
+                                    : <Button color="secondary" onClick={() => this.deleteCommentHandler(comment.id)}>
                                         Delete
                                     </Button>}
                                 </div>
+                                : null}
                                 {data.edited 
                                 ? <div style={{flexGrow: 1, paddingLeft: 5}}>
                                     <Typography style={{fontSize: 10, fontWeight: 650}} color="primary">Edited</Typography>
