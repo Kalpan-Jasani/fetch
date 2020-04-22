@@ -162,20 +162,31 @@ class CommentSection extends React.Component {
                                 : <Typography>{data.comment}</Typography>}
                             </div>
                             <div style={{display: 'flex', flexDirection: 'row-reverse'}}>
-                                {this.state.editMode && this.state.editIndex === index
-                                    ? <Button 
-                                        onClick={() => {this.setState({editMode: false})}}
-                                        color="secondary"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    : <Button
-                                        color="primary" 
-                                        onClick={() => {this.setState({editMode: true, editIndex: index, editedComment: data.comment})}}
-                                    >
-                                        Edit
+                                <div>
+                                    {this.state.editMode && this.state.editIndex === index
+                                        ? <Button 
+                                            onClick={() => {this.setState({editMode: false})}}
+                                            color="secondary"
+                                        >
+                                            Cancel
+                                        </Button>
+                                        : <Button
+                                            color="primary" 
+                                            onClick={() => {this.setState({editMode: true, editIndex: index, editedComment: data.comment})}}
+                                        >
+                                            Edit
+                                        </Button>}
+                                    {this.state.editMode
+                                    ? null
+                                    : <Button color="secondary">
+                                        Delete
                                     </Button>}
-                                
+                                </div>
+                                {data.edited 
+                                ? <div style={{flexGrow: 1, paddingLeft: 5}}>
+                                    <Typography style={{fontSize: 10, fontWeight: 650}} color="primary">Edited</Typography>
+                                </div>
+                                : null}
                             </div>
                         </div>
                     )
