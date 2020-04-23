@@ -64,6 +64,7 @@ function ActivityBar(props) {
  *  message: the content
  *  link: optional, the link to something relevant to the activity 
  *      (for eg. the new personal board)
+ *  timestamp: the time of this activity
  * 
  *  return: the callback that is called to unsubscribe from firebase
  */
