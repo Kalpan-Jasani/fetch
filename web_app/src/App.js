@@ -37,7 +37,7 @@ import ArticlesRaisedEyebrowDisplay from './ArticlesRaisedEyebrowDisplay'
 
 import './App.css';
 
-const drawerWidth = 240;  // width of the sidebar (can change to adjust)
+const drawerWidth = 255;  // width of the sidebar (can change to adjust)
 
 const getBackground = style('mode', {
   light: 'transparent',
