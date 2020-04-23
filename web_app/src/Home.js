@@ -102,7 +102,7 @@ function Home(props) {
 
     return (
         <div className="homepage-container">
-            <div class="homepage-content">
+            <div className="homepage-content">
                 <h2>
                     Home
                 </h2>
@@ -111,7 +111,7 @@ function Home(props) {
                     <div className="recent-articles-container">
                     {
                         articles.map((article) => (
-                            <Card className="recent-articles-container__article-card">
+                            <Card key={article.ref.id} className="recent-articles-container__article-card">
                                 <ArticleDisplay 
                                     articleRef={article.ref}
                                     key={article.ref.id}
@@ -129,7 +129,7 @@ function Home(props) {
                 <div className="recent-boards-container">
                     {
                         boards.map((board) => (
-                            <Card className="recent-boards-container__recent-board-card">
+                            <Card key={board.ref.id} className="recent-boards-container__recent-board-card">
                                 <CardMedia
                                     style={{height: 0, paddingTop: '50%'}}
                                     image={logo}

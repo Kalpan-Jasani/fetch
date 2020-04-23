@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import { Typography, Divider, Avatar } from '@material-ui/core';
 import _ from 'lodash';
 
@@ -21,6 +22,7 @@ function ActivityBar(props) {
     const subscribedFlag = useRef(false);       // initially not subscribed
     const userid = firebase.auth().currentUser.uid;
     const db = firebase.firestore();
+    const history = useHistory();
 
     /**
      * subscribe to activities using hooks by react
@@ -36,22 +38,28 @@ function ActivityBar(props) {
         }
     }, [subscribedFlag.current]);
 
+    const handleClick = (activity) => {
+        if(activity.link) {
+            history.push(activity.link);
+        }
+    };
+
     return (
-        <div class="activity-bar">
+        <div className="activity-bar">
             <Typography variant="h6">
                 Recent Activity
             </Typography>
-            <div class="activity-bar__activities">
+            <div className="activity-bar__activities">
                 { activities.map(activity => 
-                    <div>
-                        <div class="activity-bar__activities__activity">
-                            <div class="activity__logo">
+                    <div key={activity.id}>
+                        <div className="activity-bar__activities__activity" onClick={() => handleClick(activity)}>
+                            <div className="activity__logo">
                                 { activity.user && activity.user.photoURL ?
                                     <Avatar src={activity.user.photoURL}/> :
                                     <Avatar>{getInitials(activity.user.name)}</Avatar>
                                 }
                             </div>
-                            <div class="activity__content">
+                            <div className="activity__content">
                                 <p>{activity.message}</p>
                             </div>
                         </div>
@@ -94,6 +102,7 @@ function subscribeActivities(updateActivities, context) {
             /* create activity object by fetching user's information */
             const activityData = doc.data();
             let activity = {...activityData};
+            activity.id = doc.id;
             if(activityData.user) {     // if user exists in this activity's data
                 const s2 = await activityData.user.get();
                 const userData = s2.data();

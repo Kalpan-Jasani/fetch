@@ -12,6 +12,11 @@
     align-items: center;
 }
 
+.activity-bar__activities__activity:hover {
+    cursor: pointer;
+    background-color: #999;
+}
+
 .activity__content {
     margin-left: 1rem;
     width: 100%;
