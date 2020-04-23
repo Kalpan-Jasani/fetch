@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Typography, Divider } from '@material-ui/core';
+import _ from 'lodash';
 
 import firebase from "firebase/app";
 
@@ -24,9 +25,11 @@ function ActivityBar(props) {
      */
     useEffect(() => {
         if(! subscribedFlag.current) {   // if not subscribed
+            subscribedFlag.current = true;  // mark as subscribed
             const unsubscribe = subscribeActivities(setActivities, {userid, db});
             return () => {
-                unsubscribe && unsubscribe();
+                subscribedFlag.current = false;     // mark as unsubscribed
+                unsubscribe && unsubscribe();       // unsubscribe
             }
         }
     }, [subscribedFlag.current]);
@@ -41,7 +44,7 @@ function ActivityBar(props) {
                     /* TODO render activity */
                     <div class="activity_bar__activities__activity">
                         { activity.user &&
-                            <p>User: {activity.user.displayName}</p>
+                            <p>User: {activity.user.name}</p>
                         }
                         <p>{activity.message}</p>
                         <Divider></Divider>
@@ -60,7 +63,7 @@ function ActivityBar(props) {
  * 
  * This will obtain all the activities for the user. Activity is of the form
  * 
- *  user: optional, a user is a firebase user
+ *  user: optional, a user ref is a firebase user
  *  message: the content
  *  link: optional, the link to something relevant to the activity 
  *      (for eg. the new personal board)
@@ -69,17 +72,36 @@ function ActivityBar(props) {
  *  return: the callback that is called to unsubscribe from firebase
  */
 function subscribeActivities(updateActivities, context) {
-    // TODO: implement properly
-    updateActivities([
-        {
-            user: firebase.auth().currentUser,
-            message: "Added a new personal board politics"
-        }
-    ])
+    const db = context.db;
 
-    return () => {
-        console.debug("unsubscribed");
-    };
+    /* get last 15 recent activities stored for the user */
+    const unsubscribe = db.collection(`users/${context.userid}/activities`).
+      orderBy('timestamp', "desc").
+      limitToLast(15).onSnapshot(async (s) => {
+        /* create interface which can be stored as state for the activity bar
+         * fetch the user from the mentioned user reference and store it in
+         * the object that will go in the final array
+         */
+        const activities = await Promise.all(s.docs.map(async doc => {
+            /* create activity object by fetching user's information */
+            const activityData = doc.data();
+            let activity = {...activityData};
+            if(activityData.user) {     // if user exists in this activity's data
+                const s2 = await activityData.user.get();
+                const userData = s2.data();
+                activity.user = _.pick(userData, ['name', 'photoURL']);     // pick required fields
+            }
+            return activity;
+        }));
+
+        updateActivities(activities);
+    }, err => {
+        console.error(err);
+        console.error("could not subscribe to recent activities");
+        alert("Could not subscribe to recent activities");
+    });
+
+    return unsubscribe;
 }
 
 export default ActivityBar;
