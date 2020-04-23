@@ -1,0 +1,6 @@
+.activity-bar {
+    min-width: 15rem;
+    max-width: 15rem;
+    padding: 1rem;
+    border-left: 1px dotted black;
+}
