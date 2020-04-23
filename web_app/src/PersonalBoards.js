@@ -157,7 +157,7 @@ class PersonalBoards extends React.Component {
         */
 
         /* displayable name for current user which will be shown in activity */
-        const name = user.displayName || user.email;
+        const name = (await userRef.get()).data().name || user.displayName || user.email;
 
         followers.forEach(async u => {
             const activityRef = db.collection(`users/${u}/activities`);

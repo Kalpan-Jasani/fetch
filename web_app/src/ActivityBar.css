@@ -1,6 +1,21 @@
 .activity-bar {
     min-width: 15rem;
     max-width: 15rem;
+    overflow-x: scroll;
     padding: 1rem;
     border-left: 1px dotted black;
+}
+
+.activity-bar__activities__activity {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.activity__content {
+    margin-left: 1rem;
+    width: 100%;
+    max-height: 8rem;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }

@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Typography, Divider } from '@material-ui/core';
+import { Typography, Divider, Avatar } from '@material-ui/core';
 import _ from 'lodash';
 
 import firebase from "firebase/app";
+
+import {getInitials} from './util';
 
 import './ActivityBar.css';
 /**
@@ -41,12 +43,18 @@ function ActivityBar(props) {
             </Typography>
             <div class="activity-bar__activities">
                 { activities.map(activity => 
-                    /* TODO render activity */
-                    <div class="activity_bar__activities__activity">
-                        { activity.user &&
-                            <p>User: {activity.user.name}</p>
-                        }
-                        <p>{activity.message}</p>
+                    <div>
+                        <div class="activity-bar__activities__activity">
+                            <div class="activity__logo">
+                                { activity.user && activity.user.photoURL ?
+                                    <Avatar src={activity.user.photoURL}/> :
+                                    <Avatar>{getInitials(activity.user.name)}</Avatar>
+                                }
+                            </div>
+                            <div class="activity__content">
+                                <p>{activity.message}</p>
+                            </div>
+                        </div>
                         <Divider></Divider>
                     </div>
                 )
