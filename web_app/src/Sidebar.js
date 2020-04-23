@@ -71,9 +71,9 @@ function Sidebar(props) {
         return () => {
             /* unsubscribe and mark it as such */
             unsubscribeBoards && unsubscribeBoards();
-            firebaseSubscriptions.current.recentBoards = false;
+            firebaseSubscriptions.current.personalBoards = false;
         }
-    }, [firebaseSubscriptions.current.recentBoards]);
+    }, [firebaseSubscriptions.current.personalBoards]);
 
     return (
         <Drawer
