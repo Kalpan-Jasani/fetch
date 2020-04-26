@@ -98,13 +98,15 @@ function PersonalBoard(props) {
         const queueRefs = [...state.board.queue];
 
         if(front) {
-            queueRefs.unshift(articleRef);
+            queueRefs.unshift(articleRef)
         }
         else {
             queueRefs.push(articleRef);
         }
-
+       
+        setState(prevState => {return {...prevState, queue: queueRefs}});
         state.board.ref.update({queue: queueRefs});
+
     }
 
     const followBoard = async () => {
@@ -121,7 +123,7 @@ function PersonalBoard(props) {
             var updatedFollowers;
             await firebase.firestore().runTransaction((transaction) => {
                 return transaction.get(path).then((doc) => {
-                    var fields = doc.data();
+                    var fields = doc.data();  
                     var followers = fields.followers ?? [];
                     followers.push(currID);
 
