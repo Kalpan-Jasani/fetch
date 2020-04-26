@@ -130,8 +130,10 @@ class ArticleDisplay extends React.Component {
         return (
             this.state.article !== null ?
                 <div class={this.state.article.read ? "article-read":""}>
-                    <div style={{width: '200px', height: '200px'}}>{this.state.article.name}</div>
-                    <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
+                    <div style={{width: '200px', height: '200px'}}><strong>{this.state.article.name}</strong>
+                        <img src="https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png" width="175" height="175" float="left"></img>
+                    </div>
+                    <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{float: 'left'}}>
                             Preview
                     </Button>
                     <br/>
@@ -148,6 +150,7 @@ class ArticleDisplay extends React.Component {
                         <DialogTitle>
                             {this.state.article.name}
                         </DialogTitle>
+                        
                         <DialogContent>
                             <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
 

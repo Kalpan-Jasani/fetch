@@ -33,6 +33,8 @@ class CommunityBoards extends React.Component{
       isAddOpen: false,
       communityBoards: [],
       searchedBoard: [],
+      selectedBoard: [],
+      followedBoards: [],
       search: '', 
       isSearching: false,
     }
@@ -145,6 +147,7 @@ handleInputChange = (event) => {
       });
   }
 
+
   GetBoard(e) {
     if (this.state.communityBoards != undefined) {
         const searchedboard = []
@@ -160,6 +163,96 @@ handleInputChange = (event) => {
   }
 }
 
+ followBoard = async (doc) => {
+    
+        var id = doc.id;
+        const currID = firebase.auth().currentUser.uid;
+        var userPath = firebase.firestore().collection("users").doc(currID);
+
+
+         firebase.firestore().runTransaction((followTransaction) => {
+            return followTransaction.get(userPath).then((doc) => {
+                var fields = doc.data();
+                var followedBoards = [];
+                var cboardFollowing = fields.cboardFollowing ?? [];
+                cboardFollowing.push(id);
+                console.log(cboardFollowing);
+                let newFollowedBoard = {
+                    boardName: doc.data().boardName,
+                    isPrivate: doc.data().isPrivate,
+                    imageURL: doc.data().imageURL || "",
+                    boardID: doc.id,
+                }
+                followedBoards.push(newFollowedBoard);
+                this.setState({
+                    followedBoards: followedBoards,
+                });
+                
+                followTransaction.update(userPath, {cboardFollowing: cboardFollowing});
+            })
+        });    
+}
+
+unfollowBoard = async (doc) => {
+    
+        const currID = firebase.auth().currentUser.uid;
+        var userPath = firebase.firestore().collection("users").doc(currID);
+        var id = doc.id;
+
+        await firebase.firestore().runTransaction((followTransaction) => {
+            return followTransaction.get(userPath).then((doc) => {
+                var fields = doc.data();
+                var cboardFollowing = fields.cboardFollowing ?? [];
+                var index = cboardFollowing.indexOf(id);
+                if (index > -1) {
+                    cboardFollowing.splice(index, 1);
+                } else {
+                    console.log("user is not a follower!");
+                }
+
+                followTransaction.update(userPath, {cboardFollowing: cboardFollowing});
+            })
+        });
+}
+
+displayFollowedBoards(){
+
+    return (
+        <div>
+        
+        {this.state.followedBoards.map(board => (
+               <div key={board.boardID} >
+              <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
+                  <CardHeader
+                  title={board.name}
+                  subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
+
+                  >
+                  </CardHeader>
+                  <CardMedia style={{height: 0, paddingTop: '50%'}}
+                    image={logo}
+                    title="FETCH"
+                  />
+                <CardActions>
+                    <IconButton>
+                        <PlayArrow/>
+                    </IconButton>
+                    <Button>
+                        <Link to={"/community-boards/"+board.boardID}>
+                            View
+                        </Link>
+                    </Button>
+                    <Button color="primary" onClick={this.followBoard}>
+                        Follow
+                    </Button>
+                </CardActions>
+              </Card>
+            </div>
+          ))}
+        </div>
+        );
+
+}
 displayBoards() {
     if(this.state.isSearching){
         if(this.state.searchedBoard != undefined){
@@ -188,6 +281,9 @@ displayBoards() {
                                     View
                                 </Link>
                             </Button>
+                            <Button color="primary" onClick={this.followBoard}>
+                                Follow
+                            </Button>
                         </CardActions>
                       </Card>
                     </div>
@@ -205,7 +301,7 @@ displayBoards() {
         
         return (
         <div>
-
+        
         {this.state.communityBoards.map(board => (
                <div key={board.boardID} >
               <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
@@ -227,6 +323,9 @@ displayBoards() {
                         <Link to={"/community-boards/"+board.boardID}>
                             View
                         </Link>
+                    </Button>
+                    <Button color="primary" onClick={this.followBoard}>
+                        Follow
                     </Button>
                 </CardActions>
               </Card>
@@ -279,6 +378,11 @@ displayBoards() {
               <AddCircleOutlinedIcon/>
               Create a community
           </Button>
+          <h2> Boards Following </h2>
+          <div>
+              {this.displayFollowedBoards()}
+          </div>
+          <h2> All Community Boards </h2>
           <Dialog
               open={this.state.isDialogOpen}
               onClose={this.handleDialogClose}
