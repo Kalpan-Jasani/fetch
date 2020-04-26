@@ -33,7 +33,7 @@ class CommunityArticleDisplay extends React.Component {
         super(props);
         this.state = {
            isDialogOpen: false,
-           article: null, 
+           article: null,
            user: null,
            articlesRaisedEyebrow: [],
            vitalityCheck: false,       // does the article need to be hidden
@@ -106,18 +106,18 @@ class CommunityArticleDisplay extends React.Component {
         // unsubscribe to article updates
         this.unsubscribe();
     }
-   
+
     handleOpenNewTab = (event) => {
         window.open(this.state.article.url);
     }
-   
+
     handleDialogOpen = () => this.setState({isDialogOpen: true});
     handleDialogClose = () => this.setState({isDialogOpen: false});
-   
+
     handleDeleteArticle = async () => {
         const props = this.props;
         const userid = firebase.auth().currentUser.uid;
-        
+
         if(this.props.inRaisedEyebrowPage){
           // delete in RaisedEyebrow Page will be the same as lowering eyebrow
           this.handleLowerEyebrow();
@@ -133,7 +133,7 @@ class CommunityArticleDisplay extends React.Component {
           .catch(function(error) {
               console.error("Error deleting article: ", error);
           });
-    
+
           this.handleDialogClose();
         }
     }
@@ -142,16 +142,16 @@ class CommunityArticleDisplay extends React.Component {
         var user = firebase.auth().currentUser;
         var ebarr = this.state.article.users_eyebrows;
         ebarr.push(user.uid);
-  
+
         var tempArticlesRE = this.state.articlesRaisedEyebrow;
         tempArticlesRE.push(this.props.articleRef.id);
-  
+
         try{
             await this.props.articleRef.update({
                 users_eyebrows: ebarr,
             });
             console.log("Raised Eyebrow!")
-  
+
             // add to array of currentUser
             await firebase.firestore().collection('users').doc(user.uid).update({
                 articles_raised_eyebrow: tempArticlesRE,
@@ -162,7 +162,7 @@ class CommunityArticleDisplay extends React.Component {
             console.log(err);
         }
     }
-  
+
     handleLowerEyebrow = async () => {
         var user = firebase.auth().currentUser;
         var ebarr = this.state.article.users_eyebrows;
@@ -173,28 +173,28 @@ class CommunityArticleDisplay extends React.Component {
             console.log("user did not raise an eyebrow");
         }
         //console.log(ebarr);
-  
+
         var tempArticlesRE = this.state.articlesRaisedEyebrow;
         var index2 = tempArticlesRE.indexOf(this.props.articleRef.id);
-        
+
         if (index2 > -1) {
             tempArticlesRE.splice(index2, 1);
         } else {
             console.log("user did not raise an eyebrow");
         }
-  
+
         try {
             await this.props.articleRef.update({
                 users_eyebrows: ebarr,
             });
             console.log("Lowered Eyebrow!");
-  
+
             // remove from array of currentUser
             await firebase.firestore().collection('users').doc(user.uid).update({
                 articles_raised_eyebrow: tempArticlesRE,
             });
             console.log("removed to list of articles raised eyebrow")
-  
+
         }
         catch(err) {
             console.log(err);
@@ -263,23 +263,20 @@ class CommunityArticleDisplay extends React.Component {
                         articles: firebase.firestore.FieldValue.arrayUnion(currArticle)
                     })
         });
-            
+
         this.setState({
             selectedBoards: [],
             SaveDialogOpen: false,
         });
     }
-  
+
     render() {
         return (
             this.state.article !== null ?
                 this.state.vitalityCheck ?
-                    <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center'}}>
-                        <Typography variant='h6'>{this.state.article.name}</Typography>
+                    <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left'}}>
+                        <Typography variant='h4'>{this.state.article.name}</Typography>
                         <br></br>
-                        <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{marginTop:"15px"}}>
-                                Preview
-                        </Button>
                         <br/>
                         <Dialog
                             open={this.state.isDialogOpen}
@@ -371,6 +368,76 @@ class CommunityArticleDisplay extends React.Component {
                                 />
                             </ DialogContent>
                         </Dialog>
+                        <DialogContent>
+                            <iframe src={this.state.article.url}  width="100%" height="600px" ></iframe>
+                            <DialogActions style={{ paddingLeft: 795 }}>
+                                {this.state.article.users_eyebrows.length.toString()}
+
+                                {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid)
+                                ? <IconButton onClick={() => this.handleLowerEyebrow()}>
+                                    <VisibilityIcon color="secondary"/>
+                                </IconButton>
+                                : <IconButton onClick={() => this.handleRaiseEyebrow()}>
+                                    <VisibilityIcon color="disabled"/>
+                                </IconButton>}
+
+                                <Button variant="contained" color="primary" onClick={this.handleSaveDialogOpen}>
+                                    Save
+                                </Button>
+                                {/* dialog to save article to personal boards */}
+                                <Dialog
+                                open={this.state.SaveDialogOpen}
+                                onClose={this.handleSaveDialogClose}
+                                aria-labelledby="form-dialog-title"
+                                style={{
+                                    padding: '10px'
+                                }}
+                                >
+
+                                    <DialogContent>
+                                    <FormControl style={{width: '200px'}}>
+                                        <InputLabel id="dropdown"> Select Board </InputLabel>
+                                        <Select
+                                            labelId="dropdown"
+                                            label = "Select Board"
+                                            style={{
+                                                margin: '10px'
+                                            }}
+                                            id="multiple-select"
+                                            multiple
+                                            value={this.state.selectedBoards}
+                                            onChange={(e) => this.setState({ selectedBoards: e.target.value })
+                                            }
+                                        >
+                                            {this.state.personalBoards.map(board => (
+                                                <MenuItem key={board.boardID} value={board.boardID}>
+                                                    {board.boardName}
+                                                </MenuItem>
+                                            ))}
+                                    </Select>
+                                    </FormControl>
+                                    </DialogContent>
+                                    <DialogActions>
+                                    <Button onClick={this.handleSave} color="secondary">
+                                        Save
+                                    </Button>
+                                    <Button onClick={this.handleSaveDialogClose} color="secondary">
+                                        Cancel
+                                    </Button>
+                                    </DialogActions>
+                                </Dialog>   {/* dialog to save article to personal boards */}
+                                <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
+                                    <OpenInNewIcon />
+                                </Button>
+                                <Button color="secondary" onClick={this.handleReport} >
+                                    Report
+                                </Button>
+                                <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">
+                                    <DeleteIcon />
+                                </Button>
+                            </ DialogActions>
+                        </ DialogContent>
+                        <br/>
                     </div>
                     :
                     <div style={{color: 'grey'}}>! article is reported</div>
