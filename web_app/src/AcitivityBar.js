@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { Typography, Divider, Avatar } from '@material-ui/core';
+import { Typography, Divider, Avatar, IconButton } from '@material-ui/core';
 import _ from 'lodash';
+import CloseIcon from '@material-ui/icons/Close';
 
 import firebase from "firebase/app";
 
@@ -24,6 +25,9 @@ function ActivityBar(props) {
     const db = firebase.firestore();
     const history = useHistory();
 
+    // id of activity that is hovered over
+    const [hoverActivity, setHoverActivity] = useState(null);
+
     /**
      * subscribe to activities using hooks by react
      */
@@ -44,6 +48,11 @@ function ActivityBar(props) {
         }
     };
 
+    const deleteActivity = (activityId) => {
+        db.doc(`users/${userid}/activities/${activityId}`).delete();
+    }
+
+
     return (
         <div className="activity-bar">
             <Typography variant="h6">
@@ -52,16 +61,29 @@ function ActivityBar(props) {
             <div className="activity-bar__activities">
                 { activities.map(activity => 
                     <div key={activity.id}>
-                        <div className="activity-bar__activities__activity" onClick={() => handleClick(activity)}>
+                        <div className="activity-bar__activities__activity" onClick={() => handleClick(activity)}
+                            onMouseEnter={() => setHoverActivity(activity.id)}
+                            onMouseLeave={() => setHoverActivity(null)}>
                             <div className="activity__logo">
-                                { activity.user && activity.user.photoURL ?
-                                    <Avatar src={activity.user.photoURL}/> :
-                                    <Avatar>{getInitials(activity.user.name)}</Avatar>
+                                { activity.user && 
+                                    (activity.user.photoURL ?
+                                        <Avatar src={activity.user.photoURL}/> :
+                                        <Avatar>{getInitials(activity.user.name)}</Avatar>
+                                    )
                                 }
                             </div>
                             <div className="activity__content">
                                 <p>{activity.message}</p>
                             </div>
+                            {hoverActivity == activity.id &&
+                                <div className="activity__close" onClick={e => {
+                                    // prevent bubbling up event to ancestors
+                                    e.stopPropagation();
+                                    deleteActivity(activity.id);
+                                }}>
+                                    <CloseIcon fontSize="small"/>
+                                </div>
+                            }
                         </div>
                         <Divider></Divider>
                     </div>
