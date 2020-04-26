@@ -296,6 +296,9 @@ class CommunityArticleDisplay extends React.Component {
                             <DialogContent style={{display: 'flex', flexDirection: 'row', paddingTop: 25}}>
                                 <div style={{width: '60%', paddingRight: 15}}>
                                     <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
+                                    <CommentSection
+                                            articleID={this.state.article.id}
+                                        />
                                     <DialogActions style={{ paddingLeft: 20 }}>
                                         {this.state.article.users_eyebrows.length.toString()}
 
@@ -361,11 +364,10 @@ class CommunityArticleDisplay extends React.Component {
                                         <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">
                                             <DeleteIcon />
                                         </Button>
+                                        
                                     </ DialogActions>
                                 </div>
-                                <CommentSection
-                                    articleID={this.state.article.id}
-                                />
+                                
                             </ DialogContent>
                         </Dialog>
                         <DialogContent>
