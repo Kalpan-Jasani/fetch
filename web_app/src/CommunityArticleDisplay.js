@@ -28,6 +28,12 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import CommentSection from './CommentSection';
 
+import EyebrowRaisedGIF from './Assets/EyebrowRaisedGIF.gif';
+import EyebrowRaisedImg from './Assets/EyebrowRaised.svg';
+import EyebrowRaisedImgGray from './Assets/EyebrowRaisedGRAY.svg';
+import Icon from '@material-ui/core/Icon';
+import { Popover } from "@material-ui/core"
+
 class CommunityArticleDisplay extends React.Component {
     constructor(props) {
         super(props);
@@ -40,7 +46,7 @@ class CommunityArticleDisplay extends React.Component {
            SaveDialogOpen: false,
            personalBoards: [],
            selectedBoards: [],
-
+           anchorEl: null,
         }
         this.unsubscribe = null;
         this.db = firebase.firestore();
@@ -270,11 +276,49 @@ class CommunityArticleDisplay extends React.Component {
         });
     }
 
+    handlePopoverOpen = (event) => {
+        //(event, doc, docName))
+        this.setState({
+            anchorEl: event.currentTarget,
+            //selectedBoardID: doc,
+            //selectedBoardName: docName,
+        });
+    }
+    
+    handlePopoverClose = () => {
+        this.setState({
+            anchorEl: null,
+        });
+    }
+
     render() {
         return (
             this.state.article !== null ?
                 this.state.vitalityCheck ?
                     <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left'}}>
+                        <Popover
+                            style={{ pointerEvents: "none", textAlign: "center" }}
+                            open={Boolean(this.state.anchorEl)}
+                            anchorEl={this.state.anchorEl}
+                            anchorOrigin={{
+                                vertical: "top",
+                                horizontal: "center"
+                            }}
+                            transformOrigin={{
+                                vertical: "bottom",
+                                horizontal: "center"
+                            }}
+                            onClose={this.handlePopoverClose}
+                            disableRestoreFocus
+                        >
+                            <Typography style={{fontSize: 15, padding: "5px"}}>"Raise an Eyebrow"</Typography>
+                            <img
+                                alt="Raise Eyebrow GIF"
+                                src={EyebrowRaisedGIF}
+                                style={{ height: "60px", width: "80px", padding: "5px"}}
+                            />
+                        </Popover>
+
                         <Typography variant='h4'>{this.state.article.name}</Typography>
                         <br></br>
                         <br/>
@@ -286,12 +330,30 @@ class CommunityArticleDisplay extends React.Component {
                                 {this.state.article.users_eyebrows.length.toString()}
 
                                 {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid)
-                                ? <IconButton onClick={() => this.handleLowerEyebrow()}>
-                                    <VisibilityIcon color="secondary"/>
+                                ? 
+                                <IconButton 
+                                  style={{height: '70px', width: '80px'}} 
+                                  onClick={() => this.handleLowerEyebrow()}
+                                  onMouseLeave={() => this.handlePopoverClose()}
+                                  title="Raised Eyebrow"
+                                >
+                                    <Icon style={{height: '60px', width: '60px'}}>
+                                        <img src={EyebrowRaisedImg} />
+                                    </Icon>
                                 </IconButton>
-                                : <IconButton onClick={() => this.handleRaiseEyebrow()}>
-                                    <VisibilityIcon color="disabled"/>
-                                </IconButton>}
+                                : 
+                                <IconButton
+                                  style={{height: '70px', width: '80px'}} 
+                                  onClick={() => this.handleRaiseEyebrow()}
+                                  onMouseEnter={(e) => this.handlePopoverOpen(e)}
+                                  onMouseLeave={() => this.handlePopoverClose()}
+                                  title="Eyebrow Not Raised"
+                                >
+                                    <Icon style={{height: '60px', width: '60px'}}> 
+                                        <img src={EyebrowRaisedImgGray} />
+                                    </Icon>
+                                </IconButton>
+                                }
 
                                 <Button variant="contained" color="primary" onClick={this.handleSaveDialogOpen}>
                                     Save
