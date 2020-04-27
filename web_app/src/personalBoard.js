@@ -6,7 +6,10 @@ import Button from '@material-ui/core/Button';
 import ArticleDisplay from './ArticleDisplay';
 import './personalBoard.css';
 import { Divider } from '@material-ui/core';
-
+import PlayQueue from './PlayQueue';
+import { green } from '@material-ui/core/colors';
+// import { createMuiTheme, useStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles';
+// import {useStyles}
 /**
  * 
  * @param {*} props: none used
@@ -14,6 +17,13 @@ import { Divider } from '@material-ui/core';
  * This component must be rendered at a url (hash based url) that 
  * is domain.com/#/boards/<id>/ or domain.com/#/boards/<ownerid>/<id>
  */
+
+//   const theme = createMuiTheme({
+//     palette: {
+//       primary: green,
+//     },
+//   });
+
 function PersonalBoard(props) {
 
     const { ownerid, id } = useParams();    // get params based on url
@@ -22,6 +32,7 @@ function PersonalBoard(props) {
         board: null,
         followers: [],
         saving: false,
+        open: false,
     });
     
     /* 
@@ -79,7 +90,7 @@ function PersonalBoard(props) {
                 subscribedRef.current = false;  // unsubscribed is marked
             }
         }
-    });
+    }, [subscribedRef.current]);
 
     /**
      * set this board as updated by updating its time stamp on firebase,
@@ -90,7 +101,7 @@ function PersonalBoard(props) {
     
     useEffect(() => {
         boardRef.update({lastSeenTime: new Date()});
-    })
+    }, []);
 
     const addToQueue = function(articleRef, front) {
 
@@ -196,12 +207,29 @@ function PersonalBoard(props) {
         }
     }
 
+    // const play = () => {
+    //     setState(prevState => {return {...prevState, open: true}});
+    //    console.log(state.open)
+    // }
+    //const classes = useStyles();
+
     return (
         state.board !== null ? 
             <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
                 {
                     <h2>{state.board.boardName}</h2>
                 }
+                         <PlayQueue 
+                            queue={state.board.queue}
+                         />
+                   
+                    {/* { state.open ? (
+                        <div>
+                         <PlayQueue 
+                            queue={state.board.queue}
+                         />
+                        </div>
+                     ): <p>Nothing</p> } */}
 
                 {/* follow related */}
                 <Link to={`/pboards/followers/${userid}/${id}`}>
