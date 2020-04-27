@@ -21,6 +21,7 @@ import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import logo from './Assets/fetch.png';
 
 import './personalBoards.css';
+import {sendUpdate} from './util';
 
 class PersonalBoards extends React.Component {
     constructor(props) {
@@ -148,27 +149,17 @@ class PersonalBoards extends React.Component {
 
         const followers = await userRef.get().then(s => s.get("followers"));
 
-        /**
-         * update activity of all users. 
-         * TODO-LONGTERM: in big applications, 
-         * this should be done in the backend as the GUI is blocked while this happens
-         * 
-         * Also, if done in front-end, should display snackbar and do batched writes
-        */
-
         /* displayable name for current user which will be shown in activity */
         const name = (await userRef.get()).data().name || user.displayName || user.email;
 
-        followers.forEach(async u => {
-            const activityRef = db.collection(`users/${u}/activities`);
-            await activityRef.add({
-                user: userRef,
-                message: `New personal board ${boardName} added by ${name}`,
-                link: `boards/${userid}/${boardRef.id}`,
-                timestamp: new Date(),
-            })
-        });
+        const activity = {
+            user: userRef,
+            message: `New personal board ${boardName} added by ${name}`,
+            link: `boards/${userid}/${boardRef.id}`,
+            timestamp: new Date()
+        };
 
+        await sendUpdate(activity, followers);
 
         // will close the dialog after submission
         this.setState({
