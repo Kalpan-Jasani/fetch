@@ -20,6 +20,13 @@ export const getInitials = (string) => {
     return initials;
 }
 
+/* displayable name for current user which will be shown in activity */
+export const getDisplayName = async () => {
+    const user = firebase.auth().currentUser;
+    const userRef = firebase.firestore().doc(`users/${user.uid}`);
+    return (await userRef.get()).data().name || user.displayName || user.email || "";
+
+}
 
 /**
  * Create recent activities for users
