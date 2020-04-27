@@ -3,6 +3,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { Typography, Divider, Avatar, IconButton } from '@material-ui/core';
 import _ from 'lodash';
 import CloseIcon from '@material-ui/icons/Close';
+import moment from 'moment';
 
 import firebase from "firebase/app";
 
@@ -64,16 +65,18 @@ function ActivityBar(props) {
                         <div className="activity-bar__activities__activity" onClick={() => handleClick(activity)}
                             onMouseEnter={() => setHoverActivity(activity.id)}
                             onMouseLeave={() => setHoverActivity(null)}>
-                            <div className="activity__logo">
-                                { activity.user && 
-                                    (activity.user.photoURL ?
-                                        <Avatar src={activity.user.photoURL}/> :
-                                        <Avatar>{getInitials(activity.user.name)}</Avatar>
-                                    )
-                                }
-                            </div>
-                            <div className="activity__content">
-                                <p>{activity.message}</p>
+                            <div className="activity__tile">
+                                <div className="activity__logo">
+                                    { activity.user && 
+                                        (activity.user.photoURL ?
+                                            <Avatar src={activity.user.photoURL}/> :
+                                            <Avatar>{getInitials(activity.user.name)}</Avatar>
+                                        )
+                                    }
+                                </div>
+                                <div className="activity__content">
+                                    <p>{activity.message}</p>
+                                </div>
                             </div>
                             {hoverActivity == activity.id &&
                                 <div className="activity__close" onClick={e => {
@@ -84,6 +87,9 @@ function ActivityBar(props) {
                                     <CloseIcon fontSize="small"/>
                                 </div>
                             }
+                            <div className="activity__metainfo">
+                                {activity.timestamp && moment(activity.timestamp.toDate()).fromNow()}
+                            </div>
                         </div>
                         <Divider></Divider>
                     </div>

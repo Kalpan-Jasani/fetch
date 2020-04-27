@@ -8,11 +8,15 @@
 
 .activity-bar__activities__activity {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
     position: relative;
 }
 
+.activity__tile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
 .activity-bar__activities__activity:hover {
     cursor: pointer;
     background-color: #999;
@@ -35,4 +39,9 @@
 
 .activity__close:hover {
     background-color: rgba(138, 43, 226, 0.3);
+}
+
+.activity__metainfo {
+    margin-left: 3.5rem;
+    color: #555;
 }
