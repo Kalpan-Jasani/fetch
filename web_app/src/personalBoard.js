@@ -8,8 +8,6 @@ import './personalBoard.css';
 import { Divider } from '@material-ui/core';
 import PlayQueue from './PlayQueue';
 import { green } from '@material-ui/core/colors';
-// import { createMuiTheme, useStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles';
-// import {useStyles}
 /**
  * 
  * @param {*} props: none used
@@ -17,12 +15,6 @@ import { green } from '@material-ui/core/colors';
  * This component must be rendered at a url (hash based url) that 
  * is domain.com/#/boards/<id>/ or domain.com/#/boards/<ownerid>/<id>
  */
-
-//   const theme = createMuiTheme({
-//     palette: {
-//       primary: green,
-//     },
-//   });
 
 function PersonalBoard(props) {
 
@@ -216,25 +208,17 @@ function PersonalBoard(props) {
     return (
         state.board !== null ? 
             <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
-                {
-                    <h2>{state.board.boardName}</h2>
-                }
-                         <PlayQueue 
-                            queue={state.board.queue}
-                         />
-                   
-                    {/* { state.open ? (
-                        <div>
-                         <PlayQueue 
-                            queue={state.board.queue}
-                         />
-                        </div>
-                     ): <p>Nothing</p> } */}
-
-                {/* follow related */}
-                <Link to={`/pboards/followers/${userid}/${id}`}>
-                    <h3>{`Followers: ${state.followers.length}`}</h3>
-                </Link>
+                    {
+                        <h2>{state.board.boardName}</h2>
+                    }
+                    <PlayQueue 
+                    queue={state.board.queue}
+                    />
+                    {/* follow related */}
+                    <Link to={`/pboards/followers/${userid}/${id}`}>
+                        <h3>{`Followers: ${state.followers.length}`}</h3>
+                    </Link>
+               
                 <div style={{height: 15}}/>
                 <div style={{ position: 'relative', width: 100 }}>
                 {ownerid && ownerid !== currID ?
