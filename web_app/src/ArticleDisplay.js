@@ -184,7 +184,7 @@ class ArticleDisplay extends React.Component {
                                                 marginBottom: '20px',
                                                 }}
                                             >
-                                                <MenuItem value={1}>front</MenuItem>
+                                                <MenuItem value={1}>Front</MenuItem>
                                                 <MenuItem value={2}>End</MenuItem>
                                             </Select>
                                   </FormControl>
