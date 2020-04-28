@@ -3,6 +3,7 @@ import firebase from "firebase";
 import { withStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
@@ -138,7 +139,7 @@ class PlayQueue extends React.Component {
         const { classes } = this.props;
         
         return (
-          <div ref={node => this.node = node}>
+          <div ref={node => this.node = node} style={{marginTop: '20px'}}>
               {/* {this.state.showbutton && (
                   <Button variant="contained" style={{backgroundColor: 'green'}} onClick={this.play}>
                     Play
@@ -153,7 +154,7 @@ class PlayQueue extends React.Component {
                   onExited={() => this.setState({showbutton: true})}
               >
                   <div>
-                      <Card className={classes.root}>
+                      <Card className={classes.root} raised="true" >
                         <div className={classes.details}>
                             <CardContent className={classes.content}>
                                 <Typography component="h7" variant="h7" style={{float: 'left'}}>
@@ -170,16 +171,18 @@ class PlayQueue extends React.Component {
                                 <IconButton color="secondary" onClick={this.navigateBackward} className={classes.column} component="span">
                                     <SkipPreviousIcon />
                                 </IconButton>
-                                <div  style={{display: 'block', size:'100px',height:'600px', margin: '0 20px 0 20px'}}>
-                                    <iframe src={this.state.current.url}  width="100%" height="500px"></iframe>
+                                <div  style={{display: 'block', size:'100px',height:'400px', margin: '0 20px 0 20px'}}>
+                                    <iframe src={this.state.current.url}  width="100%" height="550px"></iframe>
                                 </div>
                                 <IconButton color="secondary" onClick={this.navigateForward} className={classes.column} component="span">
                                     <SkipNextIcon />
                                 </IconButton>
                             </div>
-                            <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
-                                Go to Website
-                            </Button>
+                            <CardActions>
+                                <Button variant="contained" color="primary" onClick={this.handleOpenNewTab} style={{width: '200px', margin: '20px', right:'-350px'}}>
+                                    Go to Website
+                                </Button>
+                            </CardActions>
                         </div>
                       </Card>
                   </div>

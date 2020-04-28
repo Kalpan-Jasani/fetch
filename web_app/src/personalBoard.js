@@ -8,6 +8,9 @@ import './personalBoard.css';
 import { Divider } from '@material-ui/core';
 import PlayQueue from './PlayQueue';
 import { green } from '@material-ui/core/colors';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 // import { createMuiTheme, useStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 // import {useStyles}
 /**
@@ -220,18 +223,26 @@ function PersonalBoard(props) {
     return (
         state.board !== null ? 
             <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
-                {
-                    <h2>{state.board.boardName}</h2>
-                }
-                            <Button variant="contained" style={{backgroundColor: 'green', width:'20px'}} onClick={play}>
-                                Play
-                            </Button>
-{/*                         
-                         <PlayQueue 
-                            queue={state.board.queue}
-                         /> */}
-                   
-                    { state.open ? (
+                <AppBar color="inherited" position="static">
+                    <Toolbar variant="dense">
+                        
+                        { <h1 style={{marginRight:'40px', flexGrow: '1', fontFamily: 'Arial'}}>{state.board.boardName}</h1> }
+                        <Button 
+                            variant="contained" 
+                            style={{backgroundColor: '#4CAF50', width:'100px', padding: '5px 5px 5px 4px',marginRight: '20px'}} 
+                            onClick={play}
+                            startIcon={<PlayArrowIcon />}>
+                            Play  
+                        </Button>
+                        {/* follow related */}
+                        <Link style={{marginRight:'20px'}} to={`/pboards/followers/${userid}/${id}`}>
+                            <h3>{`Followers: ${state.followers.length}`}</h3>
+                        </Link>
+
+                    </Toolbar>
+                </AppBar>
+                {/* Playlist modal */}
+                { state.open ? (
                         <div>
                          <PlayQueue 
                             queue={state.board.queue}
@@ -239,12 +250,8 @@ function PersonalBoard(props) {
                             open={state.open}
                          />
                         </div>
-                     ): <p></p> }
+                     ): null }
 
-                {/* follow related */}
-                <Link to={`/pboards/followers/${userid}/${id}`}>
-                    <h3>{`Followers: ${state.followers.length}`}</h3>
-                </Link>
                 <div style={{height: 15}}/>
                 <div style={{ position: 'relative', width: 100 }}>
                 {ownerid && ownerid !== currID ?
