@@ -3,6 +3,8 @@ import { Typography, Button, CircularProgress, Avatar } from '@material-ui/core'
 import firebase from "firebase";
 import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 
+import {getDisplayName} from './util';
+
 class CommentSection extends React.Component {
     constructor(props) {
         super(props);
@@ -12,6 +14,8 @@ class CommentSection extends React.Component {
         this.submitHandler = this.submitHandler.bind(this);
         this.getFirstName = this.getFirstName.bind(this);
         this.getInitials = this.getInitials.bind(this);
+        this.db = firebase.firestore();
+        this.userid = firebase.auth().currentUser.uid;
     }
 
     componentDidMount() {
@@ -35,6 +39,9 @@ class CommentSection extends React.Component {
     }
 
     submitHandler = async (event) => {
+        const comment = this.state.newComment;
+        const name = await getDisplayName();        // get displayable name
+
         if (!this.state.saving) {
             this.setState({
                 saving: true
@@ -45,13 +52,20 @@ class CommentSection extends React.Component {
                 .doc(this.state.articleID)
                 .collection('comments')
                 .add({
-                    comment: this.state.newComment,
+                    name, comment,
                     timestamp: new Date(),
                     userid: user.uid,
                     photoURL: user.photoURL,
-                    name: user.displayName,
                     edited: false
                 });
+
+            /* notify other users of new comment on this thread */
+            await this.props.notifyComment({
+                user: user.uid,
+                name, comment,
+                timestamp: new Date()
+            });
+
             this.setState({
                 saving: false,
                 newComment: "",
@@ -101,14 +115,14 @@ class CommentSection extends React.Component {
                                 <Typography
                                     style={{fontWeight: 500}}
                                 >
-                                    {`${this.getFirstName(data.name)}: `}
+                                    {`${this.getFirstName(data.name || "")}: `}
                                 </Typography>
                             </div>
                             <Typography>{data.comment}</Typography>
                         </div>
                     )
                 })}
-                    
+
                 </div>
                 <ValidatorForm
                     onSubmit={this.submitHandler}

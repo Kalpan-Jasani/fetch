@@ -70,7 +70,7 @@ function ActivityBar(props) {
                                     { activity.user && 
                                         (activity.user.photoURL ?
                                             <Avatar src={activity.user.photoURL}/> :
-                                            <Avatar>{getInitials(activity.user.name)}</Avatar>
+                                            <Avatar>{getInitials(activity.user.name || activity.user.email || "")}</Avatar>
                                         )
                                     }
                                 </div>

@@ -73,5 +73,12 @@ export const sendUpdate = async (activity, userids) => {
         }));
     });
 
-    await Promise.all(promises);
+    try {
+        await Promise.all(promises);
+    }
+
+    catch (e) {
+        console.error('error in sending activity updates');
+        console.error(e);
+    }
 };
