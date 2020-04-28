@@ -132,7 +132,7 @@ class CommunityArticleForm extends React.Component {
             name: this.state.name,
             url: this.state.url,
             notes: this.state.notes,
-            communities: [],
+            communities: this.state.selectedBoards,
             user: user_ref,
             time: new Date(),
             comments: [],
