@@ -11,6 +11,7 @@ import SkipNextIcon from '@material-ui/icons/SkipNext';
 import Button from '@material-ui/core/Button';
 import { CSSTransition } from 'react-transition-group';
 import CloseIcon from '@material-ui/icons/Close';
+import { blue } from '@material-ui/core/colors';
 
 
 const styles = (theme) => ({
@@ -36,6 +37,7 @@ const styles = (theme) => ({
   content: {
     flex: '1 0 auto',
     height: '20px',
+    backgroundColor: '#4CAF50',
   },
   playIcon: {
     height: 38,
@@ -112,14 +114,18 @@ class PlayQueue extends React.Component {
   
    navigateForward = () => {
         var position = this.state.current.position
-        position = position+1;
-        this.state.queueItem.map(article => {
-          if(article.position === position) {
-              this.setState({
-                current: article,
-              })
-          } 
-        })
+        if(position == this.state.queueItem.length-1){ // last element
+            this.handleclose()
+        } else {
+          position = position+1;
+          this.state.queueItem.map(article => {
+            if(article.position === position) {
+                this.setState({
+                  current: article,
+                })
+            } 
+          })
+        }
    } 
 
    handleOpenNewTab = (event) => {
@@ -134,6 +140,24 @@ class PlayQueue extends React.Component {
 
   handleclose = () => {
     this.props.stop();
+  }
+
+  handleDelete = (event) => {
+    this.props.remove(this.state.current)
+    // var queue = [...this.state.queueItem]
+    // var q = [];
+    // for(var i = 0; i<queue.length; i++) {
+    //     if(queue[i] == this.state.current) {
+    //       //
+    //     } else {
+    //       q.push(queue[i])
+    //     }
+    // }
+    // this.setState({
+    //   queueItem: q,
+    // })
+
+    this.navigateForward()
   }
 
     render() {
@@ -180,8 +204,11 @@ class PlayQueue extends React.Component {
                                 </IconButton>
                             </div>
                             <CardActions>
-                                <Button variant="contained" color="primary" onClick={this.handleOpenNewTab} style={{width: '200px', margin: '20px', right:'-350px'}}>
+                                <Button variant="contained" color="primary" onClick={this.handleOpenNewTab} style={{width: '200px',  right: '-80px'}}>
                                     Go to Website
+                                </Button>
+                                <Button variant="contained" color="secondary" onClick={this.handleDelete} style={{width: '200px', margin: '20px', right: '-100px'}}>
+                                    Remove From Queue
                                 </Button>
                             </CardActions>
                         </div>

@@ -77,7 +77,6 @@ function PersonalBoard(props) {
     using functional component cause of useParams above (and React liked
     functional components more) */
     useEffect(() => {
-      //  console.log(props.history.location.state)
         if(!subscribed)
         {
             subscribedRef.current = true;       // mark subscribed to firebase
@@ -129,6 +128,23 @@ function PersonalBoard(props) {
        
         setState(prevState => {return {...prevState, queue: queueRefs}});
         state.board.ref.update({queue: queueRefs});
+
+    }
+
+    const deleteFromQueue = function(articleRef) {
+
+        console.log("Pressed")
+        var queue = [];
+        const queueRefs = [...state.board.queue];
+        for(var i=0; i< queueRefs.length; i++) {
+            if(queueRefs[i].id == articleRef.id) {
+               // do nothing
+            } else {
+            queue.push(queueRefs[i])
+            }
+        };
+        setState(prevState => {return {...prevState, queue: queue}});
+        state.board.ref.update({queue: queue});
 
     }
 
@@ -221,9 +237,8 @@ function PersonalBoard(props) {
 
     const play = () => {
         setState(prevState => {return {...prevState, open: true}});
-       console.log(state.open)
+       //console.log(state.open)
     }
-    //const classes = useStyles();
 
     const stop = () => {
         setState(prevState => {return {...prevState, open: false}});
@@ -258,6 +273,7 @@ function PersonalBoard(props) {
                             stop={stop}
                             open={state.open}
                             size={state.board.queue.length}
+                            remove={deleteFromQueue}
                          />
                         </div>
                      ): null }
