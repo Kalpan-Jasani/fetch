@@ -239,7 +239,7 @@ function PersonalBoard(props) {
                             open={state.open}
                          />
                         </div>
-                     ): <p>Nothing</p> }
+                     ): <p></p> }
 
                 {/* follow related */}
                 <Link to={`/pboards/followers/${userid}/${id}`}>
