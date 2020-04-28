@@ -1,8 +1,8 @@
 import React from 'react';
 import firebase from "firebase";
 import { withStyles } from '@material-ui/styles';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
@@ -10,10 +10,7 @@ import SkipNextIcon from '@material-ui/icons/SkipNext';
 import Button from '@material-ui/core/Button';
 import { CSSTransition } from 'react-transition-group';
 import CloseIcon from '@material-ui/icons/Close';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import { green } from '@material-ui/core/colors';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
+
 
 const styles = (theme) => ({
   root: {
@@ -33,14 +30,15 @@ const styles = (theme) => ({
   details: {
     display: 'flex',
     flexDirection: 'column',
+   // backgroundColor: 'black',
   },
   content: {
     flex: '1 0 auto',
     height: '20px',
   },
   playIcon: {
-    height: 30,
-    width: 30,
+    height: 38,
+    width: 38,
   },
   });
 
@@ -51,30 +49,47 @@ class PlayQueue extends React.Component {
         this.state = {
            queueItem: [],
            current: {},
-           open: false,
+           open: this.props.open,
            showbutton: true,
         }
     }
 
     componentDidMount() {
-          var queue = [];
-          var position = 0;
-          this.props.queue.map(queueRef => {
-            queueRef.onSnapshot((doc) => {
-              let queueItem = {...doc.data(), id: doc.id, position: position} 
-              if(position === 0) {
-                this.setState({
-                  current: queueItem,
-                });
-              }
-              position++
-              queue.push(queueItem)
-          })
-          
-        });
-        this.setState({
-          queueItem: queue,
+            var queue = [];
+            var position = 0;
+            this.props.queue.map(queueRef => {
+              queueRef.onSnapshot((doc) => {
+                let queueItem = {...doc.data(), id: doc.id, position: position} 
+                if(position === 0) {
+                  this.setState({
+                    current: queueItem,
+                  });
+                }
+                position++
+               queue.push(queueItem)
+            })
+            
+          });
+          this.setState({
+            queueItem: queue,
         })
+   }
+
+   componentWillMount() {
+     document.addEventListener('mousedown',this.handleClick, false);
+   }
+
+   componentWillUnmount() {
+     document.removeEventListener('mousedown',this.handleClick, false);
+   }
+
+   handleClick = (e) => {
+     if(this.node.contains(e.target)) {
+       //contine
+       return;
+     }
+
+     this.props.stop();
    }
 
    navigateBackward = () => {
@@ -105,46 +120,49 @@ class PlayQueue extends React.Component {
         })
    } 
 
+   handleOpenNewTab = (event) => {
+    window.open(this.state.current.url);
+}
+
    play = () => {
     this.setState({
       open: true,
     })
   }
 
-  handleClose = () => {
-    this.setState({
-      open: false,
-    })
+  handleclose = () => {
+    this.props.stop();
   }
-
-  handleOpenNewTab = (event) => {
-    window.open(this.state.current.url);
-}
 
     render() {
         const { classes } = this.props;
         
         return (
-          <div>
-                  <Button 
-                    variant="contained"
-                    style={{ backgroundColor: green[500] , color: 'black' , marginTop: '10px'}} 
-                    onClick={this.play}
-                    startIcon={<PlayArrowIcon />}
-                  >
+          <div ref={node => this.node = node}>
+              {/* {this.state.showbutton && (
+                  <Button variant="contained" style={{backgroundColor: 'green'}} onClick={this.play}>
                     Play
                   </Button>
-                      <Dialog 
-                        className={classes.root}
-                        onClose={this.handleClose}
-                        open={this.state.open}
-                        >
-                            <DialogTitle className={classes.content}>
-                                {this.state.queueItem.length} items in the queue
-                                <IconButton color="secondary" style={{float: 'right' }} onClick={() => this.setState({open: false})}>
-                                    <CloseIcon />
-                                  </IconButton>
-                            </DialogTitle>
+              )} */}
+              <CSSTransition
+                  in={this.state.open}
+                  timeout={300}
+                  classNames="alert"
+                  unmountOnExit
+                  onEnter={() => this.setState({showbutton: false})}
+                  onExited={() => this.setState({showbutton: true})}
+              >
+                  <div>
+                      <Card className={classes.root}>
+                        <div className={classes.details}>
+                            <CardContent className={classes.content}>
+                                <Typography component="h7" variant="h7" style={{float: 'left'}}>
+                                  {this.state.queueItem.length} items in the queue
+                                </Typography>
+                                <IconButton color="secondary" style={{float: 'right' , top: '-12px' }} onClick={this.handleclose}>
+                                   <CloseIcon />
+                                </IconButton>
+                            </CardContent>
                             <Typography component="h6" variant="h6" style={{paddingLeft: '50px'}} >
                                   {this.state.current.name}
                             </Typography>
@@ -152,20 +170,21 @@ class PlayQueue extends React.Component {
                                 <IconButton color="secondary" onClick={this.navigateBackward} className={classes.column} component="span">
                                     <SkipPreviousIcon />
                                 </IconButton>
-                                <div  style={{display: 'block', size:'100px',height:'300px', margin: '0 20px 0 20px'}}>
+                                <div  style={{display: 'block', size:'100px',height:'600px', margin: '0 20px 0 20px'}}>
                                     <iframe src={this.state.current.url}  width="100%" height="500px"></iframe>
                                 </div>
                                 <IconButton color="secondary" onClick={this.navigateForward} className={classes.column} component="span">
                                     <SkipNextIcon />
                                 </IconButton>
                             </div>
-                            <DialogActions>
-                                <Button variant="contained" color="primary" style={{margin: '10px'}} onClick={this.handleOpenNewTab}>
-                                   Go to Website
-                                </Button>
-                            </DialogActions>
-                      </Dialog>
+                            <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
+                                Go to Website
+                            </Button>
+                        </div>
+                      </Card>
                   </div>
+              </CSSTransition>
+          </div> 
         )}
 }
 
