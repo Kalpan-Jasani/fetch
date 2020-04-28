@@ -94,12 +94,6 @@ function Home(props) {
     }, [firebaseSubscriptions.current.recentBoards, firebaseSubscriptions.current.recentArticles, 
         firebaseSubscriptions.current.recentCommunities]);
 
-
-    const signOut = async (event) => {
-        await firebase.auth().signOut();
-        props.history.push("/login");
-    }
-
     return (
         <div className="homepage-container">
             <div className="homepage-content">
@@ -156,9 +150,6 @@ function Home(props) {
                 <Divider></Divider>
                 <p>community 1</p>
                 <p>community 2</p>
-                <Button color="primary" variant="contained" onClick={signOut}>
-                    Sign Out
-                </Button>
             </div>
             <ActivityBar/>
         </div>
