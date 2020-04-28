@@ -15,10 +15,7 @@ import { func } from 'prop-types';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+
 
 class ArticleDisplay extends React.Component {
     
@@ -26,8 +23,7 @@ class ArticleDisplay extends React.Component {
         super(props);
         this.state = {
            isDialogOpen: false,
-           article: null,
-           front: false,
+           article: null
         }
 
         this.unsubscribe = null;
@@ -111,13 +107,8 @@ class ArticleDisplay extends React.Component {
         this.props.articleRef.update({read: true});
     }
 
-    handleAddToQueue = (event) => {
-
-        let front = false;
-        if(event.target.value === 1) {
-            front = true;
-        } 
-        this.props.addToQueue(this.props.articleRef, front);
+    handleAddToQueue = () => {
+        this.props.addToQueue(this.props.articleRef, false);
     }
 
     /**
@@ -136,7 +127,6 @@ class ArticleDisplay extends React.Component {
     }
 
     render() {
-       
         return (
             this.state.article !== null ?
                 <div class={this.state.article.read ? "article-read":""}>
@@ -172,22 +162,9 @@ class ArticleDisplay extends React.Component {
                             />
 
                                 { this.props.addToQueue &&
-                                    <FormControl >
-                                        <InputLabel >Add To Queue</InputLabel>
-                                            <Select
-                                                onChange={this.handleAddToQueue}
-                                                style={{
-                                                padding: '12px 26px 10px 12px',
-                                                fontSize: '16',
-                                                width: '100px',
-                                                height: '40px',
-                                                marginBottom: '20px',
-                                                }}
-                                            >
-                                                <MenuItem value={1}>front</MenuItem>
-                                                <MenuItem value={2}>End</MenuItem>
-                                            </Select>
-                                  </FormControl>
+                                    <Button variant="contained" color="primary" onClick={this.handleAddToQueue}>
+                                        Add to queue
+                                    </Button>
                                 }
                                 <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                                 Go to Website
