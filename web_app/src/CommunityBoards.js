@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, TextField, FormControlLabel, IconButton, Grid } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
-import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
+import { Card, CardHeader, CardActions, CardMedia, Radio, RadioGroup, FormControl, FormLabel } from '@material-ui/core'
 import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
 import firebase from "firebase";
 import SearchBar from 'material-ui-search-bar';
@@ -11,7 +11,6 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
 import ListItemText from '@material-ui/core/ListItemText';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -33,6 +32,8 @@ class CommunityBoards extends React.Component{
       isAddOpen: false,
       communityBoards: [],
       searchedBoard: [],
+      articleList: [],
+      searchType: "title",
       search: '', 
       isSearching: false,
     }
@@ -42,24 +43,40 @@ class CommunityBoards extends React.Component{
   componentDidMount() {
       // gets the personal boards of the user
       // updates automatically when new p board is added
+
+
       firebase.firestore()
       .collection("communityBoards")
       .onSnapshot(function(querySnapshot) {
           var communityBoards = [];
+          var communityArticles = [];
           querySnapshot.forEach(function(doc) {
               let newCommunityBoard = {
                   name: doc.data().name,
                   isPrivate: false,
                   boardID: doc.id,
               }
+
+              doc.data().articles.forEach((ref) => communityArticles.push(ref.get()));
+
               communityBoards.push(newCommunityBoard);
           });
+          this.getArticles(communityArticles);
 
           this.setState({
               communityBoards: communityBoards,
           });
       }.bind(this));
 
+  }
+
+  getArticles(communityArticles) {
+    Promise.all(communityArticles).then((arr) => {
+        console.log(arr);
+        this.setState({
+            articleList: arr,
+        })
+    });
   }
 
 
@@ -145,7 +162,7 @@ handleInputChange = (event) => {
       });
   }
 
-  GetBoard(e) {
+  GetBoardByTitle(e) {
     if (this.state.communityBoards != undefined) {
         const searchedboard = []
         
@@ -154,6 +171,36 @@ handleInputChange = (event) => {
                 searchedboard.push(board);
             }
         })
+        this.setState({
+            searchedBoard : searchedboard
+        })
+  }
+}
+
+GetBoardByKeyword(e) {
+    if (this.state.articleList !== undefined && this.state.communityBoards !== undefined) {
+        const searchedBoardIDs = [];
+        const searchedboard = [];
+        
+        this.state.articleList.filter((article) => {
+            var data = article.data();
+            console.log(data);
+            if (data.name.toUpperCase().includes(e.toUpperCase()) || data.url.toUpperCase().includes(e.toUpperCase())) {
+                data.communities.forEach((ref) => {
+                    console.log(ref);
+                    if (!searchedBoardIDs.includes(ref.id)) {
+                        searchedBoardIDs.push(ref.id);
+                    }
+                });
+            }
+        })
+        console.log(searchedBoardIDs);
+        
+        searchedBoardIDs.forEach((id) => {
+            var board = this.state.communityBoards.find((element) => element.boardID === id);
+            searchedboard.push(board);
+        });
+
         this.setState({
             searchedBoard : searchedboard
         })
@@ -245,17 +292,44 @@ displayBoards() {
           <h1>
               Community Boards
           </h1>
+          <FormControl component="fieldset">
+              <FormLabel component="legend">Search Type</FormLabel>
+              <RadioGroup row aria-label="position" name="position" defaultValue="title">
+                  <FormControlLabel
+                    value="title"
+                    control={<Radio color="primary" onClick={() => this.setState({searchType: "title"})}/>}
+                    label="Title"
+                    labelPlacement="left"
+                  />
+                  <FormControlLabel
+                    value="keyword"
+                    control={<Radio color="primary" onClick={() => this.setState({searchType: "keyword"})} />}
+                    label="Keyword"
+                    labelPlacement="left"
+                  />
+              </RadioGroup>
+          </FormControl>
           <SearchBar
                 value={this.state.search}
                 onChange={(value) => {
-                    this.GetBoard(value);
+                    if (this.state.searchType === "title") {
+                        this.GetBoardByTitle(value);
+                    } else {
+                        this.GetBoardByKeyword(value);
+                    }
+
                     this.setState({
                         search: value,
                         isSearching: true,
                     });
                 }}
                 onCancelSearch={() => {
-                    this.GetBoard("");
+                    if (this.state.searchType === "title") {
+                        this.GetBoardByTitle("");
+                    } else {
+                        this.GetBoardByKeyword("");
+                    }
+
                     this.setState({
                         search: "",
                         isSearching: false,
