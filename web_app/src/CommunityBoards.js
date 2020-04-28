@@ -37,7 +37,15 @@ class CommunityBoards extends React.Component{
       followedBoards: [],
       search: '', 
       isSearching: false,
+      followed: false,
     }
+    
+    this.db = firebase.firestore();
+    this.userid = firebase.auth().currentUser.uid;
+    this.componentDidMount = this.componentDidMount.bind(this);
+    //this.componentDidUnmount = this.componentDidUnmount.bind(this);
+    
+
   }
 
 
@@ -61,8 +69,35 @@ class CommunityBoards extends React.Component{
               communityBoards: communityBoards,
           });
       }.bind(this));
-
+      
+      
+      
+      firebase.firestore()
+      .doc(`users/${this.userid}`)
+      .onSnapshot(async (userSnapshot) => {
+          var followedBoards = [];
+          const cb = userSnapshot.data().cboardFollowing || [];
+          cb.forEach(async (boardID) => {
+            if(!followedBoards.includes(boardID)){
+                const board =  (await this.db.doc(`communityBoards/${boardID}`).get()).data();
+                let newFollowedBoard = {
+                    name: board.name,
+                    isPrivate: false,
+                    boardID: boardID,
+                }
+                followedBoards.push(newFollowedBoard);
+            }    
+        });
+        this.setState({
+              followedBoards: followedBoards,
+            });
+        }, err => alert(err));
+      
   }
+  
+ 
+    
+
 
 
   handleChangeMultiple = (event) => {
@@ -163,76 +198,52 @@ handleInputChange = (event) => {
   }
 }
 
- followBoard = async (doc) => {
+ followBoard = async (board) => {
     
-        var id = doc.id;
+        var bid = board.boardID;
         const currID = firebase.auth().currentUser.uid;
-        var userPath = firebase.firestore().collection("users").doc(currID);
-
-
-         firebase.firestore().runTransaction((followTransaction) => {
-            return followTransaction.get(userPath).then((doc) => {
-                var fields = doc.data();
-                var followedBoards = [];
-                var cboardFollowing = fields.cboardFollowing ?? [];
-                cboardFollowing.push(id);
-                console.log(cboardFollowing);
-                let newFollowedBoard = {
-                    boardName: doc.data().boardName,
-                    isPrivate: doc.data().isPrivate,
-                    imageURL: doc.data().imageURL || "",
-                    boardID: doc.id,
-                }
-                followedBoards.push(newFollowedBoard);
-                this.setState({
-                    followedBoards: followedBoards,
-                });
-                
-                followTransaction.update(userPath, {cboardFollowing: cboardFollowing});
-            })
-        });    
-}
-
-unfollowBoard = async (doc) => {
-    
-        const currID = firebase.auth().currentUser.uid;
-        var userPath = firebase.firestore().collection("users").doc(currID);
-        var id = doc.id;
-
-        await firebase.firestore().runTransaction((followTransaction) => {
-            return followTransaction.get(userPath).then((doc) => {
-                var fields = doc.data();
-                var cboardFollowing = fields.cboardFollowing ?? [];
-                var index = cboardFollowing.indexOf(id);
-                if (index > -1) {
-                    cboardFollowing.splice(index, 1);
-                } else {
-                    console.log("user is not a follower!");
-                }
-
-                followTransaction.update(userPath, {cboardFollowing: cboardFollowing});
-            })
-        });
-}
-
-displayFollowedBoards(){
-
-    return (
-        <div>
+        const userPath = firebase.firestore().collection("users").doc(currID);
         
-        {this.state.followedBoards.map(board => (
-               <div key={board.boardID} >
-              <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
-                  <CardHeader
-                  title={board.name}
-                  subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
 
-                  >
-                  </CardHeader>
-                  <CardMedia style={{height: 0, paddingTop: '50%'}}
+         await firebase.firestore().runTransaction((followTransaction) => {
+            return followTransaction.get(userPath).then((doc) => {
+                
+                var fields = doc.data();
+                var cboardFollowing = fields.cboardFollowing ?? [];
+                cboardFollowing.push(bid);                
+                followTransaction.update(userPath, {cboardFollowing: cboardFollowing});
+                
+            })
+            
+        });    
+
+        
+}
+
+
+    
+
+displayFollowedBoards = () => {
+    const uniqueBoards = Array.from(new Set(this.state.followedBoards));
+    console.debug("flag1");
+    console.debug(this.state.followedBoards);
+    console.debug(this.state.communityBoards);
+    return (
+        
+        <div>
+            {this.state.followedBoards.map(board => (
+                <div key={board.boardID} >
+                <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
+                    <CardHeader
+                    title={board.name}
+                    subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
+
+                    >
+                    </CardHeader>
+                    <CardMedia style={{height: 0, paddingTop: '50%'}}
                     image={logo}
                     title="FETCH"
-                  />
+                    />
                 <CardActions>
                     <IconButton>
                         <PlayArrow/>
@@ -242,13 +253,10 @@ displayFollowedBoards(){
                             View
                         </Link>
                     </Button>
-                    <Button color="primary" onClick={this.followBoard}>
-                        Follow
-                    </Button>
                 </CardActions>
-              </Card>
-            </div>
-          ))}
+                </Card>
+                </div>
+            ))}
         </div>
         );
 
@@ -281,9 +289,10 @@ displayBoards() {
                                     View
                                 </Link>
                             </Button>
-                            <Button color="primary" onClick={this.followBoard}>
+                            <Button color="primary" onClick={() => this.followBoard(board)}>
                                 Follow
-                            </Button>
+                            </Button> }
+                            
                         </CardActions>
                       </Card>
                     </div>
@@ -324,7 +333,7 @@ displayBoards() {
                             View
                         </Link>
                     </Button>
-                    <Button color="primary" onClick={this.followBoard}>
+                    <Button color="primary" onClick={() => this.followBoard(board)}>
                         Follow
                     </Button>
                 </CardActions>
