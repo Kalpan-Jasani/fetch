@@ -58,6 +58,7 @@ class PlayQueue extends React.Component {
     componentDidMount() {
             var queue = [];
             var position = 0;
+            console.log(this.props.size)
             this.props.queue.map(queueRef => {
               queueRef.onSnapshot((doc) => {
                 let queueItem = {...doc.data(), id: doc.id, position: position} 
@@ -158,7 +159,7 @@ class PlayQueue extends React.Component {
                         <div className={classes.details}>
                             <CardContent className={classes.content}>
                                 <Typography component="h7" variant="h7" style={{float: 'left'}}>
-                                  {this.state.queueItem.length} items in the queue
+                                    {this.props.size} Items in the Queue
                                 </Typography>
                                 <IconButton color="secondary" style={{float: 'right' , top: '-12px' }} onClick={this.handleclose}>
                                    <CloseIcon />

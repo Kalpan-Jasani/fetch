@@ -558,9 +558,13 @@ class PersonalBoards extends React.Component {
                         title="FETCH"
                       />
                     <CardActions>
-                        <IconButton onClick={this.play}>
+                        {/* <Link to={"/boards/"+board.boardID} params={{open:true}}> */}
+                        <Link to={{
+                            pathname: "/boards/"+board.boardID,
+                            state: {open:true}
+                        }}>
                             <PlayArrow/>
-                        </IconButton>
+                        </Link>
                         <Button>
                             <Link to={"/boards/"+board.boardID}>
                                 View
@@ -569,7 +573,7 @@ class PersonalBoards extends React.Component {
                     </CardActions>
                   </Card>
                    {/* Playlist modal */}
-                   { this.state.open ? (
+                   {/* { this.state.open ? (
                             <div>
                                 <PlayQueue 
                                 queue={board.queue}
@@ -577,7 +581,7 @@ class PersonalBoards extends React.Component {
                                 open={this.state.open}
                                 />
                             </div>
-                            ): null }
+                            ): null } */}
                 </Grid>
               ))}
             </Grid>

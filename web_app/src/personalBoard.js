@@ -11,6 +11,7 @@ import { green } from '@material-ui/core/colors';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+import { withRouter } from "react-router";
 // import { createMuiTheme, useStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 // import {useStyles}
 /**
@@ -30,12 +31,19 @@ import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 function PersonalBoard(props) {
 
     const { ownerid, id } = useParams();    // get params based on url
+    const { match, location } = props;
     const history = useHistory();   // history of browsing (already maintained)
+      var isOpen;
+        if(props.history.location.state != undefined) {
+          isOpen = props.history.location.state.open;
+        } else {
+          isOpen = false;
+        }
     const [state, setState] = React.useState({
         board: null,
         followers: [],
         saving: false,
-        open: false,
+        open: isOpen,
     });
     
     /* 
@@ -69,6 +77,7 @@ function PersonalBoard(props) {
     using functional component cause of useParams above (and React liked
     functional components more) */
     useEffect(() => {
+      //  console.log(props.history.location.state)
         if(!subscribed)
         {
             subscribedRef.current = true;       // mark subscribed to firebase
@@ -248,6 +257,7 @@ function PersonalBoard(props) {
                             queue={state.board.queue}
                             stop={stop}
                             open={state.open}
+                            size={state.board.queue.length}
                          />
                         </div>
                      ): null }
@@ -296,4 +306,4 @@ function PersonalBoard(props) {
 }
 
 
-export default PersonalBoard;
+export default withRouter (PersonalBoard);
