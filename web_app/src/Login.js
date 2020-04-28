@@ -60,6 +60,25 @@ class Login extends React.Component {
         console.log(result);
         if (result.additionalUserInfo.isNewUser) {
             this.createNewUser(result.user, "Google");
+
+            //Add General Board
+            await firebase.firestore()
+            .collection("personalBoards")
+            .doc(result.user.uid)
+            .collection("pboards")
+            .add({
+                boardName: "General",
+                isPrivate: false,
+                articles: [],  
+                followers: [],
+                queue: [],
+                timestamp: Date.now(),
+            }).then(function(docRef) {
+                console.log("success! docID", docRef.id);
+            })
+            .catch(function(error) {
+                console.error("Error when writing doc to database ", error);
+            });
         }
         this.props.history.push("/home");
     }
@@ -76,6 +95,26 @@ class Login extends React.Component {
         
         if (result.additionalUserInfo.isNewUser) {
             this.createNewUser(result.user, "Facebook");
+            
+            //Add General Board
+            await firebase.firestore()
+            .collection("personalBoards")
+            .doc(result.user)
+            .collection("pboards")
+            .add({
+                boardName: "General",
+                isPrivate: false,
+                articles: [],  
+                followers: [],
+                queue: [],
+                timestamp: Date.now(),
+            }).then(function(docRef) {
+                console.log("success! docID", docRef.id);
+            })
+            .catch(function(error) {
+                console.error("Error when writing doc to database ", error);
+            });
+    
         }
         console.log(result);
         this.props.history.push("/home");
@@ -93,6 +132,25 @@ class Login extends React.Component {
 
         if (result.additionalUserInfo.isNewUser) {
             this.createNewUser(result.user, "Apple");
+
+            //Add General Board
+            await firebase.firestore()
+            .collection("personalBoards")
+            .doc(result.user.uid)
+            .collection("pboards")
+            .add({
+                boardName: "General",
+                isPrivate: false,
+                articles: [],  
+                followers: [],
+                queue: [],
+                timestamp: Date.now(),
+            }).then(function(docRef) {
+                console.log("success! docID", docRef.id);
+            })
+            .catch(function(error) {
+                console.error("Error when writing doc to database ", error);
+            });
         }
         console.log(result);
         this.props.history.push("/home");
