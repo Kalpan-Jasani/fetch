@@ -21,7 +21,7 @@ import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import logo from './Assets/fetch.png';
 
 import './personalBoards.css';
-import {sendUpdate} from './util';
+import {sendUpdate, getDisplayName} from './util';
 
 class PersonalBoards extends React.Component {
     constructor(props) {
@@ -98,8 +98,8 @@ class PersonalBoards extends React.Component {
         const user = firebase.auth().currentUser;
         const userid = user.uid;
         const db = firebase.firestore();
-        
         const userRef = db.doc(`users/${userid}`);      // ref of current user
+        const name = await getDisplayName();
 
         event.preventDefault();
 
@@ -113,8 +113,8 @@ class PersonalBoards extends React.Component {
             boardImageURL: "",
         });
 
-        console.log("Board Name: " + boardName)
-        console.log("Private: " + isPrivate)
+        console.info("Board Name: " + boardName)
+        console.info("Private: " + isPrivate)
 
         // make the new personal board here
         const boardRef = await firebase.firestore()
@@ -138,19 +138,7 @@ class PersonalBoards extends React.Component {
         });
 
         // update list of users who follow this user
-
-        /**
-         * pseudo code
-         * async get followers of user
-         * loop through each user u
-         *      update activities to have new activity
-         *          
-         */
-
         const followers = await userRef.get().then(s => s.get("followers"));
-
-        /* displayable name for current user which will be shown in activity */
-        const name = (await userRef.get()).data().name || user.displayName || user.email;
 
         const activity = {
             user: userRef,
