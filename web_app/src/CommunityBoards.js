@@ -24,9 +24,19 @@ class CommunityBoards extends React.Component{
       searchedBoard: [],
       articleList: [],
       searchType: "title",
+      selectedBoard: [],
+      followedBoards: [],
       search: '', 
       isSearching: false,
+      followed: false,
     }
+    
+    this.db = firebase.firestore();
+    this.userid = firebase.auth().currentUser.uid;
+    this.componentDidMount = this.componentDidMount.bind(this);
+    //this.componentDidUnmount = this.componentDidUnmount.bind(this);
+    
+
   }
 
 
@@ -57,8 +67,78 @@ class CommunityBoards extends React.Component{
               communityBoards: communityBoards,
           });
       }.bind(this));
+      
+      
+      
+      /*firebase.firestore()
+      .doc(`users/${this.userid}`)
+      .onSnapshot(async (userSnapshot) => {
+          var followedBoards = [];
+          const cb = userSnapshot.data().cboardFollowing || [];
+          cb.forEach(async (boardID) => {
+            if(!followedBoards.includes(boardID)){
+                const board =  (await this.db.doc(`communityBoards/${boardID}`).get()).data();
+                let newFollowedBoard = {
+                    name: board.name,
+                    isPrivate: false,
+                    boardID: boardID,
+                }
+                followedBoards.push(newFollowedBoard);
+            }    
+        });
+        this.setState({
+              followedBoards: followedBoards,
+            });
+        }, err => alert(err));
+        */
 
+        var user = firebase.auth().currentUser;
+         
+        try{
+            firebase.firestore().collection('users').doc(user.uid)
+            .onSnapshot((userDoc) => {
+                
+                const userInfo = userDoc.data();
+                const fb = userInfo.cboardFollowing || [];
+                const followedBoards = Array.from(new Set(fb));
+                //console.log("articleids ", articleIds);
+
+                const artP = followedBoards.map(artID =>
+                    firebase.firestore().doc(`communityBoards/${artID}`)
+                    .get().then((articleDoc) => {
+                    
+                        console.log(articleDoc.data().name);
+
+                        return {
+                        name: articleDoc.data().name,
+                        boardID: artID,
+                        
+                    }})
+                        
+                    
+                );
+                
+                Promise.all(artP).then((articles) => {
+                    const s = []
+                    articles.forEach((article) => {
+                        s.push(article)
+                    })
+                    const uniqueBoards = Array.from(new Set(s));
+                    this.setState({
+                        followedBoards: uniqueBoards,
+                    });    
+                })
+            });
+    }
+    catch(err){
+        console.log(err);
+    }
+      
   }
+  
+ 
+    
+
 
   getArticles(communityArticles) {
     Promise.all(communityArticles).then((arr) => {
@@ -202,6 +282,72 @@ GetBoardByKeyword(e) {
   }
 }
 
+ followBoard = async (board) => {
+    
+        var bid = board.boardID;
+        const currID = firebase.auth().currentUser.uid;
+        const userPath = firebase.firestore().collection("users").doc(currID);
+        
+
+         await firebase.firestore().runTransaction((followTransaction) => {
+            return followTransaction.get(userPath).then((doc) => {
+                
+                var fields = doc.data();
+                var cboardFollowing = fields.cboardFollowing ?? [];
+                cboardFollowing.push(bid);                
+                followTransaction.update(userPath, {cboardFollowing: cboardFollowing});
+                
+            })
+            
+        });    
+
+        
+}
+
+
+    
+
+displayFollowedBoards = () => {
+    console.log(this.state.followedBoards);
+    
+    return (
+        
+        <div>
+        
+        {this.state.followedBoards.map(board => (
+               <div key={board.boardID} >
+              <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
+                  <CardHeader
+                  title={board.name}
+                  subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
+
+                  >
+                  </CardHeader>
+                  <CardMedia style={{height: 0, paddingTop: '50%'}}
+                    image={logo}
+                    title="FETCH"
+                  />
+                <CardActions>
+                    <IconButton>
+                        <PlayArrow/>
+                    </IconButton>
+                    <Button>
+                        <Link to={"/community-boards/"+board.boardID}>
+                            View
+                        </Link>
+                    </Button>
+                    <Button color="primary" onClick={() => this.followBoard(board)}>
+                        Follow
+                    </Button>
+                </CardActions>
+              </Card>
+            </div>
+          ))}
+        </div>
+    );
+
+
+}
 displayBoards() {
     if(this.state.isSearching){
         if(this.state.searchedBoard !== undefined){
@@ -227,6 +373,10 @@ displayBoards() {
                                     View
                                 </Link>
                             </Button>
+                            <Button color="primary" onClick={() => this.followBoard(board)}>
+                                Follow
+                            </Button> }
+                            
                         </CardActions>
                       </Card>
                     </div>
@@ -260,6 +410,9 @@ displayBoards() {
                         <Link to={"/community-boards/"+board.boardID}>
                             View
                         </Link>
+                    </Button>
+                    <Button color="primary" onClick={() => this.followBoard(board)}>
+                        Follow
                     </Button>
                 </CardActions>
               </Card>
@@ -346,6 +499,11 @@ displayBoards() {
               <AddCircleOutlinedIcon/>
               Create a community
           </Button>
+          <h2> Boards Following </h2>
+          <div>
+              {this.displayFollowedBoards()}
+          </div>
+          <h2> All Community Boards </h2>
           <Dialog
               open={this.state.isDialogOpen}
               onClose={this.handleDialogClose}

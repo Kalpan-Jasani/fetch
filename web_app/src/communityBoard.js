@@ -117,10 +117,10 @@ function CommunityBoard(props) {
                     </Select>
                 </h3>
                 <Divider></Divider>
-                <div style={{display: 'flex', flexWrap: 'wrap', marginRight: 25, flex: 2, justifyContent: 'space-around'}}>
+                <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left', margin: '1rem',}}>
                     {
                         articles.map(article =>
-                        <Card style={{minHeight: 125, minWidth: 150, padding: 25, display: 'flex', justifyContent: 'center'}}>
+                        <Card style={{margin: "1rem", padding: "2rem",}}>
                             <ArticleDisplay
                                 articleRef={article.ref}
                                 key={article.ref.id}
