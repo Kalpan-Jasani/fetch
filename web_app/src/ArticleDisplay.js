@@ -15,6 +15,8 @@ import { func } from 'prop-types';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
+import IconButton from '@material-ui/core/IconButton'
+import { MenuBook } from '@material-ui/icons';
 
 
 class ArticleDisplay extends React.Component {
@@ -136,9 +138,13 @@ class ArticleDisplay extends React.Component {
                     </Button>
                     <br/>
                     {this.state.article.read ?
-                    <Button variant="outlined" onClick={this.handlemarkUnread}> Mark Unread </Button>
+                    <IconButton variant="outlined" onClick={this.handlemarkUnread} title="Mark as unread"> 
+                        <MenuBook color="secondary"></MenuBook>
+                    </IconButton>
                     :
-                    <Button variant="outlined" onClick={this.handlemarkRead}> Mark Read </Button>
+                    <IconButton variant="outlined" onClick={this.handlemarkRead} title="Mark as read">
+                        <MenuBook color="disabled"></MenuBook>
+                    </IconButton>
                     }
 
                     <Dialog
