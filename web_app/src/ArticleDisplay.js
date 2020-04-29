@@ -131,7 +131,7 @@ class ArticleDisplay extends React.Component {
     render() {
         return (
             this.state.article !== null ?
-                <div class={this.state.article.read ? "article-read":""}>
+                <div className={this.state.article.read ? "article-read":""}>
                     <div style={{width: '200px', height: '200px'}}>{this.state.article.name}</div>
                     <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
                             Preview
