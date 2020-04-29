@@ -23,7 +23,7 @@ class StarredItems extends React.Component {
         .where("starred", "==", true)
         .onSnapshot(function(querySnapshot) {
             var articles = [];
-            console.log(querySnapshot);
+            
             querySnapshot.forEach(function(doc) {
                 var article = {
                     url: doc.data().url,
@@ -33,11 +33,12 @@ class StarredItems extends React.Component {
                     id: doc.id
                 }
                 articles.push(article);
-                console.log(article);
+               
             });
             this.setState({
                 articles: articles,
             });
+            
        }.bind(this));
     }
 

@@ -17,7 +17,11 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton'
 import { MenuBook } from '@material-ui/icons';
-
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import ListItemText from '@material-ui/core/ListItemText';
+import Select from '@material-ui/core/Select';
 
 class ArticleDisplay extends React.Component {
     
@@ -171,9 +175,22 @@ class ArticleDisplay extends React.Component {
                             />
 
                                 { this.props.addToQueue &&
-                                    <Button variant="contained" color="primary" onClick={this.handleAddToQueue}>
-                                        Add to queue
-                                    </Button>
+                                    <FormControl >
+                                        <InputLabel >Add To Queue</InputLabel>
+                                            <Select
+                                                onChange={this.handleAddToQueue}
+                                                style={{
+                                                padding: '12px 26px 10px 12px',
+                                                fontSize: '16',
+                                                width: '100px',
+                                                height: '40px',
+                                                marginBottom: '20px',
+                                                }}
+                                            >
+                                                <MenuItem value={1}>Front</MenuItem>
+                                                <MenuItem value={2}>End</MenuItem>
+                                            </Select>
+                                  </FormControl>
                                 }
                                 <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                                 Go to Website

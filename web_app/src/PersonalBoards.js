@@ -17,7 +17,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import {Link} from 'react-router-dom';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
-
+import PlayQueue from './PlayQueue'
 import logo from './Assets/fetch.png';
 
 import './personalBoards.css';
@@ -44,6 +44,7 @@ class PersonalBoards extends React.Component {
             selectedBoardID: " ",
             isImageChangeDialogOpen: false,
             isDeleteImageDialogOpen: false,
+            open: false,
         }
     }
 
@@ -63,6 +64,7 @@ class PersonalBoards extends React.Component {
                     isPrivate: doc.data().isPrivate,
                     imageURL: doc.data().imageURL || "",
                     boardID: doc.id,
+                    queue: doc.data().queue,
                 }
                 personalBoards.push(newPersonalBoard);
             });
@@ -333,6 +335,20 @@ class PersonalBoards extends React.Component {
         this.handleDeleteImageDialogClose();
     }
 
+    play = () => {
+        this.setState({
+            open: "true",
+        });
+    }
+    //const classes = useStyles();
+
+    stop = () => {
+        this.setState({
+            open: "false",
+        });
+    }
+
+
     render() {
         const personalBoards = this.state.personalBoards;
 
@@ -561,9 +577,13 @@ class PersonalBoards extends React.Component {
                         title="FETCH"
                       />
                     <CardActions>
-                        <IconButton>
+                        {/* <Link to={"/boards/"+board.boardID} params={{open:true}}> */}
+                        <Link to={{
+                            pathname: "/boards/"+board.boardID,
+                            state: {open:true}
+                        }}>
                             <PlayArrow/>
-                        </IconButton>
+                        </Link>
                         <Button>
                             <Link to={"/boards/"+board.boardID}>
                                 View
@@ -571,6 +591,16 @@ class PersonalBoards extends React.Component {
                         </Button>
                     </CardActions>
                   </Card>
+                   {/* Playlist modal */}
+                   {/* { this.state.open ? (
+                            <div>
+                                <PlayQueue 
+                                queue={board.queue}
+                                stop={this.stop}
+                                open={this.state.open}
+                                />
+                            </div>
+                            ): null } */}
                 </Grid>
               ))}
             </Grid>
