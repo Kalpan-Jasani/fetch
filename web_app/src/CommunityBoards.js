@@ -93,6 +93,11 @@ handleInputChange = (event) => {
           articles: [],   // TODO: allow articles to be added initially ?
       }).then(function(docRef) {
           console.log("success! docID", docRef.id);
+          this.state.communityBoards.push({
+              name: name,
+              isPrivate: isPrivate,
+              articles: [],
+          });
       })
       .catch(function(error) {
           console.error("Error when writing doc to database ", error);
