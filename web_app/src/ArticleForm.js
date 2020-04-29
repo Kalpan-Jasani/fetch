@@ -17,6 +17,7 @@ import Chip from '@material-ui/core/Chip';
 import logo from './Assets/fetch.png'
 
 import './localArticleForm.css';
+import {getDisplayName, sendUpdate} from './util';
 
 class ArticleForm extends React.Component {
     constructor(props) {
@@ -130,10 +131,15 @@ class ArticleForm extends React.Component {
         );
     }
 
-    handleAdd = () => {
+    handleAdd = async () => {
         const selectedBoards = [...this.state.selectedBoards];
         const userid = firebase.auth().currentUser.uid;
         const db = firebase.firestore();
+
+        // get current user's display name
+        const userName = await getDisplayName();
+        const articleName = this.state.name;
+
         const articlePromise = db.collection(`/localArticles/users/${userid}`).add({
             name: this.state.name,
             url: this.state.url,
@@ -144,14 +150,25 @@ class ArticleForm extends React.Component {
             user_reports: []
         });
 
-        articlePromise.then((articleRef) => {
+        articlePromise.then(articleRef => {
             const userBoards = db.collection(`/personalBoards/${userid}/pboards`);
-            selectedBoards.forEach((boardId) => {
+            selectedBoards.forEach(async (boardId) => {
+
+                /* add article to the board */
                 userBoards.doc(boardId).update({
                     articles: firebase.firestore.FieldValue.arrayUnion(articleRef)
-                })
+                });
+
+                /* notify followers of board of new article */
+                const {followers, boardName} = (await userBoards.doc(boardId).get()).data();
+                sendUpdate({
+                    user: db.doc(`users/${userid}`),
+                    message: `New article ${articleName} added in ${boardName} by ${userName}`,
+                    link: `boards/${userid}/${boardId}`,
+                    timestamp: new Date()
+                }, followers || []);
             });
-        }).catch((err) => console.log(err));
+        }).catch((err) => console.error(err));
 
         this.setState({
             name: "",

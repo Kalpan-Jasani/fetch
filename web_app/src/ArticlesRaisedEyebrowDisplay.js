@@ -1,6 +1,7 @@
 import React from 'react';
 import firebase from "firebase";
 import CommunityArticleDisplay from './CommunityArticleDisplay';
+import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
 
 class ArticlesRaisedEyebrowDisplay extends React.Component {
 
@@ -64,22 +65,24 @@ class ArticlesRaisedEyebrowDisplay extends React.Component {
             <h2>Raised Eyebrows</h2>
             <h3>Articles ({this.state.articlesRaisedEyebrow.length})</h3>
 
-            <div style={{display: 'flex', flexWrap: 'wrap'}}>
+            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left', margin: '1rem',}}>
                 {
                     this.state.articlesRaisedEyebrow.map((article) => {
                         return (
-                            <div key={article.id} style={{display: 'inline', float: 'left', marginLeft: '1rem'}}>
-                                <CommunityArticleDisplay
-                                url={article.url}
-                                ArticleName={article.name}
-                                articleId={article.id}
-                                articleRef={article.ref}
-                                //only used for 'delete' of raised eyebrow article (lowers eyebrow)
-                                inRaisedEyebrowPage={true}
-                                //boardId={id}
-                                eyebrowArr={article.users_eyebrows}
-                                refreshBoard={this.handleRefreshBoard}
-                                />
+                            <div key={article.id} >
+                                <Card style={{margin: "1rem", padding: "2rem",}}>
+                                    <CommunityArticleDisplay 
+                                    url={article.url}
+                                    ArticleName={article.name}
+                                    articleId={article.id}
+                                    articleRef={article.ref}
+                                    //only used for 'delete' of raised eyebrow article (lowers eyebrow)
+                                    inRaisedEyebrowPage={true}
+                                    //boardId={id}
+                                    eyebrowArr={article.users_eyebrows}
+                                    refreshBoard={this.handleRefreshBoard}
+                                    />
+                                </Card>
                             </div>
                         );
                     })

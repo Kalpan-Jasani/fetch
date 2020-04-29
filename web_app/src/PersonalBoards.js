@@ -21,6 +21,7 @@ import PlayQueue from './PlayQueue'
 import logo from './Assets/fetch.png';
 
 import './personalBoards.css';
+import {sendUpdate, getDisplayName} from './util';
 
 class PersonalBoards extends React.Component {
     constructor(props) {
@@ -96,6 +97,12 @@ class PersonalBoards extends React.Component {
     }
 
     handleSubmit = async (event) => {
+        const user = firebase.auth().currentUser;
+        const userid = user.uid;
+        const db = firebase.firestore();
+        const userRef = db.doc(`users/${userid}`);      // ref of current user
+        const name = await getDisplayName();
+
         event.preventDefault();
 
         // get the form data out of state
@@ -108,13 +115,13 @@ class PersonalBoards extends React.Component {
             boardImageURL: "",
         });
 
-        console.log("Board Name: " + boardName)
-        console.log("Private: " + isPrivate)
+        console.info("Board Name: " + boardName)
+        console.info("Private: " + isPrivate)
 
         // make the new personal board here
-        await firebase.firestore()
+        const boardRef = await firebase.firestore()
         .collection("personalBoards")
-        .doc(firebase.auth().currentUser.uid)
+        .doc(userid)
         .collection("pboards")
         .add({
             boardName: boardName,
@@ -125,11 +132,24 @@ class PersonalBoards extends React.Component {
             timestamp: Date.now(),
             imageURL: boardImageURL,
         }).then(function(docRef) {
-            console.log("success! docID", docRef.id);
+            console.info("successfully created personal board! docID", docRef.id);
+            return docRef;
         })
         .catch(function(error) {
             console.error("Error when writing doc to database ", error);
         });
+
+        // update list of users who follow this user
+        const followers = await userRef.get().then(s => s.get("followers"));
+
+        const activity = {
+            user: userRef,
+            message: `New personal board ${boardName} added by ${name}`,
+            link: `boards/${userid}/${boardRef.id}`,
+            timestamp: new Date()
+        };
+
+        await sendUpdate(activity, followers);
 
         // will close the dialog after submission
         this.setState({
@@ -359,7 +379,6 @@ class PersonalBoards extends React.Component {
                     </DialogContentText>
 
                     <form
-                        onSubmit={this.handleSubmit}
                         style={{ paddingLeft: 25, flexDirection: 'column', display: 'flex', paddingRight: 25, justifyContent: 'space-around', height: 250 }}
                     >
                         <TextField
@@ -393,7 +412,7 @@ class PersonalBoards extends React.Component {
                                     color="secondary"
                                 />}
                         />
-                        <Button variant="contained" color="secondary" type="submit">
+                        <Button variant="contained" color="secondary" type="button" onClick={this.handleSubmit}>
                             Create
                         </Button>
                     </form>

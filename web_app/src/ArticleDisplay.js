@@ -15,9 +15,12 @@ import { func } from 'prop-types';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
+import IconButton from '@material-ui/core/IconButton'
+import { MenuBook } from '@material-ui/icons';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
+import ListItemText from '@material-ui/core/ListItemText';
 import Select from '@material-ui/core/Select';
 
 class ArticleDisplay extends React.Component {
@@ -26,8 +29,7 @@ class ArticleDisplay extends React.Component {
         super(props);
         this.state = {
            isDialogOpen: false,
-           article: null,
-           front: false,
+           article: null
         }
 
         this.unsubscribe = null;
@@ -111,13 +113,8 @@ class ArticleDisplay extends React.Component {
         this.props.articleRef.update({read: true});
     }
 
-    handleAddToQueue = (event) => {
-
-        let front = false;
-        if(event.target.value === 1) {
-            front = true;
-        } 
-        this.props.addToQueue(this.props.articleRef, front);
+    handleAddToQueue = () => {
+        this.props.addToQueue(this.props.articleRef, false);
     }
 
     /**
@@ -136,19 +133,24 @@ class ArticleDisplay extends React.Component {
     }
 
     render() {
-       
         return (
             this.state.article !== null ?
                 <div class={this.state.article.read ? "article-read":""}>
-                    <div style={{width: '200px', height: '200px'}}>{this.state.article.name}</div>
-                    <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
+                    <div style={{width: '200px', height: '200px'}}><strong>{this.state.article.name}</strong>
+                        <img src="https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png" width="175" height="175" float="left"></img>
+                    </div>
+                    <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{float: 'left'}}>
                             Preview
                     </Button>
                     <br/>
                     {this.state.article.read ?
-                    <Button variant="outlined" onClick={this.handlemarkUnread}> Mark Unread </Button>
+                    <IconButton variant="outlined" onClick={this.handlemarkUnread} title="Mark as unread"> 
+                        <MenuBook color="secondary"></MenuBook>
+                    </IconButton>
                     :
-                    <Button variant="outlined" onClick={this.handlemarkRead}> Mark Read </Button>
+                    <IconButton variant="outlined" onClick={this.handlemarkRead} title="Mark as read">
+                        <MenuBook color="disabled"></MenuBook>
+                    </IconButton>
                     }
 
                     <Dialog
@@ -158,6 +160,7 @@ class ArticleDisplay extends React.Component {
                         <DialogTitle>
                             {this.state.article.name}
                         </DialogTitle>
+                        
                         <DialogContent>
                             <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
 

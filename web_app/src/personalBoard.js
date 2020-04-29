@@ -73,9 +73,13 @@ function PersonalBoard(props) {
     const currID = firebase.auth().currentUser.uid;
     const boardRef = db.doc(`personalBoards/${userid}/pboards/${id}`);
 
-    /* similar to componentDidMount / update but for a function components
-    using functional component cause of useParams above (and React liked
-    functional components more) */
+    /* 
+    * similar to componentDidMount / update but for a function components
+    * using functional component cause of useParams above (and React liked
+    * functional components more)
+    * 
+    * Subscribe to updates from firebase for this board
+    */
     useEffect(() => {
         if(!subscribed)
         {
@@ -89,13 +93,12 @@ function PersonalBoard(props) {
                 setState(prevState => { return {
                         ...prevState,
                         board: {ref: boardRef, ...boardDoc.data()},
-                        followers: boardDoc.data().followers,
-                    }    
+                        followers: boardDoc.data().followers || [],
+                    }
                 });
-            },
-                (err) => alert(`error: ${String(err)}`)
-            );
+            }, err => alert(`error: ${err}`));
 
+            /* function that is called when cleaning up (this effect) */
             return () => {
                 unsubscribe();  // unsubscribe from Firebase
                 subscribedRef.current = false;  // unsubscribed is marked
@@ -112,7 +115,8 @@ function PersonalBoard(props) {
     
     useEffect(() => {
         boardRef.update({lastSeenTime: new Date()});
-    }, []);
+    }, []);     // [] leads to this effect only running once like 
+                // componentDidMount
 
     const addToQueue = function(articleRef, front) {
 
@@ -120,15 +124,13 @@ function PersonalBoard(props) {
         const queueRefs = [...state.board.queue];
 
         if(front) {
-            queueRefs.unshift(articleRef)
+            queueRefs.unshift(articleRef);
         }
         else {
             queueRefs.push(articleRef);
         }
-       
-        setState(prevState => {return {...prevState, queue: queueRefs}});
-        state.board.ref.update({queue: queueRefs});
 
+        state.board.ref.update({queue: queueRefs});
     }
 
     const deleteFromQueue = function(articleRef) {
@@ -162,7 +164,7 @@ function PersonalBoard(props) {
             var updatedFollowers;
             await firebase.firestore().runTransaction((transaction) => {
                 return transaction.get(path).then((doc) => {
-                    var fields = doc.data();  
+                    var fields = doc.data();
                     var followers = fields.followers ?? [];
                     followers.push(currID);
 
