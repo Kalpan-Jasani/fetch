@@ -1,21 +1,10 @@
 import React from 'react';
-import { Button, TextField, FormControlLabel, IconButton, Grid } from '@material-ui/core';
+import { Button, TextField, IconButton } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
-import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
+import { Lock, LockOpen, PlayArrow } from '@material-ui/icons';
 import firebase from "firebase";
 import SearchBar from 'material-ui-search-bar';
-import SearchIcon from '@material-ui/icons/Search';
-import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import ListItemText from '@material-ui/core/ListItemText';
-import Select from '@material-ui/core/Select';
-import Checkbox from '@material-ui/core/Checkbox';
-import Chip from '@material-ui/core/Chip';
 import {Link} from 'react-router-dom';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 
@@ -146,7 +135,7 @@ handleInputChange = (event) => {
   }
 
   GetBoard(e) {
-    if (this.state.communityBoards != undefined) {
+    if (this.state.communityBoards !== undefined) {
         const searchedboard = []
         
         this.state.communityBoards.filter((board) => {
@@ -162,13 +151,10 @@ handleInputChange = (event) => {
 
 displayBoards() {
     if(this.state.isSearching){
-        if(this.state.searchedBoard != undefined){
-            return (
-
-                <div>
-                {this.state.searchedBoard.map(board => (
+        if(this.state.searchedBoard !== undefined){
+            return this.state.searchedBoard.map(board => (
                        <div key={board.boardID} >
-                      <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
+                      <Card style={{minWidth: 250, minHeight: 300, marginRight: 25, marginBottom: 25}} >
                           <CardHeader
                           title={board.name}
                           subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
@@ -191,9 +177,7 @@ displayBoards() {
                         </CardActions>
                       </Card>
                     </div>
-                  ))}
-                </div>
-            );
+                  ))
         } else {
             return (
                 <div>
@@ -201,14 +185,10 @@ displayBoards() {
                 </div>
             );
         }
-    } else {
-        
-        return (
-        <div>
-
-        {this.state.communityBoards.map(board => (
+    } else { 
+        return this.state.communityBoards.map(board => (
                <div key={board.boardID} >
-              <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
+              <Card style={{minWidth: 250, minHeight: 300, marginRight: 25, marginBottom: 25}} >
                   <CardHeader
                   title={board.name}
                   subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
@@ -231,9 +211,7 @@ displayBoards() {
                 </CardActions>
               </Card>
             </div>
-          ))}
-        </div>
-        );
+          ))
     }
 } 
 
@@ -242,6 +220,7 @@ displayBoards() {
       const communityBoards = this.state.communityBoards;
 
       return <div>
+        <div>
           <h1>
               Community Boards
           </h1>
@@ -319,42 +298,11 @@ displayBoards() {
                   </Button>
               </DialogActions>
           </Dialog>
+          </div>
 
-          <div>
+          <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
               {this.displayBoards()}
           </div>
-{/* 
-          <div>
-
-        
-
-          {communityBoards.map(board => (
-                 <div key={board.boardID} >
-                <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
-                    <CardHeader
-                    title={board.name}
-                    subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
-
-                    >
-                    </CardHeader>
-                    <CardMedia style={{height: 0, paddingTop: '50%'}}
-                      image={logo}
-                      title="FETCH"
-                    />
-                  <CardActions>
-                      <IconButton>
-                          <PlayArrow/>
-                      </IconButton>
-                      <Button>
-                          <Link to={"/community-boards/"+board.boardID}>
-                              View
-                          </Link>
-                      </Button>
-                  </CardActions>
-                </Card>
-              </div>
-            ))}
-          </div> */}
       </div>
   }
 
