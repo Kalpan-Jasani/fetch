@@ -42,8 +42,13 @@ class Register extends React.Component {
                 platform: "Email",
                 articles_raised_eyebrow: [],
             });
+        
+        await user.updateProfile({
+            displayName: this.state.name,
+            photoURL: user.photoURL,
+        });
 
-            await firebase.firestore()
+        await firebase.firestore()
             .collection("personalBoards")
             .doc(user.uid)
             .collection("pboards")

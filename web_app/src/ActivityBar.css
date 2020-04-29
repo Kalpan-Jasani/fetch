@@ -1,0 +1,47 @@
+.activity-bar {
+    min-width: 15rem;
+    max-width: 15rem;
+    overflow-x: scroll;
+    padding: 1rem;
+    border-left: 1px dotted black;
+}
+
+.activity-bar__activities__activity {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.activity__tile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.activity-bar__activities__activity:hover {
+    cursor: pointer;
+    background-color: #999;
+}
+
+.activity__content {
+    margin-left: 1rem;
+    width: 100%;
+    max-height: 8rem;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+/* the close button on one recent activity */
+.activity__close {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
+
+.activity__close:hover {
+    background-color: rgba(138, 43, 226, 0.3);
+}
+
+.activity__metainfo {
+    margin-left: 3.5rem;
+    color: #555;
+}

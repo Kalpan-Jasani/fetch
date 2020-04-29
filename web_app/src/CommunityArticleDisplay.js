@@ -20,30 +20,38 @@ import { Avatar, DialogContentText, Link, Typography } from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import DeleteIcon from '@material-ui/icons/Delete';
+import _ from 'lodash';
 
-import {blockedUser} from './util';
+import {blockedUser, sendUpdate} from './util';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import CommentSection from './CommentSection';
 
+import EyebrowRaisedGIF from './Assets/EyebrowRaisedGIF.gif';
+import EyebrowRaisedImg from './Assets/EyebrowRaised.svg';
+import EyebrowRaisedImgGray from './Assets/EyebrowRaisedGRAY.svg';
+import Icon from '@material-ui/core/Icon';
+import { Popover } from "@material-ui/core"
+
 class CommunityArticleDisplay extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
            isDialogOpen: false,
-           article: null, 
+           article: null,
            user: null,
            articlesRaisedEyebrow: [],
            vitalityCheck: false,       // does the article need to be hidden
            SaveDialogOpen: false,
            personalBoards: [],
            selectedBoards: [],
-
+           anchorEl: null,
         }
         this.unsubscribe = null;
         this.db = firebase.firestore();
+        this.userid = firebase.auth().currentUser.uid;
     }
     componentDidMount() {
         // subscribe to article updates
@@ -106,18 +114,18 @@ class CommunityArticleDisplay extends React.Component {
         // unsubscribe to article updates
         this.unsubscribe();
     }
-   
+
     handleOpenNewTab = (event) => {
         window.open(this.state.article.url);
     }
-   
+
     handleDialogOpen = () => this.setState({isDialogOpen: true});
     handleDialogClose = () => this.setState({isDialogOpen: false});
-   
+
     handleDeleteArticle = async () => {
         const props = this.props;
         const userid = firebase.auth().currentUser.uid;
-        
+
         if(this.props.inRaisedEyebrowPage){
           // delete in RaisedEyebrow Page will be the same as lowering eyebrow
           this.handleLowerEyebrow();
@@ -133,7 +141,7 @@ class CommunityArticleDisplay extends React.Component {
           .catch(function(error) {
               console.error("Error deleting article: ", error);
           });
-    
+
           this.handleDialogClose();
         }
     }
@@ -142,16 +150,16 @@ class CommunityArticleDisplay extends React.Component {
         var user = firebase.auth().currentUser;
         var ebarr = this.state.article.users_eyebrows;
         ebarr.push(user.uid);
-  
+
         var tempArticlesRE = this.state.articlesRaisedEyebrow;
         tempArticlesRE.push(this.props.articleRef.id);
-  
+
         try{
             await this.props.articleRef.update({
                 users_eyebrows: ebarr,
             });
             console.log("Raised Eyebrow!")
-  
+
             // add to array of currentUser
             await firebase.firestore().collection('users').doc(user.uid).update({
                 articles_raised_eyebrow: tempArticlesRE,
@@ -162,7 +170,7 @@ class CommunityArticleDisplay extends React.Component {
             console.log(err);
         }
     }
-  
+
     handleLowerEyebrow = async () => {
         var user = firebase.auth().currentUser;
         var ebarr = this.state.article.users_eyebrows;
@@ -173,28 +181,28 @@ class CommunityArticleDisplay extends React.Component {
             console.log("user did not raise an eyebrow");
         }
         //console.log(ebarr);
-  
+
         var tempArticlesRE = this.state.articlesRaisedEyebrow;
         var index2 = tempArticlesRE.indexOf(this.props.articleRef.id);
-        
+
         if (index2 > -1) {
             tempArticlesRE.splice(index2, 1);
         } else {
             console.log("user did not raise an eyebrow");
         }
-  
+
         try {
             await this.props.articleRef.update({
                 users_eyebrows: ebarr,
             });
             console.log("Lowered Eyebrow!");
-  
+
             // remove from array of currentUser
             await firebase.firestore().collection('users').doc(user.uid).update({
                 articles_raised_eyebrow: tempArticlesRE,
             });
             console.log("removed to list of articles raised eyebrow")
-  
+
         }
         catch(err) {
             console.log(err);
@@ -263,114 +271,199 @@ class CommunityArticleDisplay extends React.Component {
                         articles: firebase.firestore.FieldValue.arrayUnion(currArticle)
                     })
         });
-            
+
         this.setState({
             selectedBoards: [],
             SaveDialogOpen: false,
         });
     }
-  
+
+    /**
+     * notify all users who have comments on this article, about a new comment
+     * 
+     * commentData: an object containing (atleast - can contain more)
+     *      user: a userid,
+     *      name: name of the user,
+     *      comment: string,
+     *      timestamp: Javascript Date object (time of comment),
+     * 
+     */
+    notifyComment = async (commentData) => {
+        let comments, userids;
+        /* part1: obtain userids, part2: send updates by making activity */
+
+        /* part1: obtain the userids */
+
+        try {
+            comments = (await this.props.articleRef.collection('comments').get()).docs.map(e => e.data());
+        }
+        catch (err) {
+            console.error("could not fetch comments");
+            console.error(err);
+            throw new Error("failed to fetch comments");
+        }
+
+        userids = comments.map(c => c.userid);
+
+        _.remove(userids, (e) => e == commentData.user); // remove current user
+        userids = _.uniq(userids);  // remove duplicates
+
+        /* part 2: send updates */
+
+        const activity = {
+            user: this.db.doc(`users/${commentData.user}`), // a Firebase 'ref'
+            message: `${commentData.name} commented on \
+            ${this.state.article.name}: ${commentData.comment}`,        // the text written as comment
+            timestamp: commentData.timestamp
+        }
+
+        // call firebase to update field on all users
+        await sendUpdate(activity, userids);
+    }
+
+    handlePopoverOpen = (event) => {
+        //(event, doc, docName))
+        this.setState({
+            anchorEl: event.currentTarget,
+            //selectedBoardID: doc,
+            //selectedBoardName: docName,
+        });
+    }
+    
+    handlePopoverClose = () => {
+        this.setState({
+            anchorEl: null,
+        });
+    }
+
     render() {
         return (
             this.state.article !== null ?
                 this.state.vitalityCheck ?
-                    <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center'}}>
-                        <Typography variant='h6'>{this.state.article.name}</Typography>
-                        <br></br>
-                        <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{marginTop:"15px"}}>
-                                Preview
-                        </Button>
-                        <br/>
-                        <Dialog
-                            open={this.state.isDialogOpen}
-                            fullWidth={true}
-                            onClose={() => this.handleDialogClose()}
-                            maxWidth={'md'}
+                    <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left'}}>
+                        <Popover
+                            style={{ pointerEvents: "none", textAlign: "center" }}
+                            open={Boolean(this.state.anchorEl)}
+                            anchorEl={this.state.anchorEl}
+                            anchorOrigin={{
+                                vertical: "top",
+                                horizontal: "center"
+                            }}
+                            transformOrigin={{
+                                vertical: "bottom",
+                                horizontal: "center"
+                            }}
+                            onClose={this.handlePopoverClose}
+                            disableRestoreFocus
                         >
-                            <DialogTitle>
-                                {this.state.article.name}
-                                {this.state.user ? 
-                                    <Avatar alt=" " src={this.state.user.photoURL} style={{left:"20px", position:"absolute"}} /> : <p> ... </p>
-                                }
-                                {this.state.user ? 
-                                    <DialogContentText style={{left:"60px", position:"absolute"}}>{this.state.user.name} </DialogContentText> : <p> ... </p>
-                                }
-                            </DialogTitle>
-                            <DialogContent style={{display: 'flex', flexDirection: 'row', paddingTop: 25}}>
-                                <div style={{width: '60%', paddingRight: 15}}>
-                                    <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
-                                    <DialogActions style={{ paddingLeft: 20 }}>
-                                        {this.state.article.users_eyebrows.length.toString()}
+                            <Typography style={{fontSize: 15, padding: "5px"}}>"Raise an Eyebrow"</Typography>
+                            <img
+                                alt="Raise Eyebrow GIF"
+                                src={EyebrowRaisedGIF}
+                                style={{ height: "60px", width: "80px", padding: "5px"}}
+                            />
+                        </Popover>
 
-                                        {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid) 
-                                        ? <IconButton onClick={() => this.handleLowerEyebrow()}>
-                                            <VisibilityIcon color="secondary"/>
-                                        </IconButton>
-                                        : <IconButton onClick={() => this.handleRaiseEyebrow()}>
-                                            <VisibilityIcon color="disabled"/>
-                                        </IconButton>}
+                        <Typography variant='h4'>{this.state.article.name}</Typography>
+                        <br></br>
+                        <br/>
+                      
+                        <DialogContent>
+                            <iframe src={this.state.article.url}  width="100%" height="600px" ></iframe>
+                            
+                            <DialogActions style={{ paddingLeft: 750 }}>
+                                {this.state.article.users_eyebrows.length.toString()}
 
-                                        <Button variant="contained" color="primary" onClick={this.handleSaveDialogOpen}>
-                                            Save 
-                                        </Button>
-                                        {/* dialog to save article to personal boards */}
-                                        <Dialog 
-                                        open={this.state.SaveDialogOpen} 
-                                        onClose={this.handleSaveDialogClose} 
-                                        aria-labelledby="form-dialog-title" 
-                                        style={{
-                                            padding: '10px'
-                                        }}
+                                {(this.state.article.users_eyebrows).includes(firebase.auth().currentUser.uid)
+                                ? 
+                                <IconButton 
+                                  style={{height: '70px', width: '80px'}} 
+                                  onClick={() => this.handleLowerEyebrow()}
+                                  onMouseLeave={() => this.handlePopoverClose()}
+                                  title="Raised Eyebrow"
+                                >
+                                    <Icon style={{height: '60px', width: '60px'}}>
+                                        <img src={EyebrowRaisedImg} />
+                                    </Icon>
+                                </IconButton>
+                                : 
+                                <IconButton
+                                  style={{height: '70px', width: '80px'}} 
+                                  onClick={() => this.handleRaiseEyebrow()}
+                                  onMouseEnter={(e) => this.handlePopoverOpen(e)}
+                                  onMouseLeave={() => this.handlePopoverClose()}
+                                  title="Eyebrow Not Raised"
+                                >
+                                    <Icon style={{height: '60px', width: '60px'}}> 
+                                        <img src={EyebrowRaisedImgGray} />
+                                    </Icon>
+                                </IconButton>
+                                }
+
+                                <Button variant="contained" color="primary" onClick={this.handleSaveDialogOpen}>
+                                    Save
+                                </Button>
+                                {/* dialog to save article to personal boards */}
+                                <Dialog
+                                open={this.state.SaveDialogOpen}
+                                onClose={this.handleSaveDialogClose}
+                                aria-labelledby="form-dialog-title"
+                                style={{
+                                    padding: '10px'
+                                }}
+                                >
+
+                                    <DialogContent>
+                                    <FormControl style={{width: '200px'}}>
+                                        <InputLabel id="dropdown"> Select Board </InputLabel>
+                                        <Select
+                                            labelId="dropdown"
+                                            label = "Select Board"
+                                            style={{
+                                                margin: '10px'
+                                            }}
+                                            id="multiple-select"
+                                            multiple
+                                            value={this.state.selectedBoards}
+                                            onChange={(e) => this.setState({ selectedBoards: e.target.value })
+                                            }
                                         >
-
-                                            <DialogContent>
-                                            <FormControl style={{width: '200px'}}>
-                                                <InputLabel id="dropdown"> Select Board </InputLabel>
-                                                <Select
-                                                    labelId="dropdown"
-                                                    label = "Select Board"
-                                                    style={{
-                                                        margin: '10px'
-                                                    }}
-                                                    id="multiple-select"
-                                                    multiple
-                                                    value={this.state.selectedBoards}
-                                                    onChange={(e) => this.setState({ selectedBoards: e.target.value })
-                                                    }
-                                                >
-                                                    {this.state.personalBoards.map(board => (
-                                                        <MenuItem key={board.boardID} value={board.boardID}>
-                                                            {board.boardName}
-                                                        </MenuItem>
-                                                    ))}
-                                            </Select>
-                                            </FormControl>
-                                            </DialogContent>
-                                            <DialogActions>
-                                            <Button onClick={this.handleSave} color="secondary">
-                                                Save
-                                            </Button>
-                                            <Button onClick={this.handleSaveDialogClose} color="secondary">
-                                                Cancel
-                                            </Button>
-                                            </DialogActions>
-                                        </Dialog>   {/* dialog to save article to personal boards */}
-                                        <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
-                                            <OpenInNewIcon />
-                                        </Button>
-                                        <Button color="secondary" onClick={this.handleReport} >
-                                            Report
-                                        </Button>
-                                        <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">
-                                            <DeleteIcon />
-                                        </Button>
-                                    </ DialogActions>
-                                </div>
-                                <CommentSection
+                                            {this.state.personalBoards.map(board => (
+                                                <MenuItem key={board.boardID} value={board.boardID}>
+                                                    {board.boardName}
+                                                </MenuItem>
+                                            ))}
+                                    </Select>
+                                    </FormControl>
+                                    </DialogContent>
+                                    <DialogActions>
+                                    <Button onClick={this.handleSave} color="secondary">
+                                        Save
+                                    </Button>
+                                    <Button onClick={this.handleSaveDialogClose} color="secondary">
+                                        Cancel
+                                    </Button>
+                                    </DialogActions>
+                                </Dialog>   {/* dialog to save article to personal boards */}
+                                <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
+                                    <OpenInNewIcon />
+                                </Button>
+                                <Button color="secondary" onClick={this.handleReport} >
+                                    Report
+                                </Button>
+                                <Button onClick={() => this.handleDeleteArticle(this.state.selectedArticleDelete)} color="secondary">
+                                    <DeleteIcon />
+                                </Button>
+                                
+                                
+                            </ DialogActions>
+                            <CommentSection
                                     articleID={this.state.article.id}
+                                    notifyComment={this.notifyComment}
                                 />
-                            </ DialogContent>
-                        </Dialog>
+                            
+                        </ DialogContent>
+                        <br/>
                     </div>
                     :
                     <div style={{color: 'grey'}}>! article is reported</div>

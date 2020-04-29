@@ -36,7 +36,7 @@ function CommunityBoard(props) {
                 }
 
                 /* store articles in a sorted order after fetching them */
-                
+
                 const board = boardDoc.data();
                 const articleReferences = board.articles;
                 const articlePromises = articleReferences.map(articleRef =>
@@ -47,7 +47,7 @@ function CommunityBoard(props) {
                       users_eyebrows: articleDoc.data().users_eyebrows || [],
                     }}
                 ));
-                
+
                 let articles_ = [];
                 try {
                     articles_ = await Promise.all(articlePromises);
@@ -73,38 +73,38 @@ function CommunityBoard(props) {
         if(menuItemVal === "20"){
             const articles_ = articles.concat();
             articles_.sort((a, b) => (a.users_eyebrows.length < b.users_eyebrows.length) ? 1 : -1)
-            setArticles(articles_);     // update stored state of articles 
+            setArticles(articles_);     // update stored state of articles
                                 // (no refetching)
         }
         else{
             const articles_ = unsortedArticles.concat();
             setArticles(articles_)
         }
-    } 
+    }
 
     const handleChange = (event) => {
         setSort(event.target.value);
         sortArticles(event.target.value);
     };
-      
+
     const handleClose = () => {
         setOpen(false);
     };
-      
+
     const handleOpen = () => {
         setOpen(true);
     };
 
     return (
-        board !== null ? 
-            <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
+        board !== null ?
+            <div style={{display: 'flex', flexDirection: 'column'}} >
                 {
                     <h2>{board.name}</h2>
                 }
                 <h3>Articles ({board.articles.length})
                     <InputLabel id="SortByLabel">Sort By</InputLabel>
-                    <Select 
-                        labelId="SortByLabel" 
+                    <Select
+                        labelId="SortByLabel"
                         id="select"
                         open={open}
                         onClose={handleClose}
@@ -117,11 +117,11 @@ function CommunityBoard(props) {
                     </Select>
                 </h3>
                 <Divider></Divider>
-                <div style={{display: 'flex', margin: 25, flexWrap: 'wrap', marginRight: 25, flex: 2, justifyContent: 'space-around'}}>
+                <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left', margin: '1rem',}}>
                     {
-                        articles.map(article => 
-                        <Card style={{minHeight: 125, minWidth: 150, padding: 25, display: 'flex', justifyContent: 'center'}}>
-                            <ArticleDisplay 
+                        articles.map(article =>
+                        <Card style={{margin: "1rem", padding: "2rem",}}>
+                            <ArticleDisplay
                                 articleRef={article.ref}
                                 key={article.ref.id}
                                 inRaisedEyebrowPage={false} />
