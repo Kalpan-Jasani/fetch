@@ -187,8 +187,7 @@ GetBoardByKeyword(e) {
                     }
                 });
             }
-        })
-        console.log(searchedBoardIDs);
+        });
         
         searchedBoardIDs.forEach((id) => {
             var board = this.state.communityBoards.find((element) => element.boardID === id);
@@ -199,7 +198,7 @@ GetBoardByKeyword(e) {
 
         this.setState({
             searchedBoard : searchedboard
-        })
+        });
   }
 }
 
@@ -298,16 +297,24 @@ displayBoards() {
           <SearchBar
                 value={this.state.search}
                 onChange={(value) => {
-                    if (this.state.searchType === "title") {
-                        this.GetBoardByTitle(value);
+                    if (value === "") {
+                        this.setState({
+                            search: "",
+                            isSearching: false,
+                            searchedBoard: [],
+                        });
                     } else {
-                        this.GetBoardByKeyword(value);
-                    }
+                        if (this.state.searchType === "title") {
+                            this.GetBoardByTitle(value);
+                        } else {
+                            this.GetBoardByKeyword(value);
+                        }
 
-                    this.setState({
-                        search: value,
-                        isSearching: true,
-                    });
+                        this.setState({
+                            search: value,
+                            isSearching: true,
+                        });
+                    }
                 }}
                 onCancelSearch={() => {
                     if (this.state.searchType === "title") {
