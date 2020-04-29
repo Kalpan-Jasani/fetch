@@ -72,7 +72,7 @@ class CommunityBoards extends React.Component{
       
       
       
-      firebase.firestore()
+      /*firebase.firestore()
       .doc(`users/${this.userid}`)
       .onSnapshot(async (userSnapshot) => {
           var followedBoards = [];
@@ -92,6 +92,49 @@ class CommunityBoards extends React.Component{
               followedBoards: followedBoards,
             });
         }, err => alert(err));
+        */
+
+        var user = firebase.auth().currentUser;
+         
+        try{
+            firebase.firestore().collection('users').doc(user.uid)
+            .onSnapshot((userDoc) => {
+                
+                const userInfo = userDoc.data();
+                const fb = userInfo.cboardFollowing || [];
+                const followedBoards = Array.from(new Set(fb));
+                //console.log("articleids ", articleIds);
+
+                const artP = followedBoards.map(artID =>
+                    firebase.firestore().doc(`communityBoards/${artID}`)
+                    .get().then((articleDoc) => {
+                    
+                        console.log(articleDoc.data().name);
+
+                        return {
+                        name: articleDoc.data().name,
+                        boardID: artID,
+                        
+                    }})
+                        
+                    
+                );
+                
+                Promise.all(artP).then((articles) => {
+                    const s = []
+                    articles.forEach((article) => {
+                        s.push(article)
+                    })
+                    const uniqueBoards = Array.from(new Set(s));
+                    this.setState({
+                        followedBoards: uniqueBoards,
+                    });    
+                })
+            });
+    }
+    catch(err){
+        console.log(err);
+    }
       
   }
   
@@ -224,26 +267,25 @@ handleInputChange = (event) => {
     
 
 displayFollowedBoards = () => {
-    const uniqueBoards = Array.from(new Set(this.state.followedBoards));
-    console.debug("flag1");
-    console.debug(this.state.followedBoards);
-    console.debug(this.state.communityBoards);
+    console.log(this.state.followedBoards);
+    
     return (
         
         <div>
-            {this.state.followedBoards.map(board => (
-                <div key={board.boardID} >
-                <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
-                    <CardHeader
-                    title={board.name}
-                    subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
+        
+        {this.state.followedBoards.map(board => (
+               <div key={board.boardID} >
+              <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
+                  <CardHeader
+                  title={board.name}
+                  subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
 
-                    >
-                    </CardHeader>
-                    <CardMedia style={{height: 0, paddingTop: '50%'}}
+                  >
+                  </CardHeader>
+                  <CardMedia style={{height: 0, paddingTop: '50%'}}
                     image={logo}
                     title="FETCH"
-                    />
+                  />
                 <CardActions>
                     <IconButton>
                         <PlayArrow/>
@@ -253,12 +295,16 @@ displayFollowedBoards = () => {
                             View
                         </Link>
                     </Button>
+                    <Button color="primary" onClick={() => this.followBoard(board)}>
+                        Follow
+                    </Button>
                 </CardActions>
-                </Card>
-                </div>
-            ))}
+              </Card>
+            </div>
+          ))}
         </div>
-        );
+    );
+
 
 }
 displayBoards() {
