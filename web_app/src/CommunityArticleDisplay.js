@@ -33,6 +33,15 @@ import EyebrowRaisedImg from './Assets/EyebrowRaised.svg';
 import EyebrowRaisedImgGray from './Assets/EyebrowRaisedGRAY.svg';
 import Icon from '@material-ui/core/Icon';
 import { Popover } from "@material-ui/core"
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = {
+    paper: {
+        borderRadius: 8,
+        boxShadow: '0 3px 5px 2px rgba(0, 0, 0, 0.5)',
+        border: 0,
+    }
+  };
 
 class CommunityArticleDisplay extends React.Component {
     constructor(props) {
@@ -292,11 +301,13 @@ class CommunityArticleDisplay extends React.Component {
     }
 
     render() {
+        const { classes } = this.props;
         return (
             this.state.article !== null ?
                 this.state.vitalityCheck ?
                     <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left'}}>
                         <Popover
+                            classes={{paper: classes.paper}}
                             style={{ pointerEvents: "none", textAlign: "center" }}
                             open={Boolean(this.state.anchorEl)}
                             anchorEl={this.state.anchorEl}
@@ -426,4 +437,4 @@ class CommunityArticleDisplay extends React.Component {
         );
   }
 }
-export default CommunityArticleDisplay;
+export default withStyles(styles) (CommunityArticleDisplay);

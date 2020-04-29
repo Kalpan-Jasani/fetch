@@ -18,10 +18,6 @@ import CardContent from '@material-ui/core/CardContent';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = {
-    root: {
-    //   background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-    },
-
     paper: {
         borderRadius: 8,
         boxShadow: '0 3px 5px 2px rgba(0, 0, 0, 0.5)',
@@ -158,7 +154,7 @@ class ArticleDisplay extends React.Component {
                     <Dialog
                     open={this.state.isDialogOpen}
                     fullWidth={true}
-                    classes={{root: classes.root, paper: classes.paper}}
+                    classes={{paper: classes.paper}}
                     >
                         <DialogTitle>
                             {this.state.article.name}

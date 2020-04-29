@@ -9,7 +9,15 @@ import Button from '@material-ui/core/Button';
 import Star from '@material-ui/icons/Star';
 import StarBorder from '@material-ui/icons/StarBorder';
 import firebase from "firebase";
+import { withStyles } from '@material-ui/core/styles';
 
+const styles = {
+    paper: {
+        borderRadius: 8,
+        boxShadow: '0 3px 5px 2px rgba(0, 0, 0, 0.5)',
+        border: 0,
+    }
+  };
 class StarredArticleDisplay extends React.Component {
     constructor(props) {
         super(props);
@@ -74,7 +82,7 @@ class StarredArticleDisplay extends React.Component {
 
 
     render() {
-
+        const { classes } = this.props;
         return (
             <div>
             <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
@@ -84,6 +92,7 @@ class StarredArticleDisplay extends React.Component {
             <Dialog
             open={this.state.isDialogOpen}
             fullWidth={true}
+             classes={{paper: classes.paper}}
             >
                 <DialogTitle>
                     {this.props.ArticleName}
@@ -112,4 +121,4 @@ class StarredArticleDisplay extends React.Component {
 
 }
 
-export default StarredArticleDisplay;
+export default withStyles(styles) (StarredArticleDisplay);
