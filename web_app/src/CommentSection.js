@@ -138,12 +138,16 @@ class CommentSection extends React.Component {
     }
 
     getFirstName = (string) => {
-        var split = string.split(' ');
-        if (split.length > 1) {
-            return split[0];
+        if (string !== null) {
+            var split = string.split(' ');
+            if (split.length > 1) {
+                return split[0];
+            }
+
+            return string;
         }
-        
-        return string;
+
+        return "";
     }
 
     handleClickOpen = (index) => {
@@ -175,6 +179,7 @@ class CommentSection extends React.Component {
                 </div>
                 : this.state.documents.map((comment, index) => {
                     var data = comment.data();
+                    console.log(data);
                     return (
                         <div style={{display: 'flex', flexDirection: 'column'}}>
                             <div style={{display: 'flex', flexDirection: 'row', textAlign: 'center', alignItems: 'center', paddingBottom: 10}}>
