@@ -258,6 +258,35 @@ handleInputChange = (event) => {
 }
 
 
+unfollowBoard = async (board) => {
+    
+    var bid = board.boardID;
+    const currID = firebase.auth().currentUser.uid;
+    const userPath = firebase.firestore().collection("users").doc(currID);
+    
+
+     await firebase.firestore().runTransaction((followTransaction) => {
+        return followTransaction.get(userPath).then((doc) => {
+            
+            var fields = doc.data();
+            var cb = fields.cboardFollowing ?? [];
+            var cboardFollowing = Array.from(new Set(cb));
+            var index = cboardFollowing.indexOf(bid);
+                    if (index > -1) {
+                        cboardFollowing.splice(index, 1);
+                    } else {
+                        console.log("user is not a follower!");
+                    }              
+            followTransaction.update(userPath, {cboardFollowing: cboardFollowing});
+            
+        })
+        
+    });    
+
+    
+}
+
+
     
 
 displayFollowedBoards = () => {
@@ -289,8 +318,8 @@ displayFollowedBoards = () => {
                             View
                         </Link>
                     </Button>
-                    <Button color="primary" onClick={() => this.followBoard(board)}>
-                        Follow
+                    <Button color="primary" onClick={() => this.unfollowBoard(board)}>
+                        Unfollow
                     </Button>
                 </CardActions>
               </Card>
