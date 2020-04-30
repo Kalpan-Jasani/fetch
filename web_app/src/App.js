@@ -66,7 +66,7 @@ function App() {
                 <FirebaseAuthConsumer>
                     {({ isSignedIn, user, providerId }) =>
                     isSignedIn ?
-                    <BasePage>
+                    <BasePage backgroundColor={theme.mode === "light" ? "white" : "#B6B6B6"} theme={theme}>
                         <Switch>
                             <Route path="/about">
                                 <About />
@@ -154,6 +154,7 @@ const useStyles = makeStyles(theme => ({
     },
     drawerPaper: {
         width: drawerWidth,
+        backgroundColor: props => props.backgroundColor,
     },
     content: {
       flexGrow: 1,
@@ -171,7 +172,7 @@ const useStyles = makeStyles(theme => ({
  *  a sidebar to exist
  */
 function BasePage(props) {
-    const classes = useStyles();
+    const classes = useStyles(props);
     const [isDialogOpen, setOpenDialog] = React.useState(false);
     const [isDialogOpen2, setOpenDialog2] = React.useState(false);
     const handleCloseDialog = () => setOpenDialog(false);
