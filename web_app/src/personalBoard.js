@@ -297,12 +297,19 @@ function PersonalBoard(props) {
 
                 {/* main dispaly of articles */}
                 <h3>Articles ({state.board.articles.length})</h3>
-                <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                <div className="articlesContainer">
                     {   
-                        state.board.articles.map(articleRef => <ArticleDisplay 
-                            articleRef={articleRef}
-                            addToQueue={addToQueue}
-                            boardRef={state.board.ref} />)
+                        state.board.articles.map(articleRef => 
+                            <div className="articlesContainer__articleWrapper"
+                              key={articleRef.id} 
+                            >
+                                <ArticleDisplay 
+                                    articleRef={articleRef}
+                                    addToQueue={addToQueue}
+                                    boardRef={state.board.ref}
+                                />
+                            </div>
+                        )
                     }
                 </div>
                 <Divider />
@@ -310,11 +317,18 @@ function PersonalBoard(props) {
                 {/* display of queue */}
                 <h3>Queue ({state.board.queue.length})</h3>
 
-                <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                <div className="articlesContainer">
                     {
-                        state.board.queue.map(articleRef => <ArticleDisplay 
-                            key={articleRef.id}
-                            articleRef={articleRef} />)
+                        state.board.queue.map(articleRef => 
+                            <div className="articlesContainer__articleWrapper"
+                              key={articleRef.id} 
+                            >
+                                <ArticleDisplay 
+                                    key={articleRef.id}
+                                    articleRef={articleRef} 
+                                />
+                            </div>
+                        )
                     }
                 </div>
             </div>

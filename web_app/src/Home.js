@@ -102,15 +102,16 @@ function Home(props) {
                 </Typography>
                 <h3>Recent articles</h3>
                 <Divider></Divider>
-                    <div className="recent-articles-container">
+                    <div className="articlesContainer">
                     {
                         articles.map((article) => (
-                            <Card key={article.ref.id} className="recent-articles-container__article-card">
+                            <div className="articlesContainer__articleWrapper"
+                              key={article.ref.id}
+                            >
                                 <ArticleDisplay 
                                     articleRef={article.ref}
-                                    key={article.ref.id}
                                 />
-                            </Card>
+                            </div>
                         ))
                     }
                     </div>

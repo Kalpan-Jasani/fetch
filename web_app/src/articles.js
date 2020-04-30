@@ -35,14 +35,14 @@ export default function Articles(props) {
     return (
         <div className="page-container">
             <Typography variant="h4" component="h1">Personal articles ({articles.length})</Typography>
-            <div className="local-articles-list-container">
+            <div className="articlesContainer">
                 {
                     articles.map(article =>
-                        <Card key={article.id} className="local-articles-list-container__article-container">
+                        <div key={article.id} className="articlesContainer__articleWrapper">
                             <ArticleDisplay
                                 articleRef={article.ref}
                             />
-                        </Card>
+                        </div>
                     )
                 }
             </div>
