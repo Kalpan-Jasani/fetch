@@ -149,7 +149,7 @@ class PersonalBoards extends React.Component {
             timestamp: new Date()
         };
 
-        await sendUpdate(activity, followers);
+        await sendUpdate(activity, followers || []);
 
         // will close the dialog after submission
         this.setState({
