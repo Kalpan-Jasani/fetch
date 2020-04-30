@@ -81,7 +81,7 @@ function PersonalBoard(props) {
     * Subscribe to updates from firebase for this board
     */
     useEffect(() => {
-        if(!subscribed)
+        if(!subscribed.curret)
         {
             subscribedRef.current = true;       // mark subscribed to firebase
             const unsubscribe = boardRef.onSnapshot((boardDoc) => {
