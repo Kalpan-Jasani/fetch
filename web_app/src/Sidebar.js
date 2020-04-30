@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Drawer, Divider, Button, Avatar, IconButton } from "@material-ui/core";
 import HomeIcon from '@material-ui/icons/Home';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { withRouter, Link } from 'react-router-dom';
 import ToggleMode from './ToggleMode';
 import { ExpandMore, ExpandLess} from '@material-ui/icons';
 import firebase from 'firebase';
+
 import './sidebar.css';
 import logo from './Assets/fetch.png';
 
@@ -141,9 +143,11 @@ function Sidebar(props) {
                 Community Article
             </Button>
             <Divider/>
-            <Button color="primary" variant="contained" onClick={signOut}>
-                Sign Out
-            </Button>
+            <div className="signoutContainer">
+                <IconButton className="signoutButton" onClick={signOut}>
+                    <ExitToAppIcon/>
+                </IconButton>
+            </div>
         </Drawer>
     )
 }

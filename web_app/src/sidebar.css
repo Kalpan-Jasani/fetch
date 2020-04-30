@@ -59,3 +59,16 @@
 .sidebar-item.pboards{
     padding-left: 3rem;
 }
+
+.signoutContainer {
+
+    /* to center the button */
+    position: relative;
+}
+
+.signoutButton {
+    /* to center the button in the middle */
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, 0px);
+}
