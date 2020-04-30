@@ -104,6 +104,9 @@ function Sidebar(props) {
                 Users
             </Link>
             <Divider/>
+            <Link to="/articles" className="sidebar-item link">
+                Personal articles
+            </Link>
             <Link to="/starred" className="sidebar-item starred link">
                 Starred articles
             </Link>

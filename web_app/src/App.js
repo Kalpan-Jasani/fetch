@@ -34,6 +34,7 @@ import PersonalBoard from './personalBoard';
 import StarredItems from './StarredItems';
 import Users from './Users';
 import ArticlesRaisedEyebrowDisplay from './ArticlesRaisedEyebrowDisplay'
+import Articles from './articles';
 
 import './App.css';
 import ToggleMode from './ToggleMode';
@@ -119,6 +120,9 @@ function App() {
                             </Route>
                             <Route path="/starred">
                                 <StarredItems/>
+                            </Route>
+                            <Route path="/articles">
+                                <Articles />
                             </Route>
                             <Route>
                                 <Home />

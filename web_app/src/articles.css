@@ -1,0 +1,11 @@
+.local-articles-list-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.local-articles-list-container__article-container {
+    margin: 1rem;
+    background-color: rgba(255, 253, 208, 0.7);
+    padding: 1rem;
+    min-width: 5rem;
+}
