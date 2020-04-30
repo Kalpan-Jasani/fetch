@@ -4,7 +4,6 @@ import HomeIcon from '@material-ui/icons/Home';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { withRouter, Link } from 'react-router-dom';
-import ToggleMode from './ToggleMode';
 import { ExpandMore, ExpandLess} from '@material-ui/icons';
 import firebase from 'firebase';
 
@@ -133,7 +132,6 @@ function Sidebar(props) {
                 Raised Eyebrow Articles
             </Link>
             <Divider/>
-            <ToggleMode/>
             <Button id="add-article-sidebar" onClick={()=>props.openForm1(true)}>
                 <AddCircleOutlinedIcon/>
                 Personal Article

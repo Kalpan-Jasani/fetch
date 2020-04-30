@@ -37,6 +37,12 @@
   }
 }
 
+.theme-toggle {
+  position: fixed;
+  right: 5px;
+  bottom: 5px;
+}
+
 html {
   background: url(./Assets/homepage_background2.jpg) no-repeat center center fixed; 
   -webkit-background-size: cover;

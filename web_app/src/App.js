@@ -36,6 +36,7 @@ import Users from './Users';
 import ArticlesRaisedEyebrowDisplay from './ArticlesRaisedEyebrowDisplay'
 
 import './App.css';
+import ToggleMode from './ToggleMode';
 
 const drawerWidth = 255;  // width of the sidebar (can change to adjust)
 
@@ -185,6 +186,7 @@ function BasePage(props) {
             <div className={classes.content}>
                 {props.children}
             </div>
+            <ToggleMode className="theme-toggle"/>
         </div>
     );
 }
