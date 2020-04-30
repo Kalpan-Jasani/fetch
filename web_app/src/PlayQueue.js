@@ -88,7 +88,7 @@ class PlayQueue extends React.Component {
 
    componentWillUnmount() {
      document.removeEventListener('mousedown',this.handleClick, false);
-    // this.unsubscribes()
+      this.unsubscribes.forEach(e => e());
    }
 
    handleClick = (e) => {
@@ -156,11 +156,6 @@ class PlayQueue extends React.Component {
         
         return (
           <div ref={node => this.node = node} style={{marginTop: '20px'}}>
-              {/* {this.state.showbutton && (
-                  <Button variant="contained" style={{backgroundColor: 'green'}} onClick={this.play}>
-                    Play
-                  </Button>
-              )} */}
               <CSSTransition
                   in={this.state.open}
                   timeout={300}
