@@ -4,6 +4,12 @@
     overflow-x: scroll;
     padding: 1rem;
     border-left: 1px dotted black;
+
+    /* as tall as the page */
+    min-height: 100vh;
+
+    /* push to the right */
+    margin-left: auto;
 }
 
 .activity-bar__activities__activity {
