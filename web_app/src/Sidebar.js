@@ -92,6 +92,7 @@ function Sidebar(props) {
                     : <Avatar src={user.photoURL} alt="" />}
                 <p>{firebase.auth().currentUser.email}</p>
             </div>
+            <Divider />
             <Link to="/home" className="sidebar-item home link">
                 <HomeIcon/>
                 <span>Home</span>
