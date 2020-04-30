@@ -26,12 +26,17 @@ import Select from '@material-ui/core/Select';
 import BookIcon from '@material-ui/icons/Book';
 
 import './article.css';
+import { Paper } from '@material-ui/core';
 
 const styles = {
-    paper: {
-        borderRadius: 8,
+    article: {
+        borderRadius: 5,
         boxShadow: '0 3px 5px 2px rgba(0, 0, 0, 0.5)',
-        border: 0,
+        backgroundColor: 'antiquewhite'
+    },
+
+    articleRead: {
+        backgroundColor: 'grey'
     }
   };
 
@@ -150,32 +155,34 @@ class ArticleDisplay extends React.Component {
         const { classes } = this.props;
         return (
             this.state.article !== null ?
-                <div className={"article " + (this.state.article.read ? "article--read":"")}>
-                    <div className="article__name">
-                        {this.state.article.name}
-                    </div>
-                    <img className="article__img img" src="https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png"></img>
-                    <div className="article__viewButton">
-                        <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
-                            View
-                        </Button>
-                    </div>
-                    <div className="article__markReadButton">
-                        {this.state.article.read ?
-                        <IconButton  variant="outlined" onClick={this.handlemarkUnread} title="Mark as unread"> 
-                            <MenuBook color="disabled"></MenuBook>
-                        </IconButton>
-                        :
-                        <IconButton variant="outlined" onClick={this.handlemarkRead} title="Mark as read">
-                            <MenuBook color="secondary"></MenuBook>
-                        </IconButton>
-                        }
-                    </div>
-
+                <div>
+                    <Paper elevation={3}
+                      className={this.props.classes.article + " article " + (this.state.article.read ? 
+                      this.props.classes.articleRead:"")}>
+                        <div className="article__name">
+                            {this.state.article.name}
+                        </div>
+                        <img className="article__img img" src="https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png"></img>
+                        <div className="article__viewButton">
+                            <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
+                                View
+                            </Button>
+                        </div>
+                        <div className="article__markReadButton">
+                            {this.state.article.read ?
+                            <IconButton  variant="outlined" onClick={this.handlemarkUnread} title="Mark as unread"> 
+                                <MenuBook color="disabled"></MenuBook>
+                            </IconButton>
+                            :
+                            <IconButton variant="outlined" onClick={this.handlemarkRead} title="Mark as read">
+                                <MenuBook color="secondary"></MenuBook>
+                            </IconButton>
+                            }
+                        </div>
+                    </Paper>
                     <Dialog
                     open={this.state.isDialogOpen}
                     fullWidth={true}
-                    classes={{paper: classes.paper}}
                     onClose={this.handleDialogClose}
                     >
                         <DialogTitle>

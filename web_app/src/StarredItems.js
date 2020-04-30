@@ -3,6 +3,7 @@ import firebase from "firebase";
 import StarredArticleDisplay from './StarredArticleDisplay';
 import { Typography } from '@material-ui/core';
 
+
 class StarredItems extends React.Component {
     
     constructor(props) {
@@ -31,7 +32,8 @@ class StarredItems extends React.Component {
                     name: doc.data().name,
                     read: doc.data().read,
                     starred: doc.data().starred,
-                    id: doc.id
+                    id: doc.id,
+                    ref: doc.ref,
                 }
                 articles.push(article);
                
@@ -53,25 +55,23 @@ class StarredItems extends React.Component {
                 <Typography variant="h4" component="h1">
                     Starred Articles ({this.state.articles.length})
                 </Typography>
-               { this.state.articles.map((article) => {
-                  return (
-                <div className={article.read ? "article-read": "article-unread"} style={{ margin: '20px'}} >
-                        <br></br>
-                          <StarredArticleDisplay 
+                <div className="articlesContainer">
+                { this.state.articles.map((article) =>
+                    <div className="articlesContainer__articleWrapper">
+                        <StarredArticleDisplay 
                             url={article.url} 
                             ArticleName={article.name}
                             articleStarred={article.starred}
                             articleId={article.id}
                             readStatus={article.read}
+                            articleRef={article.ref}    // firebase db ref
+                            article={article}   // this prop has all things
                         />
-                        {/* </Paper> */}
-                  </div> 
-                  );
-                }
-        )}
-        </div>
+                    </div> 
+                )}
+                </div>
+            </div>
         );
-        
     }
 
 }
