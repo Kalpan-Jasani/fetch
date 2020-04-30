@@ -1,6 +1,8 @@
 import React from 'react';
 import firebase from "firebase";
 import StarredArticleDisplay from './StarredArticleDisplay';
+import { withStyles } from '@material-ui/core/styles';
+import { Divider } from '@material-ui/core';
 
 class StarredItems extends React.Component {
     
@@ -47,14 +49,14 @@ class StarredItems extends React.Component {
     }
 
     render() {
-
         return (
             <div style={{display: 'inline-block', margin: '20px'}}>
-                <h3> Starred Articles ({this.state.articles.length})</h3>
+                    <h2> Starred Articles ({this.state.articles.length})</h2>
+                    <Divider />
+                
                { this.state.articles.map((article) => {
                   return (
                 <div className={article.read ? "article-read": "article-unread"} style={{ margin: '20px'}} >
-                      <p1>{article.name}</p1>
                         <br></br>
                           <StarredArticleDisplay 
                             url={article.url} 
@@ -63,6 +65,7 @@ class StarredItems extends React.Component {
                             articleId={article.id}
                             readStatus={article.read}
                         />
+                        {/* </Paper> */}
                   </div> 
                   );
                 }

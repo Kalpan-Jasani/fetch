@@ -141,7 +141,7 @@ function Sidebar(props) {
                 Community Article
             </Button>
             <Divider/>
-            <Button color="primary" variant="contained" onClick={signOut}>
+            <Button color="primary" variant="contained" onClick={signOut} style={{bottom: '10px', position: 'absolute', right: '20px', width: '215px'}}>
                 Sign Out
             </Button>
         </Drawer>
