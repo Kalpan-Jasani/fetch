@@ -135,7 +135,7 @@ class ArticleDisplay extends React.Component {
     render() {
         return (
             this.state.article !== null ?
-                <div class={this.state.article.read ? "article-read":""}>
+                <div className={this.state.article.read ? "article-read":""}>
                     <div style={{width: '200px', height: '200px'}}><strong>{this.state.article.name}</strong>
                         <img src="https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png" width="175" height="175" float="left"></img>
                     </div>
