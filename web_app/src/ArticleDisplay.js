@@ -75,12 +75,8 @@ class ArticleDisplay extends React.Component {
                         article.url);
                     // get the first favicon
                     imageURL = (await axios.get(encodedURI)).data.favicons[0];
-                    console.debug('flag 1');
-                    console.debug(imageURL);
                 }
                 catch (e) {
-                    console.error('flag 2');
-                    console.error(e)
                     imageURL = null;
                 }
 
