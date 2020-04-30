@@ -6,6 +6,7 @@ import { withRouter, Link } from 'react-router-dom';
 import ArticleDisplay from './ArticleDisplay';
 import './homepage.css';
 import logo from './Assets/fetch.png';
+import ActivityBar from './AcitivityBar';
 
 // TODO: allow loading symbol when stuff from firebase is still being fetched
 
@@ -95,63 +96,62 @@ function Home(props) {
 
     return (
         <div className="homepage-container">
-            <h2>
-                Home
-            </h2>
-            <h3>Recent articles</h3>
-            <Divider></Divider>
-                <div className="recent-articles-container">
+            <div className="homepage-content">
+                <h2>
+                    Home
+                </h2>
+                <h3>Recent articles</h3>
+                <Divider></Divider>
+                    <div className="recent-articles-container">
+                    {
+                        articles.map((article) => (
+                            <Card key={article.ref.id} className="recent-articles-container__article-card">
+                                <ArticleDisplay 
+                                    articleRef={article.ref}
+                                    key={article.ref.id}
+                                />
+                            </Card>
+                        ))
+                    }
+                    </div>
                 {
-                    articles.map((article) => (
-                        <Card className="recent-articles-container__article-card">
-                            <ArticleDisplay 
-                                articleRef={article.ref}
-                                key={article.ref.id}
-                            />
-                        </Card>
-                    ))
+                    articles.length == 0 &&
+                        <p>No recent articles</p>
                 }
+                <h3>Recent personal boards</h3>
+                <Divider></Divider>
+                <div className="recent-boards-container">
+                    {
+                        boards.map((board) => (
+                            <Card key={board.ref.id} className="recent-boards-container__recent-board-card">
+                                <CardMedia
+                                    style={{height: 0, paddingTop: '50%'}}
+                                    image={logo}
+                                />
+                                <CardContent>
+                                    <Typography variant="h6" component="p">
+                                        {board.boardName}
+                                    </Typography>
+                                    <Link to={`/boards/${board.ref.id}`}>
+                                        <Button variant="contained" color="default" disableElevation>
+                                            View
+                                        </Button>
+                                    </Link>
+                                </CardContent>
+                            </Card>
+                        ))
+                    }
                 </div>
-            {
-                articles.length == 0 &&
-                    <p>No recent articles</p>
-            }
-            <h3>Recent personal boards</h3>
-            <Divider></Divider>
-            <div className="recent-boards-container">
                 {
-                    boards.map((board) => (
-                        <Card className="recent-boards-container__recent-board-card">
-                            <CardMedia
-                                style={{height: 0, paddingTop: '50%'}}
-                                image={logo}
-                            />
-                            <CardContent>
-                                <Typography variant="h6" component="p">
-                                    {board.boardName}
-                                </Typography>
-                                <Link to={`/boards/${board.ref.id}`}>
-                                    <Button variant="contained" color="default" disableElevation>
-                                        View
-                                    </Button>
-                                </Link>
-                            </CardContent>
-                        </Card>
-                    ))
+                    boards.length == 0 &&
+                        <p>No recent boards</p>
                 }
+                <h3>Recent communities</h3>
+                <Divider></Divider>
+                <p>community 1</p>
+                <p>community 2</p>
             </div>
-            {
-                boards.length == 0 &&
-                    <p>No recent boards</p>
-            }
-            <h3>Recent communities</h3>
-            <Divider></Divider>
-            <p>community 1</p>
-            <p>community 2</p>
-            <h3>Recent activity</h3>
-            <Divider></Divider>
-            <p>user x commented on community article 1</p>
-            <p>user y added a new playlist</p>
+            <ActivityBar/>
         </div>
     );
 }

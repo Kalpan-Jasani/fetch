@@ -6,7 +6,14 @@ import Button from '@material-ui/core/Button';
 import ArticleDisplay from './ArticleDisplay';
 import './personalBoard.css';
 import { Divider } from '@material-ui/core';
-
+import PlayQueue from './PlayQueue';
+import { green } from '@material-ui/core/colors';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+import { withRouter } from "react-router";
+// import { createMuiTheme, useStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles';
+// import {useStyles}
 /**
  * 
  * @param {*} props: none used
@@ -14,14 +21,29 @@ import { Divider } from '@material-ui/core';
  * This component must be rendered at a url (hash based url) that 
  * is domain.com/#/boards/<id>/ or domain.com/#/boards/<ownerid>/<id>
  */
+
+//   const theme = createMuiTheme({
+//     palette: {
+//       primary: green,
+//     },
+//   });
+
 function PersonalBoard(props) {
 
     const { ownerid, id } = useParams();    // get params based on url
+    const { match, location } = props;
     const history = useHistory();   // history of browsing (already maintained)
+      var isOpen;
+        if(props.history.location.state != undefined) {
+          isOpen = props.history.location.state.open;
+        } else {
+          isOpen = false;
+        }
     const [state, setState] = React.useState({
         board: null,
         followers: [],
         saving: false,
+        open: isOpen,
     });
     
     /* 
@@ -51,9 +73,13 @@ function PersonalBoard(props) {
     const currID = firebase.auth().currentUser.uid;
     const boardRef = db.doc(`personalBoards/${userid}/pboards/${id}`);
 
-    /* similar to componentDidMount / update but for a function components
-    using functional component cause of useParams above (and React liked
-    functional components more) */
+    /* 
+    * similar to componentDidMount / update but for a function components
+    * using functional component cause of useParams above (and React liked
+    * functional components more)
+    * 
+    * Subscribe to updates from firebase for this board
+    */
     useEffect(() => {
         if(!subscribed)
         {
@@ -67,19 +93,18 @@ function PersonalBoard(props) {
                 setState(prevState => { return {
                         ...prevState,
                         board: {ref: boardRef, ...boardDoc.data()},
-                        followers: boardDoc.data().followers,
-                    }    
+                        followers: boardDoc.data().followers || [],
+                    }
                 });
-            },
-                (err) => alert(`error: ${String(err)}`)
-            );
+            }, err => alert(`error: ${err}`));
 
+            /* function that is called when cleaning up (this effect) */
             return () => {
                 unsubscribe();  // unsubscribe from Firebase
                 subscribedRef.current = false;  // unsubscribed is marked
             }
         }
-    });
+    }, [subscribedRef.current]);
 
     /**
      * set this board as updated by updating its time stamp on firebase,
@@ -90,7 +115,8 @@ function PersonalBoard(props) {
     
     useEffect(() => {
         boardRef.update({lastSeenTime: new Date()});
-    })
+    }, []);     // [] leads to this effect only running once like 
+                // componentDidMount
 
     const addToQueue = function(articleRef, front) {
 
@@ -105,6 +131,23 @@ function PersonalBoard(props) {
         }
 
         state.board.ref.update({queue: queueRefs});
+    }
+
+    const deleteFromQueue = function(articleRef) {
+
+        console.log("Pressed")
+        var queue = [];
+        const queueRefs = [...state.board.queue];
+        for(var i=0; i< queueRefs.length; i++) {
+            if(queueRefs[i].id == articleRef.id) {
+               // do nothing
+            } else {
+            queue.push(queueRefs[i])
+            }
+        };
+        setState(prevState => {return {...prevState, queue: queue}});
+        state.board.ref.update({queue: queue});
+
     }
 
     const followBoard = async () => {
@@ -194,17 +237,49 @@ function PersonalBoard(props) {
         }
     }
 
+    const play = () => {
+        setState(prevState => {return {...prevState, open: true}});
+       //console.log(state.open)
+    }
+
+    const stop = () => {
+        setState(prevState => {return {...prevState, open: false}});
+    }
+
     return (
         state.board !== null ? 
             <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
-                {
-                    <h2>{state.board.boardName}</h2>
-                }
+                <AppBar color="inherited" position="static">
+                    <Toolbar variant="dense">
+                        
+                        { <h1 style={{marginRight:'40px', flexGrow: '1', fontFamily: 'Arial'}}>{state.board.boardName}</h1> }
+                        <Button 
+                            variant="contained" 
+                            style={{backgroundColor: '#4CAF50', width:'100px', padding: '5px 5px 5px 4px',marginRight: '20px'}} 
+                            onClick={play}
+                            startIcon={<PlayArrowIcon />}>
+                            Play  
+                        </Button>
+                        {/* follow related */}
+                        <Link style={{marginRight:'20px'}} to={`/pboards/followers/${userid}/${id}`}>
+                            <h3>{`Followers: ${state.followers.length}`}</h3>
+                        </Link>
 
-                {/* follow related */}
-                <Link to={`/pboards/followers/${userid}/${id}`}>
-                    <h3>{`Followers: ${state.followers.length}`}</h3>
-                </Link>
+                    </Toolbar>
+                </AppBar>
+                {/* Playlist modal */}
+                { state.open ? (
+                        <div>
+                         <PlayQueue 
+                            queue={state.board.queue}
+                            stop={stop}
+                            open={state.open}
+                            size={state.board.queue.length}
+                            remove={deleteFromQueue}
+                         />
+                        </div>
+                     ): null }
+
                 <div style={{height: 15}}/>
                 <div style={{ position: 'relative', width: 100 }}>
                 {ownerid && ownerid !== currID ?
@@ -249,4 +324,4 @@ function PersonalBoard(props) {
 }
 
 
-export default PersonalBoard;
+export default withRouter (PersonalBoard);

@@ -20,8 +20,9 @@ import { Avatar, DialogContentText, Link, Typography } from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import DeleteIcon from '@material-ui/icons/Delete';
+import _ from 'lodash';
 
-import {blockedUser} from './util';
+import {blockedUser, sendUpdate} from './util';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -59,6 +60,7 @@ class CommunityArticleDisplay extends React.Component {
         }
         this.unsubscribe = null;
         this.db = firebase.firestore();
+        this.userid = firebase.auth().currentUser.uid;
     }
     componentDidMount() {
         // subscribe to article updates
@@ -285,6 +287,49 @@ class CommunityArticleDisplay extends React.Component {
         });
     }
 
+    /**
+     * notify all users who have comments on this article, about a new comment
+     * 
+     * commentData: an object containing (atleast - can contain more)
+     *      user: a userid,
+     *      name: name of the user,
+     *      comment: string,
+     *      timestamp: Javascript Date object (time of comment),
+     * 
+     */
+    notifyComment = async (commentData) => {
+        let comments, userids;
+        /* part1: obtain userids, part2: send updates by making activity */
+
+        /* part1: obtain the userids */
+
+        try {
+            comments = (await this.props.articleRef.collection('comments').get()).docs.map(e => e.data());
+        }
+        catch (err) {
+            console.error("could not fetch comments");
+            console.error(err);
+            throw new Error("failed to fetch comments");
+        }
+
+        userids = comments.map(c => c.userid);
+
+        _.remove(userids, (e) => e == commentData.user); // remove current user
+        userids = _.uniq(userids);  // remove duplicates
+
+        /* part 2: send updates */
+
+        const activity = {
+            user: this.db.doc(`users/${commentData.user}`), // a Firebase 'ref'
+            message: `${commentData.name} commented on \
+            ${this.state.article.name}: ${commentData.comment}`,        // the text written as comment
+            timestamp: commentData.timestamp
+        }
+
+        // call firebase to update field on all users
+        await sendUpdate(activity, userids);
+    }
+
     handlePopoverOpen = (event) => {
         //(event, doc, docName))
         this.setState({
@@ -425,6 +470,7 @@ class CommunityArticleDisplay extends React.Component {
                             </ DialogActions>
                             <CommentSection
                                     articleID={this.state.article.id}
+                                    notifyComment={this.notifyComment}
                                 />
                             
                         </ DialogContent>

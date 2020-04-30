@@ -1,21 +1,10 @@
 import React from 'react';
-import { Button, TextField, FormControlLabel, IconButton, Grid } from '@material-ui/core';
+import { Button, TextField, IconButton } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
-import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
-import { Lock, LockOpen, Delete, PlayArrow } from '@material-ui/icons';
+import { Card, CardHeader, CardActions, CardMedia, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel } from '@material-ui/core'
+import { Lock, LockOpen, PlayArrow } from '@material-ui/icons';
 import firebase from "firebase";
 import SearchBar from 'material-ui-search-bar';
-import SearchIcon from '@material-ui/icons/Search';
-import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import ListItemText from '@material-ui/core/ListItemText';
-import Select from '@material-ui/core/Select';
-import Checkbox from '@material-ui/core/Checkbox';
-import Chip from '@material-ui/core/Chip';
 import {Link} from 'react-router-dom';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 
@@ -33,33 +22,131 @@ class CommunityBoards extends React.Component{
       isAddOpen: false,
       communityBoards: [],
       searchedBoard: [],
+      articleList: [],
+      searchType: "title",
+      selectedBoard: [],
+      followedBoards: [],
       search: '', 
       isSearching: false,
+      followed: false,
     }
+    
+    this.db = firebase.firestore();
+    this.userid = firebase.auth().currentUser.uid;
+    this.componentDidMount = this.componentDidMount.bind(this);
+    //this.componentDidUnmount = this.componentDidUnmount.bind(this);
+    
+
   }
 
 
   componentDidMount() {
       // gets the personal boards of the user
       // updates automatically when new p board is added
+
+
       firebase.firestore()
       .collection("communityBoards")
       .onSnapshot(function(querySnapshot) {
           var communityBoards = [];
+          var communityArticles = [];
           querySnapshot.forEach(function(doc) {
               let newCommunityBoard = {
                   name: doc.data().name,
                   isPrivate: false,
                   boardID: doc.id,
               }
+
+              doc.data().articles.forEach((ref) => communityArticles.push(ref.get()));
+
               communityBoards.push(newCommunityBoard);
           });
+          this.getArticles(communityArticles);
 
           this.setState({
               communityBoards: communityBoards,
           });
       }.bind(this));
+      
+      
+      
+      /*firebase.firestore()
+      .doc(`users/${this.userid}`)
+      .onSnapshot(async (userSnapshot) => {
+          var followedBoards = [];
+          const cb = userSnapshot.data().cboardFollowing || [];
+          cb.forEach(async (boardID) => {
+            if(!followedBoards.includes(boardID)){
+                const board =  (await this.db.doc(`communityBoards/${boardID}`).get()).data();
+                let newFollowedBoard = {
+                    name: board.name,
+                    isPrivate: false,
+                    boardID: boardID,
+                }
+                followedBoards.push(newFollowedBoard);
+            }    
+        });
+        this.setState({
+              followedBoards: followedBoards,
+            });
+        }, err => alert(err));
+        */
 
+        var user = firebase.auth().currentUser;
+         
+        try{
+            firebase.firestore().collection('users').doc(user.uid)
+            .onSnapshot((userDoc) => {
+                
+                const userInfo = userDoc.data();
+                const fb = userInfo.cboardFollowing || [];
+                const followedBoards = Array.from(new Set(fb));
+                //console.log("articleids ", articleIds);
+
+                const artP = followedBoards.map(artID =>
+                    firebase.firestore().doc(`communityBoards/${artID}`)
+                    .get().then((articleDoc) => {
+                    
+                        console.log(articleDoc.data().name);
+
+                        return {
+                        name: articleDoc.data().name,
+                        boardID: artID,
+                        
+                    }})
+                        
+                    
+                );
+                
+                Promise.all(artP).then((articles) => {
+                    const s = []
+                    articles.forEach((article) => {
+                        s.push(article)
+                    })
+                    const uniqueBoards = Array.from(new Set(s));
+                    this.setState({
+                        followedBoards: uniqueBoards,
+                    });    
+                })
+            });
+    }
+    catch(err){
+        console.log(err);
+    }
+      
+  }
+  
+ 
+    
+
+
+  getArticles(communityArticles) {
+    Promise.all(communityArticles).then((arr) => {
+        console.log(arr);
+        this.setState({
+            articleList: arr,
+        })
+    });
   }
 
 
@@ -104,6 +191,11 @@ handleInputChange = (event) => {
           articles: [],   // TODO: allow articles to be added initially ?
       }).then(function(docRef) {
           console.log("success! docID", docRef.id);
+          this.state.communityBoards.push({
+              name: name,
+              isPrivate: isPrivate,
+              articles: [],
+          });
       })
       .catch(function(error) {
           console.error("Error when writing doc to database ", error);
@@ -145,8 +237,8 @@ handleInputChange = (event) => {
       });
   }
 
-  GetBoard(e) {
-    if (this.state.communityBoards != undefined) {
+  GetBoardByTitle(e) {
+    if (this.state.communityBoards !== undefined) {
         const searchedboard = []
         
         this.state.communityBoards.filter((board) => {
@@ -160,53 +252,98 @@ handleInputChange = (event) => {
   }
 }
 
-displayBoards() {
-    if(this.state.isSearching){
-        if(this.state.searchedBoard != undefined){
-            return (
-
-                <div>
-                {this.state.searchedBoard.map(board => (
-                       <div key={board.boardID} >
-                      <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
-                          <CardHeader
-                          title={board.name}
-                          subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
-      
-                          >
-                          </CardHeader>
-                          <CardMedia style={{height: 0, paddingTop: '50%'}}
-                            image={logo}
-                            title="FETCH"
-                          />
-                        <CardActions>
-                            <IconButton>
-                                <PlayArrow/>
-                            </IconButton>
-                            <Button>
-                                <Link to={"/community-boards/"+board.boardID}>
-                                    View
-                                </Link>
-                            </Button>
-                        </CardActions>
-                      </Card>
-                    </div>
-                  ))}
-                </div>
-            );
-        } else {
-            return (
-                <div>
-                    <h1> Sorry , No community boards found </h1>
-                </div>
-            );
-        }
-    } else {
+GetBoardByKeyword(e) {
+    if (this.state.articleList !== undefined && this.state.communityBoards !== undefined) {
+        const searchedBoardIDs = [];
+        const searchedboard = [];
         
-        return (
-        <div>
+        this.state.articleList.filter((article) => {
+            var data = article.data();
+            console.log(data);
+            if (data.name.toUpperCase().includes(e.toUpperCase()) || data.url.toUpperCase().includes(e.toUpperCase())) {
+                data.communities.forEach((ref) => {
+                    if (!searchedBoardIDs.includes(ref)) {
+                        searchedBoardIDs.push(ref);
+                    }
+                });
+            }
+        });
+        
+        searchedBoardIDs.forEach((id) => {
+            var board = this.state.communityBoards.find((element) => element.boardID === id);
+            if (board !== undefined) {
+                searchedboard.push(board);
+            }
+        });
 
-        {this.state.communityBoards.map(board => (
+        this.setState({
+            searchedBoard : searchedboard
+        });
+  }
+}
+
+ followBoard = async (board) => {
+    
+        var bid = board.boardID;
+        const currID = firebase.auth().currentUser.uid;
+        const userPath = firebase.firestore().collection("users").doc(currID);
+        
+
+         await firebase.firestore().runTransaction((followTransaction) => {
+            return followTransaction.get(userPath).then((doc) => {
+                
+                var fields = doc.data();
+                var cboardFollowing = fields.cboardFollowing ?? [];
+                cboardFollowing.push(bid);                
+                followTransaction.update(userPath, {cboardFollowing: cboardFollowing});
+                
+            })
+            
+        });    
+
+        
+}
+
+
+unfollowBoard = async (board) => {
+    
+    var bid = board.boardID;
+    const currID = firebase.auth().currentUser.uid;
+    const userPath = firebase.firestore().collection("users").doc(currID);
+    
+
+     await firebase.firestore().runTransaction((followTransaction) => {
+        return followTransaction.get(userPath).then((doc) => {
+            
+            var fields = doc.data();
+            var cb = fields.cboardFollowing ?? [];
+            var cboardFollowing = Array.from(new Set(cb));
+            var index = cboardFollowing.indexOf(bid);
+                    if (index > -1) {
+                        cboardFollowing.splice(index, 1);
+                    } else {
+                        console.log("user is not a follower!");
+                    }              
+            followTransaction.update(userPath, {cboardFollowing: cboardFollowing});
+            
+        })
+        
+    });    
+
+    
+}
+
+
+    
+
+displayFollowedBoards = () => {
+    console.log(this.state.followedBoards);
+    
+    return (
+        
+        <div>
+        
+        {this.state.followedBoards.map(board => (
                <div key={board.boardID} >
               <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
                   <CardHeader
@@ -228,12 +365,88 @@ displayBoards() {
                             View
                         </Link>
                     </Button>
+                    <Button color="primary" onClick={() => this.unfollowBoard(board)}>
+                        Unfollow
+                    </Button>
                 </CardActions>
               </Card>
             </div>
           ))}
         </div>
-        );
+    );
+
+
+}
+displayBoards() {
+    if(this.state.isSearching){
+        if(this.state.searchedBoard !== undefined){
+            return this.state.searchedBoard.map(board => (
+                       <div key={board.boardID} >
+                      <Card style={{minWidth: 250, minHeight: 300, marginRight: 25, marginBottom: 25}} >
+                          <CardHeader
+                          title={board.name}
+                          subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
+      
+                          >
+                          </CardHeader>
+                          <CardMedia style={{height: 0, paddingTop: '50%'}}
+                            image={logo}
+                            title="FETCH"
+                          />
+                        <CardActions>
+                            <IconButton>
+                                <PlayArrow/>
+                            </IconButton>
+                            <Button>
+                                <Link to={"/community-boards/"+board.boardID}>
+                                    View
+                                </Link>
+                            </Button>
+                            <Button color="primary" onClick={() => this.followBoard(board)}>
+                                Follow
+                            </Button> }
+                            
+                        </CardActions>
+                      </Card>
+                    </div>
+                  ))
+        } else {
+            return (
+                <div>
+                    <h1> Sorry , No community boards found </h1>
+                </div>
+            );
+        }
+    } else { 
+        return this.state.communityBoards.map(board => (
+               <div key={board.boardID} >
+              <Card style={{minWidth: 250, minHeight: 300, marginRight: 25, marginBottom: 25}} >
+                  <CardHeader
+                  title={board.name}
+                  subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
+
+                  >
+                  </CardHeader>
+                  <CardMedia style={{height: 0, paddingTop: '50%'}}
+                    image={logo}
+                    title="FETCH"
+                  />
+                <CardActions>
+                    <IconButton>
+                        <PlayArrow/>
+                    </IconButton>
+                    <Button>
+                        <Link to={"/community-boards/"+board.boardID}>
+                            View
+                        </Link>
+                    </Button>
+                    <Button color="primary" onClick={() => this.followBoard(board)}>
+                        Follow
+                    </Button>
+                </CardActions>
+              </Card>
+            </div>
+          ))
     }
 } 
 
@@ -242,20 +455,56 @@ displayBoards() {
       const communityBoards = this.state.communityBoards;
 
       return <div>
+        <div>
           <h1>
               Community Boards
           </h1>
+          <FormControl component="fieldset">
+              <FormLabel component="legend">Search Type</FormLabel>
+              <RadioGroup row aria-label="position" name="position" defaultValue="title">
+                  <FormControlLabel
+                    value="title"
+                    control={<Radio color="primary" onClick={() => this.setState({searchType: "title"})}/>}
+                    label="Title"
+                    labelPlacement="left"
+                  />
+                  <FormControlLabel
+                    value="keyword"
+                    control={<Radio color="primary" onClick={() => this.setState({searchType: "keyword"})} />}
+                    label="Keyword"
+                    labelPlacement="left"
+                  />
+              </RadioGroup>
+          </FormControl>
           <SearchBar
                 value={this.state.search}
                 onChange={(value) => {
-                    this.GetBoard(value);
-                    this.setState({
-                        search: value,
-                        isSearching: true,
-                    });
+                    if (value === "") {
+                        this.setState({
+                            search: "",
+                            isSearching: false,
+                            searchedBoard: [],
+                        });
+                    } else {
+                        if (this.state.searchType === "title") {
+                            this.GetBoardByTitle(value);
+                        } else {
+                            this.GetBoardByKeyword(value);
+                        }
+
+                        this.setState({
+                            search: value,
+                            isSearching: true,
+                        });
+                    }
                 }}
                 onCancelSearch={() => {
-                    this.GetBoard("");
+                    if (this.state.searchType === "title") {
+                        this.GetBoardByTitle("");
+                    } else {
+                        this.GetBoardByKeyword("");
+                    }
+
                     this.setState({
                         search: "",
                         isSearching: false,
@@ -279,6 +528,11 @@ displayBoards() {
               <AddCircleOutlinedIcon/>
               Create a community
           </Button>
+          <h2> Boards Following </h2>
+          <div>
+              {this.displayFollowedBoards()}
+          </div>
+          <h2> All Community Boards </h2>
           <Dialog
               open={this.state.isDialogOpen}
               onClose={this.handleDialogClose}
@@ -319,42 +573,11 @@ displayBoards() {
                   </Button>
               </DialogActions>
           </Dialog>
+          </div>
 
-          <div>
+          <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
               {this.displayBoards()}
           </div>
-{/* 
-          <div>
-
-        
-
-          {communityBoards.map(board => (
-                 <div key={board.boardID} >
-                <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
-                    <CardHeader
-                    title={board.name}
-                    subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
-
-                    >
-                    </CardHeader>
-                    <CardMedia style={{height: 0, paddingTop: '50%'}}
-                      image={logo}
-                      title="FETCH"
-                    />
-                  <CardActions>
-                      <IconButton>
-                          <PlayArrow/>
-                      </IconButton>
-                      <Button>
-                          <Link to={"/community-boards/"+board.boardID}>
-                              View
-                          </Link>
-                      </Button>
-                  </CardActions>
-                </Card>
-              </div>
-            ))}
-          </div> */}
       </div>
   }
 

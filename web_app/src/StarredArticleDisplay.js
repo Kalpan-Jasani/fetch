@@ -10,10 +10,21 @@ import Star from '@material-ui/icons/Star';
 import StarBorder from '@material-ui/icons/StarBorder';
 import firebase from "firebase";
 import { withStyles } from '@material-ui/core/styles';
-
+import Paper from '@material-ui/core/Paper';
 const styles = {
     paper: {
-        borderRadius: 8,
+        borderRadius: 5,
+        boxShadow: '0 3px 5px 2px rgba(0, 0, 0, 0.5)',
+        border: 0,
+        padding: '30px',
+        justifyContent: 'space-between',
+        margin: '20px',
+        width: '180px',
+        height: '220px',
+        textAlign: 'center',
+    },
+    content: {
+        borderRadius: 7,
         boxShadow: '0 3px 5px 2px rgba(0, 0, 0, 0.5)',
         border: 0,
     }
@@ -84,15 +95,21 @@ class StarredArticleDisplay extends React.Component {
     render() {
         const { classes } = this.props;
         return (
-            <div>
-            <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
+        <div>
+              <Paper elevation={3} className={classes.paper}>
+            {/* <div style={{width: '200px', height: '200px', display: 'block'}}> */}
+                <strong style={{textAlign: 'center'}}>{this.props.ArticleName}</strong>
+                <img src="https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png" width="175" height="175" float="left"></img>
+            {/* </div> */}
+            <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{left: '1px'}}>
                     Preview
             </Button>
+            </Paper>
             <br/>
             <Dialog
             open={this.state.isDialogOpen}
             fullWidth={true}
-             classes={{paper: classes.paper}}
+             classes={{content: classes.content}}
             >
                 <DialogTitle>
                     {this.props.ArticleName}
