@@ -15,6 +15,7 @@ import { func } from 'prop-types';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
+import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton'
 import { MenuBook } from '@material-ui/icons';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -26,10 +27,20 @@ import BookIcon from '@material-ui/icons/Book';
 
 import './article.css';
 
+const styles = {
+    paper: {
+        borderRadius: 8,
+        boxShadow: '0 3px 5px 2px rgba(0, 0, 0, 0.5)',
+        border: 0,
+    }
+  };
+
+
 class ArticleDisplay extends React.Component {
     
     constructor(props) {
         super(props);
+        
         this.state = {
            isDialogOpen: false,
            article: null
@@ -136,6 +147,7 @@ class ArticleDisplay extends React.Component {
     }
 
     render() {
+        const { classes } = this.props;
         return (
             this.state.article !== null ?
                 <div className={"article " + (this.state.article.read ? "article--read":"")}>
@@ -163,12 +175,13 @@ class ArticleDisplay extends React.Component {
                     <Dialog
                     open={this.state.isDialogOpen}
                     fullWidth={true}
+                    classes={{paper: classes.paper}}
                     onClose={this.handleDialogClose}
                     >
                         <DialogTitle>
                             {this.state.article.name}
                         </DialogTitle>
-                        <DialogContent>
+                        <DialogContent >
                             <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
 
                             <DialogActions style={{ paddingLeft: 20 }}>
@@ -215,4 +228,4 @@ class ArticleDisplay extends React.Component {
   }
 }
 
-export default ArticleDisplay;
+export default withStyles(styles) (ArticleDisplay);

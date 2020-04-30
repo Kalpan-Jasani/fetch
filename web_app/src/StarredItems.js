@@ -48,7 +48,6 @@ class StarredItems extends React.Component {
     }
 
     render() {
-
         return (
             <div className="page-container">
                 <Typography variant="h4" component="h1">
@@ -57,7 +56,6 @@ class StarredItems extends React.Component {
                { this.state.articles.map((article) => {
                   return (
                 <div className={article.read ? "article-read": "article-unread"} style={{ margin: '20px'}} >
-                      <p1>{article.name}</p1>
                         <br></br>
                           <StarredArticleDisplay 
                             url={article.url} 
@@ -66,6 +64,7 @@ class StarredItems extends React.Component {
                             articleId={article.id}
                             readStatus={article.read}
                         />
+                        {/* </Paper> */}
                   </div> 
                   );
                 }
