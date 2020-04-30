@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Drawer, Divider, Button, Avatar, IconButton } from "@material-ui/core";
 import HomeIcon from '@material-ui/icons/Home';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import { withRouter, Link } from 'react-router-dom';
-import ToggleMode from './ToggleMode';
 import { ExpandMore, ExpandLess} from '@material-ui/icons';
 import firebase from 'firebase';
+
 import './sidebar.css';
 import logo from './Assets/fetch.png';
 
@@ -85,14 +86,13 @@ function Sidebar(props) {
                 paper: props.classes.drawerPaper,
             }}
         >
-            <img src={logo} className="sidebar-item img"/>
-            <Divider/>
             <div className="sidebar-item">
                 {user.photoURL === "" && user.displayName !== ""
                     ? <Avatar>{getInitials(user.displayName)}</Avatar>
                     : <Avatar src={user.photoURL} alt="" />}
                 <p>{firebase.auth().currentUser.email}</p>
             </div>
+            <Divider />
             <Link to="/home" className="sidebar-item home link">
                 <HomeIcon/>
                 <span>Home</span>
@@ -104,6 +104,9 @@ function Sidebar(props) {
                 Users
             </Link>
             <Divider/>
+            <Link to="/articles" className="sidebar-item link">
+                Personal articles
+            </Link>
             <Link to="/starred" className="sidebar-item starred link">
                 Starred articles
             </Link>
@@ -131,7 +134,6 @@ function Sidebar(props) {
                 Raised Eyebrow Articles
             </Link>
             <Divider/>
-            <ToggleMode/>
             <Button id="add-article-sidebar" onClick={()=>props.openForm1(true)}>
                 <AddCircleOutlinedIcon/>
                 Personal Article
@@ -141,9 +143,12 @@ function Sidebar(props) {
                 Community Article
             </Button>
             <Divider/>
-            <Button color="primary" variant="contained" onClick={signOut} style={{bottom: '10px', position: 'absolute', right: '20px', width: '215px'}}>
-                Sign Out
-            </Button>
+            <img src={logo} className="app-logo img"/>
+            <div className="signoutContainer">
+                <IconButton className="signoutButton" onClick={signOut}>
+                    <ExitToAppIcon/>
+                </IconButton>
+            </div>
         </Drawer>
     )
 }

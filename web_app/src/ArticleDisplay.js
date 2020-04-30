@@ -23,12 +23,24 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import ListItemText from '@material-ui/core/ListItemText';
 import Select from '@material-ui/core/Select';
+import BookIcon from '@material-ui/icons/Book';
+
+import axios from 'axios';
+
+import encodeUrl from 'encodeurl';
+
+import './article.css';
+import { Paper } from '@material-ui/core';
 
 const styles = {
-    paper: {
-        borderRadius: 8,
+    article: {
+        borderRadius: 5,
         boxShadow: '0 3px 5px 2px rgba(0, 0, 0, 0.5)',
-        border: 0,
+        backgroundColor: 'antiquewhite'
+    },
+
+    articleRead: {
+        backgroundColor: 'grey'
     }
   };
 
@@ -40,7 +52,8 @@ class ArticleDisplay extends React.Component {
         
         this.state = {
            isDialogOpen: false,
-           article: null
+           article: null,
+           imageURL: null
         }
 
         this.unsubscribe = null;
@@ -51,13 +64,23 @@ class ArticleDisplay extends React.Component {
     componentDidMount() {
         if(!this.unsubscribe) {     // not having a previous subscription
             // subscribe to article updates
-            this.unsubscribe = this.props.articleRef.onSnapshot((doc) => {
-                this.setState({
-                    article: {
-                        ...doc.data(),
-                        id: doc.id,
-                    }
-                })
+            this.unsubscribe = this.props.articleRef.onSnapshot(async (doc) => {
+                let imageURL = null;
+                const article = {
+                    ...doc.data(),
+                    id: doc.id,
+                }
+                try {
+                    const encodedURI = encodeURI("https://us-central1-fetch-c97bc.cloudfunctions.net/obtainWebsitePreview?url="+
+                        article.url);
+                    // get the first favicon
+                    imageURL = (await axios.get(encodedURI)).data.favicons[0];
+                }
+                catch (e) {
+                    imageURL = null;
+                }
+
+                this.setState({article, imageURL});
             });
         }
     }
@@ -147,28 +170,39 @@ class ArticleDisplay extends React.Component {
         const { classes } = this.props;
         return (
             this.state.article !== null ?
-                <div class={this.state.article.read ? "article-read":""}>
-                    <div style={{width: '200px', height: '200px'}}><strong>{this.state.article.name}</strong>
-                        <img src="https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png" width="175" height="175" float="left"></img>
-                    </div>
-                    <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{float: 'left'}}>
-                            Preview
-                    </Button>
-                    <br/>
-                    {this.state.article.read ?
-                    <IconButton variant="outlined" onClick={this.handlemarkUnread} title="Mark as unread"> 
-                        <MenuBook color="secondary"></MenuBook>
-                    </IconButton>
-                    :
-                    <IconButton variant="outlined" onClick={this.handlemarkRead} title="Mark as read">
-                        <MenuBook color="disabled"></MenuBook>
-                    </IconButton>
-                    }
-
+                <div>
+                    <Paper elevation={3}
+                      className={this.props.classes.article + " article " + (this.state.article.read ? 
+                      this.props.classes.articleRead:"")}>
+                        <div className="article__name">
+                            {this.state.article.name}
+                        </div>
+                        <img className="article__img img" 
+                            src={this.state.imageURL ||
+                                "https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png"
+                                }>
+                        </img>
+                        <div className="article__viewButton">
+                            <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
+                                View
+                            </Button>
+                        </div>
+                        <div className="article__markReadButton">
+                            {this.state.article.read ?
+                            <IconButton  variant="outlined" onClick={this.handlemarkUnread} title="Mark as unread"> 
+                                <MenuBook color="disabled"></MenuBook>
+                            </IconButton>
+                            :
+                            <IconButton variant="outlined" onClick={this.handlemarkRead} title="Mark as read">
+                                <MenuBook color="secondary"></MenuBook>
+                            </IconButton>
+                            }
+                        </div>
+                    </Paper>
                     <Dialog
                     open={this.state.isDialogOpen}
                     fullWidth={true}
-                    classes={{paper: classes.paper}}
+                    onClose={this.handleDialogClose}
                     >
                         <DialogTitle>
                             {this.state.article.name}
@@ -202,13 +236,10 @@ class ArticleDisplay extends React.Component {
                                                 <MenuItem value={1}>Front</MenuItem>
                                                 <MenuItem value={2}>End</MenuItem>
                                             </Select>
-                                  </FormControl>
+                                    </FormControl>
                                 }
                                 <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
                                 Go to Website
-                                </Button>
-                                <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
-                                Close
                                 </Button>
                                 { this.props.boardRef &&    // delete option only if a board is provided
                                     <Button onClick={() => this.handleDeleteArticle()} color="secondary">Delete</Button>

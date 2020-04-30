@@ -95,22 +95,23 @@ function Home(props) {
         firebaseSubscriptions.current.recentCommunities]);
 
     return (
-        <div className="homepage-container">
+        <div className="page-container homepage-container">
             <div className="homepage-content">
-                <h2>
+                <Typography variant="h4" component="h1">
                     Home
-                </h2>
+                </Typography>
                 <h3>Recent articles</h3>
                 <Divider></Divider>
-                    <div className="recent-articles-container">
+                    <div className="articlesContainer">
                     {
                         articles.map((article) => (
-                            <Card key={article.ref.id} className="recent-articles-container__article-card">
+                            <div className="articlesContainer__articleWrapper"
+                              key={article.ref.id}
+                            >
                                 <ArticleDisplay 
                                     articleRef={article.ref}
-                                    key={article.ref.id}
                                 />
-                            </Card>
+                            </div>
                         ))
                     }
                     </div>

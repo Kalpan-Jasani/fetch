@@ -37,6 +37,12 @@
   }
 }
 
+.theme-toggle {
+  position: fixed;
+  right: 5px;
+  bottom: 5px;
+}
+
 html {
   background: url(./Assets/homepage_background2.jpg) no-repeat center center fixed; 
   -webkit-background-size: cover;
@@ -44,4 +50,18 @@ html {
   -o-background-size: cover;
   background-size: cover;
   opacity: 0.8;
+}
+
+.page-container {
+  padding: 20px;
+}
+
+.articlesContainer {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.articlesContainer__articleWrapper {
+  margin-left: 1rem;
+  margin-bottom: 1rem;
 }

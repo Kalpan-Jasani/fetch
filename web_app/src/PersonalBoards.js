@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TextField, FormControlLabel, IconButton, Grid } from '@material-ui/core';
+import { Button, TextField, FormControlLabel, IconButton, Grid, Typography } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { Menu, ListItemIcon } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
@@ -149,7 +149,7 @@ class PersonalBoards extends React.Component {
             timestamp: new Date()
         };
 
-        await sendUpdate(activity, followers);
+        await sendUpdate(activity, followers || []);
 
         // will close the dialog after submission
         this.setState({
@@ -352,10 +352,10 @@ class PersonalBoards extends React.Component {
     render() {
         const personalBoards = this.state.personalBoards;
 
-        return <div>
-            <h1>
+        return <div className="page-container">
+            <Typography variant="h4" component="h1">
                 Personal Boards
-            </h1>
+            </Typography>
             <Button
                 variant="contained"
                 color="primary"

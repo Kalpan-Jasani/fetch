@@ -1,8 +1,8 @@
 import React from 'react';
 import firebase from "firebase";
 import StarredArticleDisplay from './StarredArticleDisplay';
-import { withStyles } from '@material-ui/core/styles';
-import { Divider } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
+
 
 class StarredItems extends React.Component {
     
@@ -32,7 +32,8 @@ class StarredItems extends React.Component {
                     name: doc.data().name,
                     read: doc.data().read,
                     starred: doc.data().starred,
-                    id: doc.id
+                    id: doc.id,
+                    ref: doc.ref,
                 }
                 articles.push(article);
                
@@ -50,29 +51,27 @@ class StarredItems extends React.Component {
 
     render() {
         return (
-            <div style={{display: 'inline-block', margin: '20px'}}>
-                    <h2> Starred Articles ({this.state.articles.length})</h2>
-                    <Divider />
-                
-               { this.state.articles.map((article) => {
-                  return (
-                <div className={article.read ? "article-read": "article-unread"} style={{ margin: '20px'}} >
-                        <br></br>
-                          <StarredArticleDisplay 
+            <div className="page-container">
+                <Typography variant="h4" component="h1">
+                    Starred Articles ({this.state.articles.length})
+                </Typography>
+                <div className="articlesContainer">
+                { this.state.articles.map((article) =>
+                    <div className="articlesContainer__articleWrapper">
+                        <StarredArticleDisplay 
                             url={article.url} 
                             ArticleName={article.name}
                             articleStarred={article.starred}
                             articleId={article.id}
                             readStatus={article.read}
+                            articleRef={article.ref}    // firebase db ref
+                            article={article}   // this prop has all things
                         />
-                        {/* </Paper> */}
-                  </div> 
-                  );
-                }
-        )}
-        </div>
+                    </div> 
+                )}
+                </div>
+            </div>
         );
-        
     }
 
 }

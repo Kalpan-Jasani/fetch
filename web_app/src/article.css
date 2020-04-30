@@ -1,0 +1,36 @@
+
+/* other styling in actual Javascript files for .article */
+.article {
+    width: 300px;
+    height: 300px;
+    padding: 1rem;
+    position: relative;
+}
+
+.article__name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.article__viewButton {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 11rem;
+}
+
+.article__markReadButton {
+    position: absolute;
+    bottom: 0.3rem;
+    right: 6rem;
+}
+
+.article__img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    z-index: 1;
+}

@@ -34,8 +34,10 @@ import PersonalBoard from './personalBoard';
 import StarredItems from './StarredItems';
 import Users from './Users';
 import ArticlesRaisedEyebrowDisplay from './ArticlesRaisedEyebrowDisplay'
+import Articles from './articles';
 
 import './App.css';
+import ToggleMode from './ToggleMode';
 
 const drawerWidth = 255;  // width of the sidebar (can change to adjust)
 
@@ -119,6 +121,9 @@ function App() {
                             <Route path="/starred">
                                 <StarredItems/>
                             </Route>
+                            <Route path="/articles">
+                                <Articles />
+                            </Route>
                             <Route>
                                 <Home />
                             </Route>
@@ -185,6 +190,7 @@ function BasePage(props) {
             <div className={classes.content}>
                 {props.children}
             </div>
+            <ToggleMode className="theme-toggle"/>
         </div>
     );
 }
