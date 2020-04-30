@@ -22,6 +22,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import ListItemText from '@material-ui/core/ListItemText';
 import Select from '@material-ui/core/Select';
+import BookIcon from '@material-ui/icons/Book';
+
+import './article.css';
 
 class ArticleDisplay extends React.Component {
     
@@ -135,75 +138,76 @@ class ArticleDisplay extends React.Component {
     render() {
         return (
             this.state.article !== null ?
-                <div className={this.state.article.read ? "article-read":""}>
-                    <div style={{width: '200px', height: '200px'}}><strong>{this.state.article.name}</strong>
-                        <img src="https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png" width="175" height="175" float="left"></img>
-                    </div>
-                    <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{float: 'left'}}>
-                            Preview
-                    </Button>
-                    <br/>
-                    {this.state.article.read ?
-                    <IconButton variant="outlined" onClick={this.handlemarkUnread} title="Mark as unread"> 
-                        <MenuBook color="secondary"></MenuBook>
-                    </IconButton>
-                    :
-                    <IconButton variant="outlined" onClick={this.handlemarkRead} title="Mark as read">
-                        <MenuBook color="disabled"></MenuBook>
-                    </IconButton>
-                    }
-
-                    <Dialog
-                    open={this.state.isDialogOpen}
-                    fullWidth={true}
-                    >
-                        <DialogTitle>
+                <div className="article-container">
+                    <div className={this.state.article.read ? "article--read":"article"}>
+                        <div className="article__name">
                             {this.state.article.name}
-                        </DialogTitle>
-                        
-                        <DialogContent>
-                            <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
-
-                            <DialogActions style={{ paddingLeft: 20 }}>
-                                <FormControlLabel
-                                    control={<Checkbox 
-                                        icon={<StarBorder />} 
-                                        checkedIcon={<Star />} 
-                                        checked={this.state.article.starred} 
-                                        onClick={this.handleStar} />}
-                                    label="Star"
-                            />
-
-                                { this.props.addToQueue &&
-                                    <FormControl >
-                                        <InputLabel >Add To Queue</InputLabel>
-                                            <Select
-                                                onChange={this.handleAddToQueue}
-                                                style={{
-                                                padding: '12px 26px 10px 12px',
-                                                fontSize: '16',
-                                                width: '100px',
-                                                height: '40px',
-                                                marginBottom: '20px',
-                                                }}
-                                            >
-                                                <MenuItem value={1}>Front</MenuItem>
-                                                <MenuItem value={2}>End</MenuItem>
-                                            </Select>
-                                  </FormControl>
-                                }
-                                <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
-                                Go to Website
-                                </Button>
-                                <Button variant="contained" color="secondary" onClick={this.handleDialogClose} >
-                                Close
-                                </Button>
-                                { this.props.boardRef &&    // delete option only if a board is provided
-                                    <Button onClick={() => this.handleDeleteArticle()} color="secondary">Delete</Button>
-                                }
-                            </ DialogActions>
-                        </ DialogContent>
-                    </Dialog>
+                        </div>
+                        <div>
+                            <img src="https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png" width="300" height="300"></img>
+                        </div>
+                        <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen} style={{float: 'left'}}>
+                            View
+                        </Button>
+                        {this.state.article.read ?
+                        <IconButton variant="outlined" onClick={this.handlemarkUnread} title="Mark as unread"> 
+                            <MenuBook color="disabled"></MenuBook>
+                        </IconButton>
+                        :
+                        <IconButton variant="outlined" onClick={this.handlemarkRead} title="Mark as read">
+                            <MenuBook color="secondary"></MenuBook>
+                        </IconButton>
+                        }
+    
+                        <Dialog
+                        open={this.state.isDialogOpen}
+                        fullWidth={true}
+                        onClose={this.handleDialogClose}
+                        >
+                            <DialogTitle>
+                                {this.state.article.name}
+                            </DialogTitle>
+                            <DialogContent>
+                                <iframe src={this.state.article.url}  width="100%" height="500px" ></iframe>
+    
+                                <DialogActions style={{ paddingLeft: 20 }}>
+                                    <FormControlLabel
+                                        control={<Checkbox 
+                                            icon={<StarBorder />} 
+                                            checkedIcon={<Star />} 
+                                            checked={this.state.article.starred} 
+                                            onClick={this.handleStar} />}
+                                        label="Star"
+                                />
+    
+                                    { this.props.addToQueue &&
+                                        <FormControl >
+                                            <InputLabel >Add To Queue</InputLabel>
+                                                <Select
+                                                    onChange={this.handleAddToQueue}
+                                                    style={{
+                                                    padding: '12px 26px 10px 12px',
+                                                    fontSize: '16',
+                                                    width: '100px',
+                                                    height: '40px',
+                                                    marginBottom: '20px',
+                                                    }}
+                                                >
+                                                    <MenuItem value={1}>Front</MenuItem>
+                                                    <MenuItem value={2}>End</MenuItem>
+                                                </Select>
+                                      </FormControl>
+                                    }
+                                    <Button variant="contained" color="primary" onClick={this.handleOpenNewTab}>
+                                    Go to Website
+                                    </Button>
+                                    { this.props.boardRef &&    // delete option only if a board is provided
+                                        <Button onClick={() => this.handleDeleteArticle()} color="secondary">Delete</Button>
+                                    }
+                                </ DialogActions>
+                            </ DialogContent>
+                        </Dialog>
+                    </div>
                 </div>
                 :
                 <p>Loading</p>
