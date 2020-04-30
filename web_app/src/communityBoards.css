@@ -5,3 +5,11 @@ button#add-community {
 button#add-community .MuiSvgIcon-root {
     margin-right: 0.2rem;
 }
+
+#community-boards-cards .MuiCardMedia-root {
+    background-size: contain;
+}
+
+#followed-community-boards-cards .MuiCardMedia-root {
+    background-size: contain;
+}

@@ -341,25 +341,20 @@ displayFollowedBoards = () => {
     
     return (
         
-        <div>
+        <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
         
         {this.state.followedBoards.map(board => (
-               <div key={board.boardID} >
-              <Card style={{maxWidth: 250, minHeight: 300, marginBottom: 25}} >
+               <div key={board.boardID} id="followed-community-boards-cards">
+              <Card style={{width: 350, height: 300, margin: '0.5rem'}} >
                   <CardHeader
                   title={board.name}
-                  subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
-
                   >
                   </CardHeader>
                   <CardMedia style={{height: 0, paddingTop: '50%'}}
                     image={logo}
                     title="FETCH"
                   />
-                <CardActions>
-                    <IconButton>
-                        <PlayArrow/>
-                    </IconButton>
+                <CardActions style={{position: 'relative', bottom: '0px',}}>
                     <Button>
                         <Link to={"/community-boards/"+board.boardID}>
                             View
@@ -381,12 +376,10 @@ displayBoards() {
     if(this.state.isSearching){
         if(this.state.searchedBoard !== undefined){
             return this.state.searchedBoard.map(board => (
-                       <div key={board.boardID} >
-                      <Card style={{minWidth: 250, minHeight: 300, marginRight: 25, marginBottom: 25}} >
+                       <div key={board.boardID} id="community-boards-cards" >
+                      <Card style={{width: 350, height: 300, margin: '0.5rem'}} >
                           <CardHeader
                           title={board.name}
-                          subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
-      
                           >
                           </CardHeader>
                           <CardMedia style={{height: 0, paddingTop: '50%'}}
@@ -394,9 +387,6 @@ displayBoards() {
                             title="FETCH"
                           />
                         <CardActions>
-                            <IconButton>
-                                <PlayArrow/>
-                            </IconButton>
                             <Button>
                                 <Link to={"/community-boards/"+board.boardID}>
                                     View
@@ -419,12 +409,10 @@ displayBoards() {
         }
     } else { 
         return this.state.communityBoards.map(board => (
-               <div key={board.boardID} >
-              <Card style={{minWidth: 250, minHeight: 300, marginRight: 25, marginBottom: 25}} >
+               <div key={board.boardID} id="community-boards-cards" >
+              <Card style={{width: 350, height: 300, margin: '0.5rem'}} >
                   <CardHeader
                   title={board.name}
-                  subheader={board.isPrivate ? <Lock/> : <LockOpen/> }
-
                   >
                   </CardHeader>
                   <CardMedia style={{height: 0, paddingTop: '50%'}}
@@ -432,9 +420,6 @@ displayBoards() {
                     title="FETCH"
                   />
                 <CardActions>
-                    <IconButton>
-                        <PlayArrow/>
-                    </IconButton>
                     <Button>
                         <Link to={"/community-boards/"+board.boardID}>
                             View
