@@ -249,7 +249,7 @@ function PersonalBoard(props) {
     return (
         state.board !== null ? 
             <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
-                <AppBar color="inherited" position="static">
+                <AppBar color="inherit" position="static">
                     <Toolbar variant="dense">
                         
                         { <h1 style={{marginRight:'40px', flexGrow: '1', fontFamily: 'Arial'}}>{state.board.boardName}</h1> }
