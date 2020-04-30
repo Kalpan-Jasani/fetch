@@ -25,6 +25,10 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Select from '@material-ui/core/Select';
 import BookIcon from '@material-ui/icons/Book';
 
+import axios from 'axios';
+
+import encodeUrl from 'encodeurl';
+
 import './article.css';
 import { Paper } from '@material-ui/core';
 
@@ -48,7 +52,8 @@ class ArticleDisplay extends React.Component {
         
         this.state = {
            isDialogOpen: false,
-           article: null
+           article: null,
+           imageURL: null
         }
 
         this.unsubscribe = null;
@@ -59,13 +64,27 @@ class ArticleDisplay extends React.Component {
     componentDidMount() {
         if(!this.unsubscribe) {     // not having a previous subscription
             // subscribe to article updates
-            this.unsubscribe = this.props.articleRef.onSnapshot((doc) => {
-                this.setState({
-                    article: {
-                        ...doc.data(),
-                        id: doc.id,
-                    }
-                })
+            this.unsubscribe = this.props.articleRef.onSnapshot(async (doc) => {
+                let imageURL = null;
+                const article = {
+                    ...doc.data(),
+                    id: doc.id,
+                }
+                try {
+                    const encodedURI = encodeURI("https://us-central1-fetch-c97bc.cloudfunctions.net/obtainWebsitePreview?url="+
+                        article.url);
+                    // get the first favicon
+                    imageURL = (await axios.get(encodedURI)).data.favicons[0];
+                    console.debug('flag 1');
+                    console.debug(imageURL);
+                }
+                catch (e) {
+                    console.error('flag 2');
+                    console.error(e)
+                    imageURL = null;
+                }
+
+                this.setState({article, imageURL});
             });
         }
     }
@@ -162,7 +181,11 @@ class ArticleDisplay extends React.Component {
                         <div className="article__name">
                             {this.state.article.name}
                         </div>
-                        <img className="article__img img" src="https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png"></img>
+                        <img className="article__img img" 
+                            src={this.state.imageURL ||
+                                "https://cdn4.iconfinder.com/data/icons/flat-circle-content/800/circle-edit-article-512.png"
+                                }>
+                        </img>
                         <div className="article__viewButton">
                             <Button variant="contained" color="secondary"  onClick={this.handleDialogOpen}>
                                 View
