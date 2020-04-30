@@ -113,8 +113,12 @@ class ArticleDisplay extends React.Component {
         this.props.articleRef.update({read: true});
     }
 
-    handleAddToQueue = () => {
-        this.props.addToQueue(this.props.articleRef, false);
+    handleAddToQueue = (event) => {
+        if(event.target.value == 1){
+            this.props.addToQueue(this.props.articleRef, true);
+        } else {
+            this.props.addToQueue(this.props.articleRef, false);
+        }
     }
 
     /**

@@ -55,8 +55,9 @@ class PlayQueue extends React.Component {
            queueItem: [],
            current: {},
            open: this.props.open,
-           showbutton: true,
         }
+
+        this.unsubscribes = [];
     }
 
     componentDidMount() {
@@ -64,7 +65,7 @@ class PlayQueue extends React.Component {
             var position = 0;
             console.log(this.props.size)
             this.props.queue.map(queueRef => {
-              queueRef.onSnapshot((doc) => {
+             const unsubscribe = queueRef.onSnapshot((doc) => {
                 let queueItem = {...doc.data(), id: doc.id, position: position} 
                 if(position === 0) {
                   this.setState({
@@ -74,7 +75,7 @@ class PlayQueue extends React.Component {
                 position++
                queue.push(queueItem)
             })
-            
+            this.unsubscribes.push(unsubscribe)
           });
           this.setState({
             queueItem: queue,
@@ -87,6 +88,7 @@ class PlayQueue extends React.Component {
 
    componentWillUnmount() {
      document.removeEventListener('mousedown',this.handleClick, false);
+    // this.unsubscribes()
    }
 
    handleClick = (e) => {
@@ -146,19 +148,6 @@ class PlayQueue extends React.Component {
 
   handleDelete = (event) => {
     this.props.remove(this.state.current)
-    // var queue = [...this.state.queueItem]
-    // var q = [];
-    // for(var i = 0; i<queue.length; i++) {
-    //     if(queue[i] == this.state.current) {
-    //       //
-    //     } else {
-    //       q.push(queue[i])
-    //     }
-    // }
-    // this.setState({
-    //   queueItem: q,
-    // })
-
     this.navigateForward()
   }
 
