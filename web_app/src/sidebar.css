@@ -20,12 +20,18 @@
     margin-right: 0.5rem;
 }
 
+#add-communityarticle-sidebar svg {
+    margin-right: 0.5rem;
+}
+
 .sidebar-item.link {
     text-decoration: none;
     color: #111;
 }
 
-.sidebar-item.img {
+.app-logo {
+    border-top: #ccc solid 2px;
+    margin-top: auto;
     height: 100px;
     padding: -0rem;
 }
@@ -72,3 +78,4 @@
     left: 50%;
     transform: translate(-50%, 0px);
 }
+

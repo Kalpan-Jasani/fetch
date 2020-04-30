@@ -86,8 +86,6 @@ function Sidebar(props) {
                 paper: props.classes.drawerPaper,
             }}
         >
-            <img src={logo} className="sidebar-item img"/>
-            <Divider/>
             <div className="sidebar-item">
                 {user.photoURL === "" && user.displayName !== ""
                     ? <Avatar>{getInitials(user.displayName)}</Avatar>
@@ -141,6 +139,7 @@ function Sidebar(props) {
                 Community Article
             </Button>
             <Divider/>
+            <img src={logo} className="app-logo img"/>
             <div className="signoutContainer">
                 <IconButton className="signoutButton" onClick={signOut}>
                     <ExitToAppIcon/>
