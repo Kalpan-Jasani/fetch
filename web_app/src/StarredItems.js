@@ -1,6 +1,7 @@
 import React from 'react';
 import firebase from "firebase";
 import StarredArticleDisplay from './StarredArticleDisplay';
+import { Typography } from '@material-ui/core';
 
 class StarredItems extends React.Component {
     
@@ -49,8 +50,10 @@ class StarredItems extends React.Component {
     render() {
 
         return (
-            <div style={{display: 'inline-block', margin: '20px'}}>
-                <h3> Starred Articles ({this.state.articles.length})</h3>
+            <div className="page-container">
+                <Typography variant="h4" component="h1">
+                    Starred Articles ({this.state.articles.length})
+                </Typography>
                { this.state.articles.map((article) => {
                   return (
                 <div className={article.read ? "article-read": "article-unread"} style={{ margin: '20px'}} >

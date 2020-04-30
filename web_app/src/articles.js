@@ -33,8 +33,8 @@ export default function Articles(props) {
     }, [subscribedRef.current, userid]);
 
     return (
-        <div>
-            <Typography variant="h4" component="h1">Personal articles</Typography>
+        <div className="page-container">
+            <Typography variant="h4" component="h1">Personal articles ({articles.length})</Typography>
             <div className="local-articles-list-container">
                 {
                     articles.map(article =>

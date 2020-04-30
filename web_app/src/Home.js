@@ -95,11 +95,11 @@ function Home(props) {
         firebaseSubscriptions.current.recentCommunities]);
 
     return (
-        <div className="homepage-container">
+        <div className="page-container homepage-container">
             <div className="homepage-content">
-                <h2>
+                <Typography variant="h4" component="h1">
                     Home
-                </h2>
+                </Typography>
                 <h3>Recent articles</h3>
                 <Divider></Divider>
                     <div className="recent-articles-container">

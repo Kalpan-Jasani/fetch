@@ -1,7 +1,7 @@
 import React from 'react';
 import firebase from "firebase";
 import CommunityArticleDisplay from './CommunityArticleDisplay';
-import { Card, CardHeader, CardActions, CardMedia } from '@material-ui/core'
+import { Card, CardHeader, CardActions, CardMedia, Typography } from '@material-ui/core'
 
 class ArticlesRaisedEyebrowDisplay extends React.Component {
 
@@ -60,9 +60,10 @@ class ArticlesRaisedEyebrowDisplay extends React.Component {
 
     render() {
         return(
-        <div style={{display: 'flex', flexDirection: 'column', padding: "20px"}} >
-            
-            <h2>Raised Eyebrows</h2>
+        <div className="page-container" style={{display: 'flex', flexDirection: 'column'}} >
+            <Typography variant="h4" component="h1">
+                Raised Eyebrows
+            </Typography>
             <h3>Articles ({this.state.articlesRaisedEyebrow.length})</h3>
 
             <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left', margin: '1rem',}}>

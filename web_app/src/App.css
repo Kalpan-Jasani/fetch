@@ -51,3 +51,7 @@ html {
   background-size: cover;
   opacity: 0.8;
 }
+
+.page-container {
+  padding: 20px;
+}

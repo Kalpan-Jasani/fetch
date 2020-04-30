@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TextField, IconButton } from '@material-ui/core';
+import { Button, TextField, IconButton, Typography } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { Card, CardHeader, CardActions, CardMedia, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel } from '@material-ui/core'
 import { Lock, LockOpen, PlayArrow } from '@material-ui/icons';
@@ -455,10 +455,10 @@ displayBoards() {
       const communityBoards = this.state.communityBoards;
 
       return <div>
-        <div>
-          <h1>
-              Community Boards
-          </h1>
+        <div className="page-container">
+          <Typography variant="h4" component="h1">
+            Community Boards
+          </Typography>
           <FormControl component="fieldset">
               <FormLabel component="legend">Search Type</FormLabel>
               <RadioGroup row aria-label="position" name="position" defaultValue="title">
