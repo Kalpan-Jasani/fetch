@@ -66,7 +66,8 @@ class ArticlesRaisedEyebrowDisplay extends React.Component {
             </Typography>
             <h3>Articles ({this.state.articlesRaisedEyebrow.length})</h3>
 
-            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left', margin: '1rem',}}>
+            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left', 
+                margin: '1rem', width: '60vw'}}>
                 {
                     this.state.articlesRaisedEyebrow.map((article) => {
                         return (
