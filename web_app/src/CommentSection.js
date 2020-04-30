@@ -180,7 +180,7 @@ class CommentSection extends React.Component {
   
     render() {
         return (
-            <div style={{display: 'flex', flexDirection: 'column', width: "40%"}}>
+            <div style={{display: 'flex', flexDirection: 'column', width: "100%"}}>
                 <Typography
                     style={{fontWeight: 700}}
                 >
