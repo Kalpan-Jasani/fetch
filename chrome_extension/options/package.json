@@ -15,7 +15,7 @@
     "react-google-button": "^0.7.0",
     "react-material-ui-form-validator": "^2.0.10",
     "react-render-in-browser": "^1.1.1",
-    "react-scripts": "3.4.1",
+    "react-scripts": "5.0.1",
     "typescript": "^3.8.3"
   },
   "scripts": {
